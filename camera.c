@@ -25,7 +25,7 @@ void moveCamera(vec3 move, camera* cam){
     glm_vec3_add(cam->center, move, cam->center);
 }
 
-void updateCamera(GLFWwindow* window, camera* cam){
+void updateCameraLocation(GLFWwindow* window, camera* cam){
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
         vec3 move = {0.0f, 0.0f, -0.1f};
@@ -58,10 +58,10 @@ void updateCamera(GLFWwindow* window, camera* cam){
     }
 }
 
-void mouseCallback(GLFWwindow*  window, double xpos, double ypos){
+void updateCameraDirection(camera* cam, double xpos, double ypos){
 
-    camera* cam = glfwGetWindowUserPointer(window);
+   
     
-
+    
 
 }

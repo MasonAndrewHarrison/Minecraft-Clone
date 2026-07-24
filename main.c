@@ -74,24 +74,26 @@ int main(void) {
     camera mainCamera = cameraInit(WIDTH, HEIGHT);
     Mesh cube = createMesh(positions, 8 * 3, indices, 36);
 
-    vec3 cubePositions[10] = {
+    vec3 cubePositions[11] = {
         { 0.0f,  0.0f,  0.0f},
-        { 1.0f,  0.0f,  0.0f},
+        { 1.0f,  0.0f,  -2.0f},
         {-1.0f,  0.0f,  0.0f},
-        { 0.0f,  1.0f,  0.0f},
-        { 0.0f, -1.0f,  0.0f},
+        { 0.0f,  1.0f,  4.0f},
+        { 0.0f, -2.0f,  3.0f},
         { 2.0f,  0.0f,  0.0f},
-        {-2.0f,  0.0f,  0.0f},
-        { 0.0f,  2.0f,  0.0f},
+        {-2.0f,  0.0f,  1.0f},
+        { 0.0f,  2.0f,  -1.0f},
         { 1.0f,  1.0f,  0.0f},
         {-1.0f, -1.0f,  0.0f},
+        {-1.0f, -1.0f,  3.0f},
     };
 
     while (!glfwWindowShouldClose(window)) {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        updateCamera(window, &mainCamera);
+        updateCameraLocation(window, &mainCamera);
+        updateCameraDirection(&mainCamera, 0, 0);
 
         float currentTime = (float)glfwGetTime() - startTime;
         glUniform1f(timeLoc,       currentTime);
@@ -102,7 +104,7 @@ int main(void) {
         glm_lookat(mainCamera.eye, mainCamera.center, mainCamera.up, view);
         glm_mat4_mul(proj,  view,  pv);
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 11; i++) {
             glm_mat4_identity(model);
             glm_translate(model, cubePositions[i]);
             glm_mat4_mul(pv, model, mvp);
