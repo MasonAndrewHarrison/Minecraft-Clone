@@ -2,7 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <cglm/cglm.h>
 #include "camera.h"
-
+#include <math.h>
 
 camera cameraInit(int width, int height){
 
@@ -58,10 +58,24 @@ void updateCameraLocation(GLFWwindow* window, camera* cam){
     }
 }
 
-void updateCameraDirection(camera* cam, double xpos, double ypos){
+void mouseCallback(GLFWwindow *window, double xpos, double ypos){
 
-   
-    
-    
+    camera* cam = glfwGetWindowUserPointer(window);
+
+    double dxpos = xpos - cam->lastX;
+    double dypos = ypos - cam->lastY;
+
+    cam->lastX = xpos;
+    cam->lastY = ypos;
+
+    vec2 eyeVector = {cam->eye[0] - cam->center[0], cam->eye[2] - cam->center[2]};
+    float radius = glm_vec2_distance((vec2){0.0f, 0.0f}, eyeVector);
+    cam->yaw += dxpos/1000;
+
+    eyeVector[0] = radius * cos(cam->yaw);
+    eyeVector[1] = radius * sin(cam->yaw);
+
+    cam->eye[0] = eyeVector[0] + cam->center[0];
+    cam->eye[2] = eyeVector[1] + cam->center[2];
 
 }

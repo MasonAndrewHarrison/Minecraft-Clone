@@ -19,6 +19,6 @@ typedef struct camera {
 camera cameraInit(int height, int width);
 void moveCamera(vec3 move, camera *cam);
 void updateCameraLocation(GLFWwindow *window, camera *cam);
-void updateCameraDirection(camera *cam, double xpos, double ypos);
+void mouseCallback(GLFWwindow *window, double xpos, double ypos);
 
 #endif

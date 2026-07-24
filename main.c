@@ -74,6 +74,11 @@ int main(void) {
     camera mainCamera = cameraInit(WIDTH, HEIGHT);
     Mesh cube = createMesh(positions, 8 * 3, indices, 36);
 
+    glfwSetWindowUserPointer(window, &mainCamera);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window, mouseCallback);
+
+
     vec3 cubePositions[11] = {
         { 0.0f,  0.0f,  0.0f},
         { 1.0f,  0.0f,  -2.0f},
@@ -90,10 +95,14 @@ int main(void) {
 
     while (!glfwWindowShouldClose(window)) {
 
+
+        if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
+            glfwSetWindowShouldClose(window, GLFW_TRUE);
+        }
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         updateCameraLocation(window, &mainCamera);
-        updateCameraDirection(&mainCamera, 0, 0);
 
         float currentTime = (float)glfwGetTime() - startTime;
         glUniform1f(timeLoc,       currentTime);
