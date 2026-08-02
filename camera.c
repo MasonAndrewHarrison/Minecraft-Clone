@@ -28,22 +28,22 @@ void moveCamera(vec3 move, camera* cam){
 void updateCameraLocation(GLFWwindow* window, camera* cam){
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
-        vec3 move = {0.0f, 0.0f, -0.1f};
+        vec3 move =  {-cos(cam->yaw) * 0.5f, 0.0f, -sin(cam->yaw) * 0.5f};
         moveCamera(move, cam);
     }
 
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
-        vec3 move = {0.0f, 0.0f, 0.1f};
+        vec3 move = {cos(cam->yaw) * 0.5f, 0.0f, sin(cam->yaw) * 0.5f};
         moveCamera(move, cam);
     }
         
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
-        vec3 move = {-0.1f, 0.0f, -0.0f};
+        vec3 move = {cos(cam->yaw * 3.14f * 0.25f) * 0.5f, 0.0f, sin(cam->yaw * 3.14f * 0.25f) * 0.5f};
         moveCamera(move, cam);
     }
 
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
-        vec3 move = {0.1f, 0.0f, -0.0f};
+        vec3 move = {cos(cam->yaw) * 0.5f, 0.0f, sin(cam->yaw) * 0.5f};
         moveCamera(move, cam);
     }
 
@@ -68,14 +68,14 @@ void mouseCallback(GLFWwindow *window, double xpos, double ypos){
     cam->lastX = xpos;
     cam->lastY = ypos;
 
-    vec2 eyeVector = {cam->eye[0] - cam->center[0], cam->eye[2] - cam->center[2]};
-    float radius = glm_vec2_distance((vec2){0.0f, 0.0f}, eyeVector);
+    float radius = glm_vec2_distance(
+        (vec2){cam->center[0],  cam->center[2]  }, 
+        (vec2){cam->eye[0],     cam->eye[2]     });
+
     cam->yaw += dxpos/1000;
+    cam->eye[0] = radius * cos(cam->yaw) + cam->center[0];
+    cam->eye[2] = radius * sin(cam->yaw) + cam->center[2];
 
-    eyeVector[0] = radius * cos(cam->yaw);
-    eyeVector[1] = radius * sin(cam->yaw);
 
-    cam->eye[0] = eyeVector[0] + cam->center[0];
-    cam->eye[2] = eyeVector[1] + cam->center[2];
 
 }

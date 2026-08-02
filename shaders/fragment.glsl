@@ -26,5 +26,5 @@ void main() {
 
     float alpha = max(r, max(g, b));
 
-    color = vec4(1, g, b, 1);
+    color = vec4(0, 1, 0, 1);
 }
