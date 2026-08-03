@@ -74,8 +74,8 @@ void setPitchYaw(camera* cam){
         return;
     }
 
-    cam->pitch = acosf(dy / radius);   // matches center[1] = radius * cos(pitch)
-    cam->yaw   = atan2f(dz, dx);       // matches center[0]/[2] using sin(pitch)*cos/sin(yaw)
+    cam->pitch = acosf(dy / radius);  
+    cam->yaw   = atan2f(dz, dx);   
 }
 
 void mouseCallback(GLFWwindow *window, double xpos, double ypos){
