@@ -1,17 +1,19 @@
-
 #include <stdio.h>
 #include <GL/glew.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"   // vendored third-party lib, see vendor/stb/ + THIRD_PARTY_LICENSES.md
 
+#define STB_IMAGE_IMPLEMENTATION
+#define STBI_ONLY_PNG  
+#include "vendor/stb/stb_image.h"
 #include "texture.h"
+
+    
 
 Texture loadTexture(const char* path) {
 
     Texture tex = {0};
 
-    stbi_set_flip_vertically_on_load(1); // GL expects (0,0) at bottom-left; image files store top-left
+    stbi_set_flip_vertically_on_load(1); 
     unsigned char* data = stbi_load(path, &tex.width, &tex.height, &tex.channels, 0);
     if (!data) {
         printf("failed to load texture: %s\n", path);

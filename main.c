@@ -12,7 +12,7 @@
 #define VSYNC_INTERVAL 1
 
 int main(void) {
-    
+
     if (!glfwInit()) return -1;
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -90,8 +90,8 @@ int main(void) {
         {-2.0f,  0.0f,  1.0f},
         { 0.0f,  2.0f,  -1.0f},
         { 1.0f,  1.0f,  0.0f},
-        {-1.0f, -1.0f,  0.0f},
-        {-1.0f, -1.0f,  3.0f},
+        {-1.33f, -1.0f,  0.0f},
+        {-1.0f, -1.0f,  4.0f},
     };
 
     while (!glfwWindowShouldClose(window)) {
