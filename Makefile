@@ -1,7 +1,7 @@
 CC     = gcc
 CFLAGS = -Wall -O2
 LIBS   = -lGL -lGLEW -lglfw -lm -lcglm
-SRC    = main.c shader.c glError.c camera.c mesh.c
+SRC    = main.c shader.c glError.c camera.c mesh.c texture.c
 
 all: output
 
@@ -11,7 +11,6 @@ output: $(SRC)
 run: output
 	./output
 
-debug: $(SRC)
 	$(CC) $(SRC) -o output -Wall -g $(LIBS)
 
 run-debug: debug

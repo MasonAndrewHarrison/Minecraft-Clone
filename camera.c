@@ -93,8 +93,8 @@ void mouseCallback(GLFWwindow *window, double xpos, double ypos){
         return;
     }
 
-    double dxpos = xpos - cam->lastX;
-    double dypos = ypos - cam->lastY;
+    float dxpos = xpos - cam->lastX;
+    float dypos = ypos - cam->lastY;
 
     cam->lastX = xpos;
     cam->lastY = ypos;
@@ -103,6 +103,9 @@ void mouseCallback(GLFWwindow *window, double xpos, double ypos){
 
     cam->yaw += dxpos/1000;
     cam->pitch += dypos/1000;
+
+    if (cam->pitch > 3.1415f){ cam->pitch = 3.1415f;}
+    if (cam->pitch < 0.0f){ cam->pitch = 0.00001f;}
 
     cam->center[0] = radius * sin(cam->pitch) * cos(cam->yaw) + cam->eye[0];
     cam->center[2] = radius * sin(cam->pitch) * sin(cam->yaw) + cam->eye[2];
