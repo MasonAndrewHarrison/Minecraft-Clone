@@ -6,6 +6,7 @@
 
 #define forwardSpeed 0.5f
 #define strifeSpeed 0.2f
+#define mouseSpeed 0.001f
 
 camera cameraInit(int width, int height){
 
@@ -14,7 +15,7 @@ camera cameraInit(int width, int height){
         .center = {3.0f, 0.0f, 0.0f},
         .up     = {0.0f, 1.0f, 0.0f},
         .yaw = 0.0f,
-        .pitch = 0.0f,
+        .pitch = 1.570796f,
         .lastX = width /2.0f,
         .lastY = height / 2.0f,
         .firstMouse = 1,
@@ -61,7 +62,7 @@ void updateCameraLocation(GLFWwindow* window, camera* cam){
     }
 }
 
-void setPitchYaw(camera* cam){
+void static correctsPitchYaw(camera* cam){
     float dx = cam->center[0] - cam->eye[0];
     float dy = cam->center[1] - cam->eye[1];
     float dz = cam->center[2] - cam->eye[2];
@@ -78,13 +79,26 @@ void setPitchYaw(camera* cam){
     cam->yaw   = atan2f(dz, dx);   
 }
 
+void changeAngle(camera* cam, float pitch, float yaw){
+
+    float radius = glm_vec3_distance(cam->center, cam->eye);
+
+    cam->yaw = yaw;
+    cam->pitch = pitch;
+
+    if (cam->pitch > 3.1415f){ cam->pitch = 3.1415f;}
+    if (cam->pitch < 0.0f){ cam->pitch = 0.00001f;}
+
+    cam->center[0] = radius * sin(cam->pitch) * cos(cam->yaw) + cam->eye[0];
+    cam->center[2] = radius * sin(cam->pitch) * sin(cam->yaw) + cam->eye[2];
+    cam->center[1] = radius * cos(cam->pitch) + cam->eye[1];  
+}
+
 void mouseCallback(GLFWwindow *window, double xpos, double ypos){
 
     camera* cam = glfwGetWindowUserPointer(window);
 
     if(cam->firstMouse){
-
-        setPitchYaw(cam);
         cam->firstMouse = 0;
         cam->lastX = xpos;
         cam->lastY = ypos;
@@ -97,17 +111,5 @@ void mouseCallback(GLFWwindow *window, double xpos, double ypos){
     cam->lastX = xpos;
     cam->lastY = ypos;
 
-    float radius = glm_vec3_distance(cam->center, cam->eye);
-
-    cam->yaw += dxpos/1000;
-    cam->pitch += dypos/1000;
-
-    if (cam->pitch > 3.1415f){ cam->pitch = 3.1415f;}
-    if (cam->pitch < 0.0f){ cam->pitch = 0.00001f;}
-
-    cam->center[0] = radius * sin(cam->pitch) * cos(cam->yaw) + cam->eye[0];
-    cam->center[2] = radius * sin(cam->pitch) * sin(cam->yaw) + cam->eye[2];
-    cam->center[1] = radius * cos(cam->pitch) + cam->eye[1];
-
-
+    changeAngle(cam, cam->pitch + dypos*mouseSpeed, cam->yaw + dxpos*mouseSpeed);
 }
