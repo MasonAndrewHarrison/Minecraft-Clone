@@ -11,6 +11,7 @@ typedef struct Mesh {
 Mesh createMesh(float *vertices, int vertexCount, unsigned int *indices,
                 int indexCount);
 void drawMesh(Mesh *mesh);
+void drawLines(Mesh *mesh);
 void destroyMesh(Mesh *mesh);
 
 #endif

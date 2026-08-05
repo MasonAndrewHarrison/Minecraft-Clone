@@ -20,7 +20,11 @@ int main(void) {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Caustic Gaussian Demo", NULL, NULL);
-    if (!window) { glfwTerminate(); return -1; }
+    
+    if (!window) { 
+        glfwTerminate(); 
+        return -1; 
+    }
 
     glfwMakeContextCurrent(window);
     glfwSwapInterval(VSYNC_INTERVAL);
@@ -81,17 +85,17 @@ int main(void) {
 
 
     vec3 cubePositions[11] = {
-        { 0.0f,  3.0f,  0.0f},
-        { 1.0f,  0.0f,  -2.0f},
+        { 0.0f,  -2.0f,  0.0f},
+        { 1.0f,  -2.0f,  -2.0f},
         {-1.0f,  0.0f,  0.0f},
-        { 0.0f,  1.0f,  4.0f},
-        { 0.0f, -2.0f,  3.0f},
+        { 0.0f,  0.0f,  4.0f},
+        { 0.0f, 0.0f,  3.0f},
         { 2.0f,  0.0f,  0.0f},
         {-2.0f,  0.0f,  1.0f},
-        { 0.0f,  2.0f,  -1.0f},
-        { 1.0f,  1.0f,  0.0f},
-        {-1.33f, -1.0f,  0.0f},
-        {-1.0f, -1.0f,  4.0f},
+        { 0.0f,  0.0f,  -1.0f},
+        { 1.0f,  0.0f,  0.0f},
+        {-1.33f, 0.0f,  0.0f},
+        {-1.0f, 0.0f,  4.0f},
     };
 
     while (!glfwWindowShouldClose(window)) {
@@ -119,7 +123,7 @@ int main(void) {
             glm_translate(model, cubePositions[i]);
             glm_mat4_mul(pv, model, mvp);
             glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, (float*)mvp);
-            drawMesh(&cube);
+            drawLines(&cube);
         }
 
         glfwSwapBuffers(window);

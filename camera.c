@@ -82,8 +82,6 @@ void mouseCallback(GLFWwindow *window, double xpos, double ypos){
 
     camera* cam = glfwGetWindowUserPointer(window);
 
-    printf("%f, %f\n", cam->pitch, cam->yaw);
-
     if(cam->firstMouse){
 
         setPitchYaw(cam);
