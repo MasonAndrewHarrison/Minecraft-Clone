@@ -17,6 +17,9 @@ typedef struct camera {
 } camera;
 
 camera cameraInit(int height, int width);
+void moveLeftRight(camera *cam, float forwardSpeed);
+void moveForwardBackwards(camera *cam, float strifeSpeed);
+void moveUpDown(camera *cam, float upSpeed);
 void moveCamera(vec3 move, camera *cam);
 void updateCameraLocation(GLFWwindow *window, camera *cam);
 void changeAngle(camera *cam, float pitch, float yaw);

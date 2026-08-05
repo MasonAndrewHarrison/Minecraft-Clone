@@ -6,6 +6,8 @@
 #include <cglm/cglm.h>
 #include "camera.h"
 #include "mesh.h"
+#include "handler.h"
+
 
 #define WIDTH          1920
 #define HEIGHT         1080
@@ -100,14 +102,9 @@ int main(void) {
 
     while (!glfwWindowShouldClose(window)) {
 
-
-        if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
-            glfwSetWindowShouldClose(window, GLFW_TRUE);
-        }
-
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        updateCameraLocation(window, &mainCamera);
+        inputHandler(window, &mainCamera);
 
         float currentTime = (float)glfwGetTime() - startTime;
         glUniform1f(timeLoc,       currentTime);

@@ -2,7 +2,7 @@ CC       = gcc
 CFLAGS   = -Wall -O2
 INCLUDES = -Ivendor/stb
 LIBS     = -lGL -lGLEW -lglfw -lm -lcglm
-SRC      = main.c shader.c glError.c camera.c mesh.c texture.c
+SRC      = main.c shader.c glError.c camera.c mesh.c texture.c handler.c
 
 all: output
 

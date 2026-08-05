@@ -4,8 +4,7 @@
 #include "camera.h"
 #include <math.h> 
 
-#define forwardSpeed 0.5f
-#define strifeSpeed 0.2f
+
 #define mouseSpeed 0.001f
 
 camera cameraInit(int width, int height){
@@ -29,37 +28,19 @@ void moveCamera(vec3 move, camera* cam){
     glm_vec3_add(cam->center, move, cam->center);
 }
 
-void updateCameraLocation(GLFWwindow* window, camera* cam){
+void moveLeftRight(camera* cam, float forwardSpeed){
+    vec3 move =  {cos(cam->yaw) * forwardSpeed, 0.0f, sin(cam->yaw) * forwardSpeed};
+    moveCamera(move, cam);
+}
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
-        vec3 move =  {cos(cam->yaw) * forwardSpeed, 0.0f, sin(cam->yaw) * forwardSpeed};
-        moveCamera(move, cam);
-    }
+void moveForwardBackwards(camera* cam, float strifeSpeed){
+    vec3 move = {-cos(cam->yaw + 3.14f * 0.5f) * strifeSpeed, 0.0f, -sin(cam->yaw + 3.14f * 0.5f) * strifeSpeed};
+    moveCamera(move, cam);
+}
 
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
-        vec3 move = {-cos(cam->yaw) * forwardSpeed, 0.0f, -sin(cam->yaw) * forwardSpeed};
-        moveCamera(move, cam);
-    }
-        
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
-        vec3 move = {-cos(cam->yaw + 3.14f * 0.5f) * strifeSpeed, 0.0f, -sin(cam->yaw + 3.14f * 0.5f) * strifeSpeed};
-        moveCamera(move, cam);
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
-        vec3 move = {cos(cam->yaw + 3.14f * 0.5f) * strifeSpeed, 0.0f, sin(cam->yaw + 3.14f * 0.5f) * strifeSpeed};
-        moveCamera(move, cam);
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS){
-        vec3 move = {0.0f, 0.1f, -0.0f};
-        moveCamera(move, cam);
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS){ 
-        vec3 move = {0.0f, -0.1f, -0.0f};
-        moveCamera(move, cam);
-    }
+void moveUpDown(camera* cam, float upSpeed){
+    vec3 move = {0.0f, upSpeed, -0.0f};
+    moveCamera(move, cam);
 }
 
 void static correctsPitchYaw(camera* cam){
