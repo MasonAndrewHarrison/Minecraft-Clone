@@ -35,15 +35,15 @@ int main(void) {
     printf("%s\n", glGetString(GL_VERSION));
 
     float vertices[] = {
-        // x,      y,      z,      r,    g,    b
-        -0.5f, -0.5f,  0.5f,   1.0f, 0.0f, 0.0f,
-        0.5f, -0.5f,  0.5f,   0.0f, 1.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,   1.0f, 1.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,   1.0f, 0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,   0.0f, 1.0f, 1.0f,
-        0.5f,  0.5f, -0.5f,   1.0f, 1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,   0.3f, 0.3f, 0.3f,
+        // x,      y,      z,      r,       g,     b,      u,     v
+        -0.5f, -0.5f,  0.5f,   1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        0.5f, -0.5f,  0.5f,   0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,   1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,   1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+        0.5f, -0.5f, -0.5f,   0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+        0.5f,  0.5f, -0.5f,   1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,   0.3f, 0.3f, 0.3f, 0.0f, 0.0f,
     };
 
     unsigned int indices[] = {
@@ -121,7 +121,7 @@ int main(void) {
             glm_translate(model, cubePositions[i]);
             glm_mat4_mul(pv, model, mvp);
             glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, (float*)mvp);
-            drawMesh(&cube);
+            drawLines(&cube);
         }
 
         glfwSwapBuffers(window);
