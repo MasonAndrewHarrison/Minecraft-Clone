@@ -21,7 +21,7 @@ int main(void) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Caustic Gaussian Demo", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Minecraft Clone", NULL, NULL);
     
     if (!window) { 
         glfwTerminate(); 
@@ -34,15 +34,16 @@ int main(void) {
     glewInit();
     printf("%s\n", glGetString(GL_VERSION));
 
-    float positions[] = {
-        -0.5f, -0.5f,  0.5f,
-        0.5f, -0.5f,  0.5f,
-        0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f,  0.5f,
-        -0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        0.5f,  0.5f, -0.5f,
-        -0.5f,  0.5f, -0.5f,
+    float vertices[] = {
+        // x,      y,      z,      r,    g,    b
+        -0.5f, -0.5f,  0.5f,   1.0f, 0.0f, 0.0f,
+        0.5f, -0.5f,  0.5f,   0.0f, 1.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,   1.0f, 1.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,   1.0f, 0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f,   0.0f, 1.0f, 1.0f,
+        0.5f,  0.5f, -0.5f,   1.0f, 1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,   0.3f, 0.3f, 0.3f,
     };
 
     unsigned int indices[] = {
@@ -79,7 +80,7 @@ int main(void) {
     float startTime = (float)glfwGetTime();
 
     camera mainCamera = cameraInit(WIDTH, HEIGHT);
-    Mesh cube = createMesh(positions, 8 * 3, indices, 36);
+    Mesh cube = createMesh(vertices, 8, indices, 36);
 
     glfwSetWindowUserPointer(window, &mainCamera);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -96,7 +97,7 @@ int main(void) {
         {-2.0f,  0.0f,  1.0f},
         { 0.0f,  0.0f,  -1.0f},
         { 1.0f,  0.0f,  0.0f},
-        {-1.33f, 0.0f,  0.0f},
+        {-5.0f, -1.0f,  0.0f},
         {-1.0f, 0.0f,  4.0f},
     };
 
@@ -120,7 +121,7 @@ int main(void) {
             glm_translate(model, cubePositions[i]);
             glm_mat4_mul(pv, model, mvp);
             glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, (float*)mvp);
-            drawLines(&cube);
+            drawMesh(&cube);
         }
 
         glfwSwapBuffers(window);
