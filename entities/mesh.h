@@ -1,6 +1,8 @@
 #ifndef MESH_H
 #define MESH_H
 
+#include "cglm/cglm.h"
+
 typedef struct Mesh {
   unsigned int vao;
   unsigned int vbo;
@@ -10,6 +12,7 @@ typedef struct Mesh {
 
 Mesh createMesh(float *vertices, int vertexCount, unsigned int *indices,
                 int indexCount);
+Mesh createCube(vec3 position);
 void drawMesh(Mesh *mesh);
 void drawLines(Mesh *mesh);
 void destroyMesh(Mesh *mesh);

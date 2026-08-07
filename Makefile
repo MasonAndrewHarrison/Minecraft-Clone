@@ -1,13 +1,17 @@
 CC       = gcc
 CFLAGS   = -Wall -O2
-INCLUDES = -Ivendor/stb
+INCLUDES = -Ivendor/stb -Ientities
 LIBS     = -lGL -lGLEW -lglfw -lm -lcglm
-SRC      = main.c shader.c glError.c camera.c mesh.c texture.c handler.c
+SRC      = main.c shader.c glError.c texture.c handler.c entities/camera.c entities/mesh.c
+OBJ      = $(SRC:.c=.o)
 
 all: output
 
-output: $(SRC)
-	$(CC) $(SRC) -o output $(CFLAGS) $(INCLUDES) $(LIBS)
+output: $(OBJ)
+	$(CC) $(OBJ) -o output $(LIBS)
+
+%.o: %.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 run: output
 	./output
@@ -19,4 +23,4 @@ run-debug: debug
 	gdb ./output
 
 clean:
-	rm -f output
+	rm -f output $(OBJ)

@@ -1,6 +1,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include "camera.h"
+#include "entities/camera.h"
 #include <cglm/cglm.h>
 
 
