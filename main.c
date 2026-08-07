@@ -5,6 +5,7 @@
 #include "shader.h"
 #include <cglm/cglm.h>
 #include "camera.h"
+#include "texture.h"
 #include "mesh.h"
 #include "handler.h"
 
@@ -59,6 +60,7 @@ int main(void) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    Texture atlas = loadTexture("textures/atlas.png");
 
     unsigned int shader = createShader("shaders/vertex.glsl", "shaders/fragment.glsl");
     glUseProgram(shader);
@@ -76,6 +78,7 @@ int main(void) {
     int stretchLoc    = glGetUniformLocation(shader, "uStretch");
     int angleLoc      = glGetUniformLocation(shader, "uAngle");
     int MVPLoc        = glGetUniformLocation(shader, "uMVP");
+    int textureLoc    = glGetUniformLocation(shader, "uTexture");
 
     float startTime = (float)glfwGetTime();
 
@@ -112,16 +115,19 @@ int main(void) {
         glUniform2f(resolutionLoc, (float)WIDTH, (float)HEIGHT);
         glUniform2f(stretchLoc,    3.0f, 7.0f);
         glUniform1f(angleLoc,      currentTime);
+        glUniform1i(textureLoc, 0);
+        bindTexture(&atlas, 0);
 
         glm_lookat(mainCamera.eye, mainCamera.center, mainCamera.up, view);
         glm_mat4_mul(proj,  view,  pv);
 
         for (int i = 0; i < 11; i++) {
+
             glm_mat4_identity(model);
             glm_translate(model, cubePositions[i]);
             glm_mat4_mul(pv, model, mvp);
             glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, (float*)mvp);
-            drawLines(&cube);
+            drawMesh(&cube);
         }
 
         glfwSwapBuffers(window);
@@ -129,6 +135,7 @@ int main(void) {
     }
 
     destroyMesh(&cube);
+    destroyTexture(&atlas);
     glDeleteProgram(shader);
     glfwTerminate();
     return 0;

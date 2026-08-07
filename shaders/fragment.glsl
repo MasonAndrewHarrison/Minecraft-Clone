@@ -3,6 +3,12 @@
 layout(location = 0) out vec4 color;
 in vec3 vColor;
 
+
+in vec2 uvCoord;
+
+uniform sampler2D uTexture;
+
+
 void main() {
-    color = vec4(vColor, 1.0);
+    color = texture(uTexture, uvCoord);
 }

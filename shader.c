@@ -28,7 +28,7 @@ char* readFile(const char* path) {
 
 
     fread(buffer, 1, length, file);
-    buffer[length] = '\0';  
+    buffer[length] = '\0';          
 
     fclose(file);
     return buffer;
