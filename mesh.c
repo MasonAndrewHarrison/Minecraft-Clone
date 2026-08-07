@@ -22,7 +22,7 @@ Mesh createMesh(float* vertices, int vertexCount, unsigned int* indices, int ind
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(sizeof(float) * 3));
 
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(sizeof(float) * 5));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(sizeof(float) * 6));
 
     glGenBuffers(1, &mesh.ibo   );
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ibo);
