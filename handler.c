@@ -5,7 +5,7 @@
 
 
 #define forwardSpeed 0.5f
-#define strifeSpeed 0.2f
+#define strifeSpeed 0.3f
 #define upSpeed 0.1f
 #define mouseSpeed 0.001f
 

@@ -66,9 +66,7 @@ int main(void) {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, mouseCallback);
 
-
-    Chunk* chunk = malloc(sizeof(float)*256*256);
-    createChunk(chunk);
+    Chunk* chunk = createChunk(2, 0);
 
     while (!glfwWindowShouldClose(window)) {
 
@@ -91,18 +89,13 @@ int main(void) {
         glm_mat4_mul(pv, model, mvp);
         glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, (float*)mvp);
 
-        drawMesh(&chunk->top);
-        drawMesh(&chunk->front);
-        drawMesh(&chunk->bottom);
-        drawMesh(&chunk->back);
-        drawMesh(&chunk->left);
-        drawMesh(&chunk->right);
+        drawChunk(chunk);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    //destroyMesh(chunk);
+    destroyChunk(chunk);
     destroyTexture(&atlas);
     glDeleteProgram(shader);
     glfwTerminate();

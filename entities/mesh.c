@@ -34,11 +34,6 @@ Mesh createMesh(float* vertices, int vertexCount, const unsigned int* indices, i
 
 void setBlockType(float* vertices, int cubeIndex, blockType type){
 
-    if (type == RANDOM_BLOCK){
-        int r = rand() % 3 + 256;
-        type = r;
-    }
-    
     if (type == GRASS){
         vertices[cubeIndex * CUBE_VERTEX_LENGTH+6] = CUBE_UV_GRASS[cubeIndex * 2];
         vertices[cubeIndex * CUBE_VERTEX_LENGTH+7] = CUBE_UV_GRASS[cubeIndex * 2 + 1];
@@ -95,6 +90,15 @@ void drawMesh(Mesh* mesh) {
     glDrawElements(GL_TRIANGLES, mesh->indexCount, GL_UNSIGNED_INT, NULL);
 }
 
+void drawChunk(Chunk* chunk){
+    drawMesh(&chunk->top);
+    drawMesh(&chunk->front);
+    drawMesh(&chunk->bottom);
+    drawMesh(&chunk->back);
+    drawMesh(&chunk->left);
+    drawMesh(&chunk->right);
+}
+
 void drawLines(Mesh* mesh){
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glBindVertexArray(mesh->vao);
@@ -108,43 +112,69 @@ void destroyMesh(Mesh* mesh) {
     glDeleteVertexArrays(1, &mesh->vao);
 }
 
+void destroyChunk(Chunk* chunk){
+    destroyMesh(&chunk->back);
+    destroyMesh(&chunk->front);
+    destroyMesh(&chunk->top);
+    destroyMesh(&chunk->bottom);
+    destroyMesh(&chunk->left);
+    destroyMesh(&chunk->right);
+}
+
 inline void static _createChunkElement(VertexChunk* const vertexChunk, int const chunkSize, CubeDirection const dir, Mesh* element){
     *element = createMesh(vertexChunk->vertices[dir], CUBE_VERTEX_COUNT * chunkSize, 
         vertexChunk->indices[dir], CUBE_INDEX_COUNT * chunkSize);
 }
 
-void createChunk(Chunk* chunk){
-    int chunkSize = 256 *256;
+void vertexChunkToChunk(VertexChunk* const vertexChunk, Chunk* chunk){
+    int size = vertexChunk->sizeOfChunkLength;
+    _createChunkElement(vertexChunk, size, TOP, &chunk->top);
+    _createChunkElement(vertexChunk, size, BOTTOM, &chunk->bottom);
+    _createChunkElement(vertexChunk, size, LEFT, &chunk->left);
+    _createChunkElement(vertexChunk, size, RIGHT, &chunk->right);
+    _createChunkElement(vertexChunk, size, FRONT, &chunk->front);
+    _createChunkElement(vertexChunk, size, BACK, &chunk->back);
+}
+
+VertexChunk* createVertexChunk(int xOffset, int yOffset){
+
+    int chunkSize = CHUNK_SIZE_CUBED * CHUNK_HEIGHT;
 
     VertexChunk* vertexChunk = malloc(sizeof(VertexChunk));
-    for (int i = 0; i < 6; i++){
-        vertexChunk->vertices[i] = malloc(chunkSize * CUBE_COUNT * sizeof(float));
-        vertexChunk->indices[i] = malloc(chunkSize * CUBE_INDEX_COUNT * sizeof(unsigned int));
+    for (int dir = FRONT; dir <= BOTTOM; dir++){
+        vertexChunk->vertices[dir] = malloc(chunkSize * CUBE_COUNT * sizeof(float));
+        vertexChunk->indices[dir] = malloc(chunkSize * CUBE_INDEX_COUNT * sizeof(unsigned int));
     }
 
     int totalIndex = 0;
-    for (int i = 0; i < 256; i++){
-        for (int j = 0; j < 256; j++){
-            int x = j % 16 - 8;
-            int y = j / 16 - 8; 
+    for (int i = 0; i < CHUNK_HEIGHT; i++){
+        for (int j = 0; j < CHUNK_SIZE_CUBED; j++){
+            int x = j % CHUNK_SIZE - (CHUNK_SIZE/2);
+            int y = j / CHUNK_SIZE - (CHUNK_SIZE/2); 
             blockType type;
             int r = rand() % 3 + 256;
             type = r;
-            
+
             if (rand() % 10 <= i-118){
             } 
             else{
-                appendCubeToVertexChunk(vertexChunk, totalIndex, (vec3){x, i-128, y}, type);
+                appendCubeToVertexChunk(vertexChunk, totalIndex, (vec3){x + (xOffset*16), i-(CHUNK_HEIGHT/2), y + (yOffset*16)}, type);
+                totalIndex++;
             }
-            totalIndex++;
         }
     }
 
-    _createChunkElement(vertexChunk, chunkSize, TOP, &chunk->top);
-    _createChunkElement(vertexChunk, chunkSize, BOTTOM, &chunk->bottom);
-    _createChunkElement(vertexChunk, chunkSize, LEFT, &chunk->left);
-    _createChunkElement(vertexChunk, chunkSize, RIGHT, &chunk->right);
-    _createChunkElement(vertexChunk, chunkSize, FRONT, &chunk->front);
-    _createChunkElement(vertexChunk, chunkSize, BACK, &chunk->back);
+    vertexChunk->sizeOfChunkLength = totalIndex;
 
+    return vertexChunk;
+}
+
+Chunk* createChunk(int x, int y){
+
+    VertexChunk* vertexChunk = createVertexChunk(x, y);
+    Chunk* chunk = malloc(sizeof(Chunk));
+    chunk->x=x;
+    chunk->y=y;
+    vertexChunkToChunk(vertexChunk, chunk);
+    return chunk;
 }

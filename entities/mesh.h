@@ -240,7 +240,12 @@ typedef enum CubeDirection{
 typedef struct VertexChunk{
   float* vertices[6];
   unsigned int* indices[6];
+  int sizeOfChunkLength;
 } VertexChunk;
+
+#define CHUNK_SIZE 16
+#define CHUNK_HEIGHT 256
+#define CHUNK_SIZE_CUBED (CHUNK_SIZE * CHUNK_SIZE)
 
 typedef struct Chunk{
   Mesh top;
@@ -249,16 +254,24 @@ typedef struct Chunk{
   Mesh left;
   Mesh front;
   Mesh back;
+  int x;
+  int y;
+  blockType blocks[16][16][16];
 } Chunk;
+
 
 Mesh createMesh(float *vertices, int vertexCount, const unsigned int *indices,
                 int indexCount);
 Mesh createCube(vec3 position, blockType type);
 void drawMesh(Mesh *mesh);
+void drawChunk(Chunk* chunk);
 void drawLines(Mesh *mesh);
 void destroyMesh(Mesh *mesh);
+void destroyChunk(Chunk* chunk);
 void appendCube(float* vertices, unsigned int* indices, int cubeIndex, vec3 position, blockType);
 void appendCubeToVertexChunk(VertexChunk* vertexChunk, int cubeIndex, vec3 position, blockType type);
-void createChunk(Chunk* chunk);
+void vertexChunkToChunk(VertexChunk* const vertexChunk, Chunk* chunk);
+VertexChunk* createVertexChunk(int x, int y);
+Chunk* createChunk(int x, int y);
 
 #endif
