@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include "entities/camera.h"
 #include <cglm/cglm.h>
+#include "state.h"
 
 
 #define forwardSpeed 0.5f
@@ -10,7 +11,7 @@
 #define mouseSpeed 0.001f
 
 
-void inputHandler(GLFWwindow* window, camera* cam){
+void inputHandler(GLFWwindow* window, camera* cam, State* state){
 
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
@@ -40,4 +41,8 @@ void inputHandler(GLFWwindow* window, camera* cam){
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     }
+
+    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS){
+        state->wireFrame=1;
+    }else {state->wireFrame=0;}
 }

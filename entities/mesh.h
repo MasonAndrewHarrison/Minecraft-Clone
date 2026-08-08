@@ -263,6 +263,7 @@ typedef struct Chunk{
   int x;
   int y;
   blockType* blockState;
+  int totalBlocks;
 } Chunk;
 
 
@@ -272,12 +273,18 @@ Mesh createCube(vec3 position, blockType type);
 void drawMesh(Mesh *mesh);
 void drawChunk(Chunk* chunk);
 void drawLines(Mesh *mesh);
+void drawChunkWireFrame(Chunk* chunk);
 void destroyMesh(Mesh *mesh);
 void destroyChunk(Chunk* chunk);
 void appendCube(float* vertices, unsigned int* indices, int cubeIndex, vec3 position, blockType);
 void appendCubeToVertexChunk(VertexChunk* vertexChunk, int cubeIndex, vec3 position, blockType type);
 void vertexChunkToChunk(VertexChunk* const vertexChunk, Chunk* chunk);
-VertexChunk* createVertexChunk(int x, int y);
 Chunk* createChunk(int x, int y);
+void rebuildChunk(Chunk* chunk);
+
+
+static inline int blockIndex(int x, int y, int z) {
+    return x + y * CHUNK_SIZE + z * CHUNK_SIZE_CUBED;
+}
 
 #endif

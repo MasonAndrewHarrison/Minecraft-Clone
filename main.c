@@ -2,12 +2,13 @@
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "shader.h"
+#include "shaders/shader.h"
 #include <cglm/cglm.h>
 #include "entities/camera.h"
-#include "texture.h"
+#include "textures/texture.h"
 #include "entities/mesh.h"
 #include "handler.h"
+#include "state.h"
 
 
 #define WIDTH          1920
@@ -15,6 +16,9 @@
 #define VSYNC_INTERVAL 1
 
 int main(void) {
+
+    State* state = malloc(sizeof(State));
+    state->wireFrame = 0;
 
     if (!glfwInit()) return -1;
 
@@ -39,7 +43,7 @@ int main(void) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    Texture atlas = loadTexture("textures/atlas.png");
+    Texture atlas = loadTexture("textures/images/atlas.png");
 
     unsigned int shader = createShader("shaders/vertex.glsl", "shaders/fragment.glsl");
     glUseProgram(shader);
@@ -67,12 +71,13 @@ int main(void) {
     glfwSetCursorPosCallback(window, mouseCallback);
 
     Chunk* chunk = createChunk(0, 0);
+    rebuildChunk(chunk);
 
     while (!glfwWindowShouldClose(window)) {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        inputHandler(window, &mainCamera);
+        inputHandler(window, &mainCamera, state);
 
         float currentTime = (float)glfwGetTime() - startTime;
         glUniform1f(timeLoc,       currentTime);
@@ -89,7 +94,8 @@ int main(void) {
         glm_mat4_mul(pv, model, mvp);
         glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, (float*)mvp);
 
-        drawChunk(chunk);
+        if (state->wireFrame == 1){drawChunkWireFrame(chunk);}
+        else {drawChunk(chunk);}
 
         glfwSwapBuffers(window);
         glfwPollEvents();
