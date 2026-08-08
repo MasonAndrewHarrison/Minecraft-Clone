@@ -6,9 +6,9 @@
 #include <cglm/cglm.h>
 #include "entities/camera.h"
 #include "textures/texture.h"
+#include "eventHandling/handler.h"
 #include "entities/mesh.h"
-#include "handler.h"
-#include "state.h"
+#include "eventHandling/state.h"
 
 
 #define WIDTH          1920
