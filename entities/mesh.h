@@ -10,13 +10,15 @@ typedef struct Mesh {
   int indexCount;
 } Mesh;
 
-typedef enum blockType {
-  GRASS = 256,
-  WOOD,
-  DIRT,
-  DEFAULT,
-  RANDOM_BLOCK,
-} blockType;
+
+typedef uint8_t blockType;
+  #define DEFAULT 0
+  #define GRASS 1
+  #define WOOD 2
+  #define DIRT 3
+  #define AIR 4
+  
+
 
 #define ATLAS_STEP 1.0f/16.0f
 
@@ -237,15 +239,19 @@ typedef enum CubeDirection{
   BOTTOM = 5,
 } CubeDirection;
 
-typedef struct VertexChunk{
-  float* vertices[6];
-  unsigned int* indices[6];
-  int sizeOfChunkLength;
-} VertexChunk;
 
 #define CHUNK_SIZE 16
 #define CHUNK_HEIGHT 256
 #define CHUNK_SIZE_CUBED (CHUNK_SIZE * CHUNK_SIZE)
+
+
+typedef struct VertexChunk{
+  float* vertices[6];
+  unsigned int* indices[6];
+  int sizeOfChunkLength;
+  blockType* blockState;
+} VertexChunk;
+
 
 typedef struct Chunk{
   Mesh top;
@@ -256,7 +262,7 @@ typedef struct Chunk{
   Mesh back;
   int x;
   int y;
-  blockType blocks[16][16][16];
+  blockType* blockState;
 } Chunk;
 
 

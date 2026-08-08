@@ -17,7 +17,7 @@ run: output
 	./output
 
 debug: $(SRC)
-	$(CC) $(SRC) -o output -Wall -g $(INCLUDES) $(LIBS)
+	$(CC) $(SRC) -o output -Wall -g -fsanitize=address $(INCLUDES) $(LIBS)
 
 run-debug: debug
 	gdb ./output

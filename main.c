@@ -66,7 +66,7 @@ int main(void) {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, mouseCallback);
 
-    Chunk* chunk = createChunk(2, 0);
+    Chunk* chunk = createChunk(0, 0);
 
     while (!glfwWindowShouldClose(window)) {
 

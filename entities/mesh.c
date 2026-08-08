@@ -112,6 +112,10 @@ void destroyMesh(Mesh* mesh) {
     glDeleteVertexArrays(1, &mesh->vao);
 }
 
+static inline int blockIndex(int x, int y, int z) {
+    return x + y * CHUNK_SIZE + z * CHUNK_SIZE_CUBED;
+}
+
 void destroyChunk(Chunk* chunk){
     destroyMesh(&chunk->back);
     destroyMesh(&chunk->front);
@@ -119,11 +123,13 @@ void destroyChunk(Chunk* chunk){
     destroyMesh(&chunk->bottom);
     destroyMesh(&chunk->left);
     destroyMesh(&chunk->right);
+    free(chunk->blockState);
+    free(chunk);
 }
 
 inline void static _createChunkElement(VertexChunk* const vertexChunk, int const chunkSize, CubeDirection const dir, Mesh* element){
     *element = createMesh(vertexChunk->vertices[dir], CUBE_VERTEX_COUNT * chunkSize, 
-        vertexChunk->indices[dir], CUBE_INDEX_COUNT * chunkSize);
+    vertexChunk->indices[dir], CUBE_INDEX_COUNT * chunkSize);
 }
 
 void vertexChunkToChunk(VertexChunk* const vertexChunk, Chunk* chunk){
@@ -139,6 +145,7 @@ void vertexChunkToChunk(VertexChunk* const vertexChunk, Chunk* chunk){
 VertexChunk* createVertexChunk(int xOffset, int yOffset){
 
     int chunkSize = CHUNK_SIZE_CUBED * CHUNK_HEIGHT;
+    blockType* blockTypeState = malloc(sizeof(blockType) * CHUNK_SIZE_CUBED * CHUNK_HEIGHT);
 
     VertexChunk* vertexChunk = malloc(sizeof(VertexChunk));
     for (int dir = FRONT; dir <= BOTTOM; dir++){
@@ -147,24 +154,28 @@ VertexChunk* createVertexChunk(int xOffset, int yOffset){
     }
 
     int totalIndex = 0;
-    for (int i = 0; i < CHUNK_HEIGHT; i++){
+    for (int z = 0; z < CHUNK_HEIGHT; z++){
         for (int j = 0; j < CHUNK_SIZE_CUBED; j++){
-            int x = j % CHUNK_SIZE - (CHUNK_SIZE/2);
-            int y = j / CHUNK_SIZE - (CHUNK_SIZE/2); 
+            int localX = j % CHUNK_SIZE;
+            int localY = j / CHUNK_SIZE;
+            int x = localX - (CHUNK_SIZE/2);
+            int y = localY - (CHUNK_SIZE/2);  
             blockType type;
-            int r = rand() % 3 + 256;
-            type = r;
+            type = rand() % 3 + 1;
 
-            if (rand() % 10 <= i-118){
-            } 
+            if (rand() % 10 <= z-118){
+                blockTypeState[blockIndex(localX, localY, z)] = AIR;
+            }
             else{
-                appendCubeToVertexChunk(vertexChunk, totalIndex, (vec3){x + (xOffset*16), i-(CHUNK_HEIGHT/2), y + (yOffset*16)}, type);
+                blockTypeState[blockIndex(localX, localY, z)] = type;
+                appendCubeToVertexChunk(vertexChunk, totalIndex, (vec3){x + (xOffset*16), z-(CHUNK_HEIGHT/2), y + (yOffset*16)}, type);
                 totalIndex++;
             }
         }
     }
 
     vertexChunk->sizeOfChunkLength = totalIndex;
+    vertexChunk->blockState = blockTypeState;
 
     return vertexChunk;
 }
@@ -173,8 +184,15 @@ Chunk* createChunk(int x, int y){
 
     VertexChunk* vertexChunk = createVertexChunk(x, y);
     Chunk* chunk = malloc(sizeof(Chunk));
+    chunk->blockState = vertexChunk->blockState;
     chunk->x=x;
     chunk->y=y;
     vertexChunkToChunk(vertexChunk, chunk);
+
+    for (int dir = TOP; dir <= BACK; dir++){
+        free(vertexChunk->vertices[dir]);
+        free(vertexChunk->indices[dir]);
+    }
+    free(vertexChunk);
     return chunk;
 }
