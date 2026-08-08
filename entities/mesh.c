@@ -32,73 +32,62 @@ Mesh createMesh(float* vertices, int vertexCount, const unsigned int* indices, i
     return mesh;
 }
 
-Mesh createCube(vec3 position, blockType type){
+void setBlockType(float* vertices, int cubeIndex, blockType type){
 
-    float vertices[CUBE_COUNT];
-    memcpy(vertices, CUBE_VERTICES, CUBE_BYTES);
-
-    for (int i = 0; i < CUBE_VERTEX_COUNT; i++){
-        float* vertexPos = &vertices[i * CUBE_VERTEX_LENGTH];
-        glm_vec3_add(vertexPos, position, vertexPos);
-        
-        if (type == GRASS){
-            vertices[i * CUBE_VERTEX_LENGTH+6] = CUBE_UV_GRASS[i * 2];
-            vertices[i * CUBE_VERTEX_LENGTH+7] = CUBE_UV_GRASS[i * 2 + 1];
-        }
-        else if (type == WOOD){
-            vertices[i * CUBE_VERTEX_LENGTH+6] = CUBE_UV_WOOD[i * 2];
-            vertices[i * CUBE_VERTEX_LENGTH+7] = CUBE_UV_WOOD[i * 2 + 1];
-        }
-        else if (type == DIRT){
-            vertices[i * CUBE_VERTEX_LENGTH+6] = CUBE_UV_DIRT[i * 2];
-            vertices[i * CUBE_VERTEX_LENGTH+7] = CUBE_UV_DIRT[i * 2 + 1];
-        }
-        else{
-            vertices[i * CUBE_VERTEX_LENGTH+6] = CUBE_UV_DEFAULT[i * 2];
-            vertices[i * CUBE_VERTEX_LENGTH+7] = CUBE_UV_DEFAULT[i * 2 + 1];
-        }
-        
+    if (type == RANDOM_BLOCK){
+        int r = rand() % 3 + 256;
+        type = r;
     }
-
-
-    return createMesh(vertices, CUBE_VERTEX_COUNT, CUBE_INDICES, CUBE_INDEX_COUNT);
+    
+    if (type == GRASS){
+        vertices[cubeIndex * CUBE_VERTEX_LENGTH+6] = CUBE_UV_GRASS[cubeIndex * 2];
+        vertices[cubeIndex * CUBE_VERTEX_LENGTH+7] = CUBE_UV_GRASS[cubeIndex * 2 + 1];
+    }
+    else if (type == WOOD){
+        vertices[cubeIndex * CUBE_VERTEX_LENGTH+6] = CUBE_UV_WOOD[cubeIndex * 2];
+        vertices[cubeIndex * CUBE_VERTEX_LENGTH+7] = CUBE_UV_WOOD[cubeIndex * 2 + 1];
+    }
+    else if (type == DIRT){
+        vertices[cubeIndex * CUBE_VERTEX_LENGTH+6] = CUBE_UV_DIRT[cubeIndex * 2];
+        vertices[cubeIndex * CUBE_VERTEX_LENGTH+7] = CUBE_UV_DIRT[cubeIndex * 2 + 1];
+    }
+    else{
+        vertices[cubeIndex * CUBE_VERTEX_LENGTH+6] = CUBE_UV_DEFAULT[cubeIndex * 2];
+        vertices[cubeIndex * CUBE_VERTEX_LENGTH+7] = CUBE_UV_DEFAULT[cubeIndex * 2 + 1];
+    } 
 }
 
-void appendCube(float* vertices, unsigned int* indices, int cubeIndex, vec3 position, blockType type){
+void static appendCubeToVertexChunkDir(VertexChunk* vertexChunk, int cubeIndex, vec3 position, blockType type, CubeDirection dir){
 
-    float* dest = &vertices[cubeIndex * CUBE_COUNT];
-    memcpy(dest, CUBE_VERTICES, CUBE_BYTES);
+    float* dest = &vertexChunk->vertices[dir][cubeIndex * CUBE_COUNT];
 
-    for (int i = 0; i < CUBE_VERTEX_COUNT; i++){
-        float* vertexPos = &dest[i * CUBE_VERTEX_LENGTH];
+    int faceStartVertex = 4 * dir;
+    int faceEndVertex   = 4 * (dir + 1);
+    size_t faceBytes = 4 * CUBE_VERTEX_LENGTH * sizeof(float);
+
+    memcpy(&dest[faceStartVertex * CUBE_VERTEX_LENGTH],
+        &CUBE_VERTICES[faceStartVertex * CUBE_VERTEX_LENGTH],
+        faceBytes);
+
+    for (int i = faceStartVertex; i < faceEndVertex; i++){
+
+        float* vertexPos = &dest[i*CUBE_VERTEX_LENGTH];
         glm_vec3_add(vertexPos, position, vertexPos);
-
-        if (type == RANDOM_BLOCK){
-            int r = rand() % 3 + 256;
-            type = r;
-        }
-        
-        if (type == GRASS){
-            dest[i * CUBE_VERTEX_LENGTH+6] = CUBE_UV_GRASS[i * 2];
-            dest[i * CUBE_VERTEX_LENGTH+7] = CUBE_UV_GRASS[i * 2 + 1];
-        }
-        else if (type == WOOD){
-            dest[i * CUBE_VERTEX_LENGTH+6] = CUBE_UV_WOOD[i * 2];
-            dest[i * CUBE_VERTEX_LENGTH+7] = CUBE_UV_WOOD[i * 2 + 1];
-        }
-        else if (type == DIRT){
-            dest[i * CUBE_VERTEX_LENGTH+6] = CUBE_UV_DIRT[i * 2];
-            dest[i * CUBE_VERTEX_LENGTH+7] = CUBE_UV_DIRT[i * 2 + 1];
-        }
-        else{
-            dest[i * CUBE_VERTEX_LENGTH+6] = CUBE_UV_DEFAULT[i * 2];
-            dest[i * CUBE_VERTEX_LENGTH+7] = CUBE_UV_DEFAULT[i * 2 + 1];
-        }
+        setBlockType(dest, i, type);
     }
 
-    for (int i = 0; i < CUBE_INDEX_COUNT; i++){
+    unsigned int* indices = vertexChunk->indices[dir];
+
+    for (int i = 6 * dir; i < 6 * (dir+1); i++){
         indices[i + cubeIndex * CUBE_INDEX_COUNT] = CUBE_INDICES[i] + cubeIndex * CUBE_VERTEX_COUNT;
     }
+}
+
+void appendCubeToVertexChunk(VertexChunk* vertexChunk, int cubeIndex, vec3 position, blockType type){
+    for(int dir = FRONT; dir < BOTTOM+1; dir++){
+        appendCubeToVertexChunkDir(vertexChunk, cubeIndex, position, type, dir);
+    }
+    
 }
 
 void drawMesh(Mesh* mesh) {
@@ -117,4 +106,45 @@ void destroyMesh(Mesh* mesh) {
     glDeleteBuffers(1, &mesh->vbo);
     glDeleteBuffers(1, &mesh->ibo);
     glDeleteVertexArrays(1, &mesh->vao);
+}
+
+inline void static _createChunkElement(VertexChunk* const vertexChunk, int const chunkSize, CubeDirection const dir, Mesh* element){
+    *element = createMesh(vertexChunk->vertices[dir], CUBE_VERTEX_COUNT * chunkSize, 
+        vertexChunk->indices[dir], CUBE_INDEX_COUNT * chunkSize);
+}
+
+void createChunk(Chunk* chunk){
+    int chunkSize = 256 *256;
+
+    VertexChunk* vertexChunk = malloc(sizeof(VertexChunk));
+    for (int i = 0; i < 6; i++){
+        vertexChunk->vertices[i] = malloc(chunkSize * CUBE_COUNT * sizeof(float));
+        vertexChunk->indices[i] = malloc(chunkSize * CUBE_INDEX_COUNT * sizeof(unsigned int));
+    }
+
+    int totalIndex = 0;
+    for (int i = 0; i < 256; i++){
+        for (int j = 0; j < 256; j++){
+            int x = j % 16 - 8;
+            int y = j / 16 - 8; 
+            blockType type;
+            int r = rand() % 3 + 256;
+            type = r;
+            
+            if (rand() % 10 <= i-118){
+            } 
+            else{
+                appendCubeToVertexChunk(vertexChunk, totalIndex, (vec3){x, i-128, y}, type);
+            }
+            totalIndex++;
+        }
+    }
+
+    _createChunkElement(vertexChunk, chunkSize, TOP, &chunk->top);
+    _createChunkElement(vertexChunk, chunkSize, BOTTOM, &chunk->bottom);
+    _createChunkElement(vertexChunk, chunkSize, LEFT, &chunk->left);
+    _createChunkElement(vertexChunk, chunkSize, RIGHT, &chunk->right);
+    _createChunkElement(vertexChunk, chunkSize, FRONT, &chunk->front);
+    _createChunkElement(vertexChunk, chunkSize, BACK, &chunk->back);
+
 }

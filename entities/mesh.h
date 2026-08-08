@@ -214,6 +214,7 @@ static const float CUBE_UV_DEFAULT[] = {
 #define CUBE_BYTES sizeof(CUBE_VERTICES)
 #define CUBE_COUNT (sizeof(CUBE_VERTICES) / sizeof(float))
 #define CUBE_VERTEX_LENGTH 8
+#define CUBE_VERTEX_BYTES (sizeof(float) * CUBE_VERTEX_LENGTH)
 #define CUBE_VERTEX_COUNT (CUBE_COUNT / CUBE_VERTEX_LENGTH)
 
 static const unsigned int CUBE_INDICES[] = {
@@ -227,6 +228,29 @@ static const unsigned int CUBE_INDICES[] = {
 
 #define CUBE_INDEX_COUNT 36
 
+typedef enum CubeDirection{
+  FRONT = 0,
+  BACK = 1,
+  LEFT = 2,
+  RIGHT = 3,
+  TOP = 4,
+  BOTTOM = 5,
+} CubeDirection;
+
+typedef struct VertexChunk{
+  float* vertices[6];
+  unsigned int* indices[6];
+} VertexChunk;
+
+typedef struct Chunk{
+  Mesh top;
+  Mesh bottom;
+  Mesh right;
+  Mesh left;
+  Mesh front;
+  Mesh back;
+} Chunk;
+
 Mesh createMesh(float *vertices, int vertexCount, const unsigned int *indices,
                 int indexCount);
 Mesh createCube(vec3 position, blockType type);
@@ -234,5 +258,7 @@ void drawMesh(Mesh *mesh);
 void drawLines(Mesh *mesh);
 void destroyMesh(Mesh *mesh);
 void appendCube(float* vertices, unsigned int* indices, int cubeIndex, vec3 position, blockType);
+void appendCubeToVertexChunk(VertexChunk* vertexChunk, int cubeIndex, vec3 position, blockType type);
+void createChunk(Chunk* chunk);
 
 #endif
