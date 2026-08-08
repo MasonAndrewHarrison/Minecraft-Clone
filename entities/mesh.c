@@ -54,7 +54,8 @@ Mesh createCube(vec3 position, blockType type){
             vertices[i * CUBE_VERTEX_LENGTH+7] = CUBE_UV_DIRT[i * 2 + 1];
         }
         else{
-            printf("dfs");
+            vertices[i * CUBE_VERTEX_LENGTH+6] = CUBE_UV_DEFAULT[i * 2];
+            vertices[i * CUBE_VERTEX_LENGTH+7] = CUBE_UV_DEFAULT[i * 2 + 1];
         }
         
     }

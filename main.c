@@ -67,17 +67,26 @@ int main(void) {
     glfwSetCursorPosCallback(window, mouseCallback);
 
 
-    vec3 cubePositions[3] = {
+    vec3 cubePositions[4] = {
         { 0.0f,  -2.0f,  0.0f},
         { 1.0f,  -2.0f,  -2.0f},
         {-1.0f,  0.0f,  0.0f},
+        {-1.0f, 0.0f, 1.0f},
     };
-    blockType cubeType[3] = {GRASS,  WOOD, DIRT};
+    blockType cubeType[4] = {GRASS,  WOOD, DIRT, GRASS};
 
-    Mesh cubes[3];
-    for(int i = 0; i < 3; i++){
-        cubes[i] = createCube(cubePositions[i], cubeType[i]);
+    Mesh cubes[256];
+    for (int i = 0; i < 256; i++){
+        int r = rand() % 10;
+        int x = i % 16 - 8;
+        int y = i / 16 - 8;
+        blockType type = GRASS;
+        if (rand() % 10 <= 1){
+            type = DIRT;
+        }
+        cubes[i] = createCube((vec3){x, -5, y}, type);
     }
+
 
     while (!glfwWindowShouldClose(window)) {
 
@@ -100,16 +109,15 @@ int main(void) {
         glm_mat4_mul(pv, model, mvp);
         glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, (float*)mvp);
 
-        for(int i = 0; i < 3; i++){
-            drawMesh(&cubes[i]);
+        for(int i = 0; i < 256; i++){
+            drawLines(&cubes[i]);
         }
-
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    for (int i = 0; i < 3; i++){
+    for (int i = 0; i < 256; i++){
         destroyMesh(cubes);
     }
     destroyTexture(&atlas);
