@@ -67,25 +67,30 @@ int main(void) {
     glfwSetCursorPosCallback(window, mouseCallback);
 
 
-    vec3 cubePositions[4] = {
-        { 0.0f,  -2.0f,  0.0f},
-        { 1.0f,  -2.0f,  -2.0f},
-        {-1.0f,  0.0f,  0.0f},
-        {-1.0f, 0.0f, 1.0f},
-    };
-    blockType cubeType[4] = {GRASS,  WOOD, DIRT, GRASS};
+    int chunkSize = 256 *256;
 
-    Mesh cubes[256];
+    float* vertices = malloc(chunkSize * CUBE_COUNT * sizeof(float));
+    unsigned int* indices = malloc(chunkSize * CUBE_INDEX_COUNT * sizeof(unsigned int));
+ 
+    int totalIndex = 0;
     for (int i = 0; i < 256; i++){
-        int r = rand() % 10;
-        int x = i % 16 - 8;
-        int y = i / 16 - 8;
-        blockType type = GRASS;
-        if (rand() % 10 <= 1){
-            type = DIRT;
+        for (int j = 0; j < 256; j++){
+            int x = j % 16 - 8;
+            int y = j / 16 - 8;
+            if (rand() % 10 <= i-128){
+            } 
+            else{
+                appendCube(vertices, indices, totalIndex, (vec3){x, i-128, y}, RANDOM_BLOCK);
+            }
+            
+            totalIndex++;
         }
-        cubes[i] = createCube((vec3){x, -5, y}, type);
     }
+    
+
+    
+
+    Mesh chunk = createMesh(vertices, CUBE_VERTEX_COUNT * chunkSize, indices, CUBE_INDEX_COUNT * chunkSize);
 
 
     while (!glfwWindowShouldClose(window)) {
@@ -109,17 +114,13 @@ int main(void) {
         glm_mat4_mul(pv, model, mvp);
         glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, (float*)mvp);
 
-        for(int i = 0; i < 256; i++){
-            drawLines(&cubes[i]);
-        }
+        drawMesh(&chunk);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    for (int i = 0; i < 256; i++){
-        destroyMesh(cubes);
-    }
+    destroyMesh(&chunk);
     destroyTexture(&atlas);
     glDeleteProgram(shader);
     glfwTerminate();

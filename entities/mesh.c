@@ -64,6 +64,43 @@ Mesh createCube(vec3 position, blockType type){
     return createMesh(vertices, CUBE_VERTEX_COUNT, CUBE_INDICES, CUBE_INDEX_COUNT);
 }
 
+void appendCube(float* vertices, unsigned int* indices, int cubeIndex, vec3 position, blockType type){
+
+    float* dest = &vertices[cubeIndex * CUBE_COUNT];
+    memcpy(dest, CUBE_VERTICES, CUBE_BYTES);
+
+    for (int i = 0; i < CUBE_VERTEX_COUNT; i++){
+        float* vertexPos = &dest[i * CUBE_VERTEX_LENGTH];
+        glm_vec3_add(vertexPos, position, vertexPos);
+
+        if (type == RANDOM_BLOCK){
+            int r = rand() % 3 + 256;
+            type = r;
+        }
+        
+        if (type == GRASS){
+            dest[i * CUBE_VERTEX_LENGTH+6] = CUBE_UV_GRASS[i * 2];
+            dest[i * CUBE_VERTEX_LENGTH+7] = CUBE_UV_GRASS[i * 2 + 1];
+        }
+        else if (type == WOOD){
+            dest[i * CUBE_VERTEX_LENGTH+6] = CUBE_UV_WOOD[i * 2];
+            dest[i * CUBE_VERTEX_LENGTH+7] = CUBE_UV_WOOD[i * 2 + 1];
+        }
+        else if (type == DIRT){
+            dest[i * CUBE_VERTEX_LENGTH+6] = CUBE_UV_DIRT[i * 2];
+            dest[i * CUBE_VERTEX_LENGTH+7] = CUBE_UV_DIRT[i * 2 + 1];
+        }
+        else{
+            dest[i * CUBE_VERTEX_LENGTH+6] = CUBE_UV_DEFAULT[i * 2];
+            dest[i * CUBE_VERTEX_LENGTH+7] = CUBE_UV_DEFAULT[i * 2 + 1];
+        }
+    }
+
+    for (int i = 0; i < CUBE_INDEX_COUNT; i++){
+        indices[i + cubeIndex * CUBE_INDEX_COUNT] = CUBE_INDICES[i] + cubeIndex * CUBE_VERTEX_COUNT;
+    }
+}
+
 void drawMesh(Mesh* mesh) {
     glBindVertexArray(mesh->vao);
     glDrawElements(GL_TRIANGLES, mesh->indexCount, GL_UNSIGNED_INT, NULL);

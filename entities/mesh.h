@@ -15,6 +15,7 @@ typedef enum blockType {
   WOOD,
   DIRT,
   DEFAULT,
+  RANDOM_BLOCK,
 } blockType;
 
 #define ATLAS_STEP 1.0f/16.0f
@@ -232,5 +233,6 @@ Mesh createCube(vec3 position, blockType type);
 void drawMesh(Mesh *mesh);
 void drawLines(Mesh *mesh);
 void destroyMesh(Mesh *mesh);
+void appendCube(float* vertices, unsigned int* indices, int cubeIndex, vec3 position, blockType);
 
 #endif
