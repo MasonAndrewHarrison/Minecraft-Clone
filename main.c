@@ -62,26 +62,25 @@ int main(void) {
     float startTime = (float)glfwGetTime();
 
     camera mainCamera = cameraInit(WIDTH, HEIGHT);
-    Mesh cube = createCube((vec3){3, 3, 3});
+    Mesh cube = createCube((vec3){3, 3, 3}, GRASS);
+    Mesh cube2 = createCube((vec3){0, 0, 0}, GRASS);
 
     glfwSetWindowUserPointer(window, &mainCamera);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, mouseCallback);
 
 
-    vec3 cubePositions[11] = {
+    vec3 cubePositions[3] = {
         { 0.0f,  -2.0f,  0.0f},
         { 1.0f,  -2.0f,  -2.0f},
         {-1.0f,  0.0f,  0.0f},
-        { 0.0f,  0.0f,  4.0f},
-        { 0.0f, 0.0f,  3.0f},
-        { 2.0f,  0.0f,  0.0f},
-        {-2.0f,  0.0f,  1.0f},
-        { 0.0f,  0.0f,  -1.0f},
-        { 1.0f,  0.0f,  0.0f},
-        {-5.0f, -1.0f,  0.0f},
-        {-1.0f, 0.0f,  4.0f},
     };
+    blockType cubeType[3] = {GRASS, GRASS, GRASS};
+
+    Mesh cubes[3];
+    for(int i = 0; i < 3; i++){
+        cubes[i] = createCube(cubePositions[i], cubeType[i]);
+    }
 
     while (!glfwWindowShouldClose(window)) {
 
@@ -100,14 +99,14 @@ int main(void) {
         glm_lookat(mainCamera.eye, mainCamera.center, mainCamera.up, view);
         glm_mat4_mul(proj,  view,  pv);
 
-        for (int i = 0; i < 11; i++) {
+        glm_mat4_identity(model);
+        glm_mat4_mul(pv, model, mvp);
+        glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, (float*)mvp);
 
-            glm_mat4_identity(model);
-            glm_translate(model, cubePositions[i]);
-            glm_mat4_mul(pv, model, mvp);
-            glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, (float*)mvp);
-            drawMesh(&cube);
+        for(int i = 0; i < 3; i++){
+            drawMesh(&cubes[i]);
         }
+
 
         glfwSwapBuffers(window);
         glfwPollEvents();

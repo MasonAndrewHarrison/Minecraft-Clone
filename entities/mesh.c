@@ -2,10 +2,9 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "mesh.h"
+#include <string.h>
 
-
-
-Mesh createMesh(float* vertices, int vertexCount, unsigned int* indices, int indexCount){
+Mesh createMesh(float* vertices, int vertexCount, const unsigned int* indices, int indexCount){
 
     Mesh mesh;
     mesh.indexCount = indexCount;
@@ -33,53 +32,16 @@ Mesh createMesh(float* vertices, int vertexCount, unsigned int* indices, int ind
     return mesh;
 }
 
-Mesh createCube(vec3 position){
+Mesh createCube(vec3 position, blockType type){
 
-    float vertices[] = {
-    // x,   y,   z,   r,   g,   b,   u,         v
-    // front
-    -0.5f,-0.5f, 0.5f,  0.0f,0.0f,0.0f,  0.333333f,0.0f,
-    0.5f,-0.5f, 0.5f,  0.0f,0.0f,0.0f,  0.666667f,0.0f,
-    0.5f, 0.5f, 0.5f,  0.0f,0.0f,0.0f,  0.666667f,1.0f,
-    -0.5f, 0.5f, 0.5f,  0.0f,0.0f,0.0f,  0.333333f,1.0f,
-    // back (reverted — this was never actually broken)
-    -0.5f,-0.5f,-0.5f,  0.0f,0.0f,0.0f,  0.333333f,0.0f,
-    0.5f,-0.5f,-0.5f,  0.0f,0.0f,0.0f,  0.666667f,0.0f,
-    0.5f, 0.5f,-0.5f,  0.0f,0.0f,0.0f,  0.666667f,1.0f,
-    -0.5f, 0.5f,-0.5f,  0.0f,0.0f,0.0f,  0.333333f,1.0f,
-    // left (actually fixed now — v tracks y, was tracking z)
-    -0.5f,-0.5f, 0.5f,  0.0f,0.0f,0.0f,  0.333333f,0.0f,
-    -0.5f, 0.5f, 0.5f,  0.0f,0.0f,0.0f,  0.333333f,1.0f,
-    -0.5f, 0.5f,-0.5f,  0.0f,0.0f,0.0f,  0.666667f,1.0f,
-    -0.5f,-0.5f,-0.5f,  0.0f,0.0f,0.0f,  0.666667f,0.0f,
-    // right (unchanged — this swap was correct)
-    0.5f,-0.5f, 0.5f,  0.0f,0.0f,0.0f,  0.333333f,0.0f,
-    0.5f, 0.5f, 0.5f,  0.0f,0.0f,0.0f,  0.333333f,1.0f,
-    0.5f, 0.5f,-0.5f,  0.0f,0.0f,0.0f,  0.666667f,1.0f,
-    0.5f,-0.5f,-0.5f,  0.0f,0.0f,0.0f,  0.666667f,0.0f,
-    // top
-    -0.5f, 0.5f, 0.5f,  0.0f,0.0f,0.0f,  0.0f,     0.0f,
-    0.5f, 0.5f, 0.5f,  0.0f,0.0f,0.0f,  0.333333f,0.0f,
-    0.5f, 0.5f,-0.5f,  0.0f,0.0f,0.0f,  0.333333f,1.0f,
-    -0.5f, 0.5f,-0.5f,  0.0f,0.0f,0.0f,  0.0f,     1.0f,
-    // bottom (reverted — this was never actually broken either)
-    -0.5f,-0.5f, 0.5f,  0.0f,0.0f,0.0f,  0.666667f,0.0f,
-    0.5f,-0.5f, 0.5f,  0.0f,0.0f,0.0f,  1.0f,     0.0f,
-    0.5f,-0.5f,-0.5f,  0.0f,0.0f,0.0f,  1.0f,     1.0f,
-    -0.5f,-0.5f,-0.5f,  0.0f,0.0f,0.0f,  0.666667f,1.0f,
-    };
+    float vertices[CUBE_COUNT];
+    memcpy(vertices, CUBE_VERTICES, CUBE_BYTES);
 
-    unsigned int indices[] = {
-    0, 1, 2,   2, 3, 0,
-    4, 5, 6,   6, 7, 4,
-    8, 9,10,  10,11, 8,
-    12,13,14,  14,15,12,
-    16,17,18,  18,19,16,
-    20,21,22,  22,23,20,
-    };
-
-    return createMesh(vertices, 24, indices, 36);
-
+    for (int i = 0; i < CUBE_VERTEX_COUNT; i++){
+        float* vertexPos = &vertices[i * CUBE_VERTEX_LENGTH];
+        glm_vec3_add(vertexPos, position, vertexPos);
+    }
+    return createMesh(vertices, CUBE_VERTEX_COUNT, CUBE_INDICES, CUBE_INDEX_COUNT);
 }
 
 void drawMesh(Mesh* mesh) {
