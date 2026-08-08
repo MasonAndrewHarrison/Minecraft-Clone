@@ -16,43 +16,159 @@ typedef enum blockType {
   DIRT,
 } blockType;
 
+#define ATLAS_STEP 1.0f/16.0f
+
 static const float CUBE_VERTICES[] = {
   // Position (X,Y,Z)      | Normal (X,Y,Z)     | UV (U,V)
   // --- Front Face ---
-  -0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.333333f, 0.0f,
-  0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.666667f, 0.0f,
-  0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.666667f, 1.0f,
-  -0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.333333f, 1.0f,
+  -0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  -0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
 
   // --- Back Face ---
-  -0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.333333f, 0.0f,
-  0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.666667f, 0.0f,
-  0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.666667f, 1.0f,
-  -0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.333333f, 1.0f,
+  -0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  -0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
 
   // --- Left Face ---
-  -0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.333333f, 0.0f,
-  -0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.333333f, 1.0f,
-  -0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.666667f, 1.0f,
-  -0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.666667f, 0.0f,
+  -0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  -0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  -0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  -0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
 
   // --- Right Face ---
-  0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.333333f, 0.0f,
-  0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.333333f, 1.0f,
-  0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.666667f, 1.0f,
-  0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.666667f, 0.0f,
+  0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
 
   // --- Top Face ---
-  -0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f,      0.0f,
-  0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.333333f, 0.0f,
-  0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.333333f, 1.0f,
-  -0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f,      1.0f,
+  -0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  -0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
 
   // --- Bottom Face ---
-  -0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.666667f, 0.0f,
-  0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   1.0f,      0.0f,
-  0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   1.0f,      1.0f,
-  -0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.666667f, 1.0f,
+  -0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  -0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+};
+
+static const float CUBE_UV_GRASS[] = {
+  // --- Front Face --- 
+  ATLAS_STEP*1, ATLAS_STEP*15,
+  ATLAS_STEP*2, ATLAS_STEP*15,
+  ATLAS_STEP*2, ATLAS_STEP*16,
+  ATLAS_STEP*1, ATLAS_STEP*16,
+
+  // --- Back Face ---
+  ATLAS_STEP*1, ATLAS_STEP*15,
+  ATLAS_STEP*2, ATLAS_STEP*15,
+  ATLAS_STEP*2, ATLAS_STEP*16,
+  ATLAS_STEP*1, ATLAS_STEP*16,
+
+  // --- Left Face --- 
+  ATLAS_STEP*2, ATLAS_STEP*15,
+  ATLAS_STEP*2, ATLAS_STEP*16,
+  ATLAS_STEP*1, ATLAS_STEP*16,
+  ATLAS_STEP*1, ATLAS_STEP*15,
+
+  // --- Right Face ---
+  ATLAS_STEP*2, ATLAS_STEP*15,
+  ATLAS_STEP*2, ATLAS_STEP*16,
+  ATLAS_STEP*1, ATLAS_STEP*16,
+  ATLAS_STEP*1, ATLAS_STEP*15,
+
+  // --- Top Face ---
+  ATLAS_STEP*0, ATLAS_STEP*15,
+  ATLAS_STEP*1, ATLAS_STEP*15,
+  ATLAS_STEP*1, ATLAS_STEP*16,
+  ATLAS_STEP*0, ATLAS_STEP*16,
+
+  // --- Bottom Face --- 
+  ATLAS_STEP*2, ATLAS_STEP*15,
+  ATLAS_STEP*3, ATLAS_STEP*15,
+  ATLAS_STEP*3, ATLAS_STEP*16,
+  ATLAS_STEP*2, ATLAS_STEP*16,
+};
+
+static const float CUBE_UV_WOOD[] = {
+  // --- Front Face --- 
+  ATLAS_STEP*2, ATLAS_STEP*14,
+  ATLAS_STEP*3, ATLAS_STEP*14,
+  ATLAS_STEP*3, ATLAS_STEP*15,
+  ATLAS_STEP*2, ATLAS_STEP*15,
+
+  // --- Back Face ---
+  ATLAS_STEP*2, ATLAS_STEP*14,
+  ATLAS_STEP*3, ATLAS_STEP*14,
+  ATLAS_STEP*3, ATLAS_STEP*15,
+  ATLAS_STEP*2, ATLAS_STEP*15,
+
+  // --- Left Face --- 
+  ATLAS_STEP*3, ATLAS_STEP*14,
+  ATLAS_STEP*3, ATLAS_STEP*15,
+  ATLAS_STEP*2, ATLAS_STEP*15,
+  ATLAS_STEP*2, ATLAS_STEP*14,
+
+  // --- Right Face ---
+  ATLAS_STEP*3, ATLAS_STEP*14,
+  ATLAS_STEP*3, ATLAS_STEP*15,
+  ATLAS_STEP*2, ATLAS_STEP*15,
+  ATLAS_STEP*2, ATLAS_STEP*14,
+
+  // --- Top Face ---
+  ATLAS_STEP*4, ATLAS_STEP*14,
+  ATLAS_STEP*4, ATLAS_STEP*15,
+  ATLAS_STEP*3, ATLAS_STEP*15,
+  ATLAS_STEP*3, ATLAS_STEP*14,
+
+  // --- Bottom Face --- 
+  ATLAS_STEP*4, ATLAS_STEP*14,
+  ATLAS_STEP*4, ATLAS_STEP*15,
+  ATLAS_STEP*3, ATLAS_STEP*15,
+  ATLAS_STEP*3, ATLAS_STEP*14,
+};
+
+static const float CUBE_UV_DIRT[] = {
+  // --- Front Face --- 
+  ATLAS_STEP*2, ATLAS_STEP*15,
+  ATLAS_STEP*3, ATLAS_STEP*15,
+  ATLAS_STEP*3, ATLAS_STEP*16,
+  ATLAS_STEP*2, ATLAS_STEP*16,
+
+  // --- Back Face ---
+  ATLAS_STEP*2, ATLAS_STEP*15,
+  ATLAS_STEP*3, ATLAS_STEP*15,
+  ATLAS_STEP*3, ATLAS_STEP*16,
+  ATLAS_STEP*2, ATLAS_STEP*16,
+
+  // --- Left Face --- 
+  ATLAS_STEP*2, ATLAS_STEP*15,
+  ATLAS_STEP*3, ATLAS_STEP*15,
+  ATLAS_STEP*3, ATLAS_STEP*16,
+  ATLAS_STEP*2, ATLAS_STEP*16,
+
+  // --- Right Face ---
+  ATLAS_STEP*2, ATLAS_STEP*15,
+  ATLAS_STEP*3, ATLAS_STEP*15,
+  ATLAS_STEP*3, ATLAS_STEP*16,
+  ATLAS_STEP*2, ATLAS_STEP*16,
+
+  // --- Top Face ---
+  ATLAS_STEP*2, ATLAS_STEP*15,
+  ATLAS_STEP*3, ATLAS_STEP*15,
+  ATLAS_STEP*3, ATLAS_STEP*16,
+  ATLAS_STEP*2, ATLAS_STEP*16,
+
+  // --- Bottom Face --- 
+  ATLAS_STEP*2, ATLAS_STEP*15,
+  ATLAS_STEP*3, ATLAS_STEP*15,
+  ATLAS_STEP*3, ATLAS_STEP*16,
+  ATLAS_STEP*2, ATLAS_STEP*16,
 };
 
 #define CUBE_BYTES sizeof(CUBE_VERTICES)

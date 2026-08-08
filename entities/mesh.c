@@ -40,7 +40,26 @@ Mesh createCube(vec3 position, blockType type){
     for (int i = 0; i < CUBE_VERTEX_COUNT; i++){
         float* vertexPos = &vertices[i * CUBE_VERTEX_LENGTH];
         glm_vec3_add(vertexPos, position, vertexPos);
+        
+        if (type == GRASS){
+            vertices[i * CUBE_VERTEX_LENGTH+6] = CUBE_UV_GRASS[i * 2];
+            vertices[i * CUBE_VERTEX_LENGTH+7] = CUBE_UV_GRASS[i * 2 + 1];
+        }
+        else if (type == WOOD){
+            vertices[i * CUBE_VERTEX_LENGTH+6] = CUBE_UV_WOOD[i * 2];
+            vertices[i * CUBE_VERTEX_LENGTH+7] = CUBE_UV_WOOD[i * 2 + 1];
+        }
+        else if (type == DIRT){
+            vertices[i * CUBE_VERTEX_LENGTH+6] = CUBE_UV_DIRT[i * 2];
+            vertices[i * CUBE_VERTEX_LENGTH+7] = CUBE_UV_DIRT[i * 2 + 1];
+        }
+        else{
+            printf("dfs");
+        }
+        
     }
+
+
     return createMesh(vertices, CUBE_VERTEX_COUNT, CUBE_INDICES, CUBE_INDEX_COUNT);
 }
 

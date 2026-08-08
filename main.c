@@ -62,9 +62,6 @@ int main(void) {
     float startTime = (float)glfwGetTime();
 
     camera mainCamera = cameraInit(WIDTH, HEIGHT);
-    Mesh cube = createCube((vec3){3, 3, 3}, GRASS);
-    Mesh cube2 = createCube((vec3){0, 0, 0}, GRASS);
-
     glfwSetWindowUserPointer(window, &mainCamera);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, mouseCallback);
@@ -75,7 +72,7 @@ int main(void) {
         { 1.0f,  -2.0f,  -2.0f},
         {-1.0f,  0.0f,  0.0f},
     };
-    blockType cubeType[3] = {GRASS, GRASS, GRASS};
+    blockType cubeType[3] = {GRASS,  WOOD, DIRT};
 
     Mesh cubes[3];
     for(int i = 0; i < 3; i++){
@@ -112,7 +109,9 @@ int main(void) {
         glfwPollEvents();
     }
 
-    destroyMesh(&cube);
+    for (int i = 0; i < 3; i++){
+        destroyMesh(cubes);
+    }
     destroyTexture(&atlas);
     glDeleteProgram(shader);
     glfwTerminate();
