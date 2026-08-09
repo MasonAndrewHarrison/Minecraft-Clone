@@ -2,13 +2,13 @@
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "shaders/shader.h"
+#include "../shaders/shader.h"
 #include <cglm/cglm.h>
-#include "entities/camera.h"
-#include "textures/texture.h"
-#include "eventHandling/handler.h"
-#include "eventHandling/state.h"
-#include "entities/world.h"
+#include "../entities/camera.h"
+#include "../textures/texture.h"
+#include "../eventHandling/handler.h"
+#include "../eventHandling/state.h"
+#include "../entities/world.h"
 
 
 #define WIDTH          1920
