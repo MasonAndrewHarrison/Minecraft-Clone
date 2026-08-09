@@ -85,7 +85,8 @@ int main(void) {
         renderList[i*2+1] = localY - (int)length/2;
     }
 
-    World* world = initWorld();
+    World* world = initWorld(coolerMapGeneration);
+
     genChunks(world, renderList, worldSize);
 
     while (!glfwWindowShouldClose(state->window)) {

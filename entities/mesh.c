@@ -149,35 +149,8 @@ void vertexChunkToChunk(VertexChunk* const vertexChunk, Chunk* chunk){
     _createChunkElement(vertexChunk, size, BACK, &chunk->back);
 }
 
-inline static uint8_t cheapFastHash(uint8_t const x, uint8_t const y, uint8_t const z, uint8_t const seed){
-    uint8_t h = seed;
-    h ^= x * 0x9Fu;
-    h ^= y * 0xA3u;
-    h ^= z * 0xC1u;
-
-    h ^= h >> 3;
-    h *= 0x9Fu;
-    h ^= h >> 5;
-    h *= 0xA3u;
-    h ^= h >> 4;
-
-    return h;  
-}
-
-static blockType worldGeneration(int x, int y, int z, unsigned int const seed){
-    blockType type = GRASS;
-    uint8_t height = cheapFastHash(x, y, 0, seed) % 3 + 118;
-
-    if (z > height){
-        type = AIR; 
-    }
-    else if (z < height){
-        type = DIRT;
-    }
-    return type;
-}
-
-static blockType* createBlockState(int xOffset, int yOffset, int* totalBlocks){
+static blockType* createBlockState(int xOffset, int yOffset, int* totalBlocks, 
+    blockType(*mapGeneration)(int, int, int, unsigned int), unsigned int seed){
 
     blockType* blockTypeState = malloc(sizeof(blockType) * CHUNK_SIZE_CUBED * CHUNK_HEIGHT);
     *totalBlocks = 0;
@@ -187,7 +160,7 @@ static blockType* createBlockState(int xOffset, int yOffset, int* totalBlocks){
             int localX = j % CHUNK_SIZE;
             int localY = j / CHUNK_SIZE;  
 
-            blockType type = worldGeneration(localX + xOffset*CHUNK_SIZE, localY + yOffset*CHUNK_SIZE, z, 3);
+            blockType type = mapGeneration(localX + xOffset*CHUNK_SIZE, localY + yOffset*CHUNK_SIZE, z, seed);
             blockTypeState[blockIndex(localX, localY, z)] = type;
             if (type != AIR){
                 (*totalBlocks)++;
@@ -198,10 +171,10 @@ static blockType* createBlockState(int xOffset, int yOffset, int* totalBlocks){
     return blockTypeState;
 }
 
-Chunk* createChunk(int x, int y){
+Chunk* createChunk(int x, int y, blockType(*mapGeneration)(int, int, int, unsigned int), unsigned int seed){
 
     Chunk* chunk = malloc(sizeof(Chunk));
-    chunk->blockState = createBlockState(x, y, &chunk->totalBlocks);
+    chunk->blockState = createBlockState(x, y, &chunk->totalBlocks, mapGeneration, seed);
     chunk->x=x;
     chunk->y=y;
     rebuildChunk(chunk);

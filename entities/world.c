@@ -1,8 +1,48 @@
 #include "world.h"
 
+inline static uint8_t cheapFastHash(uint8_t const x, uint8_t const y, uint8_t const z, uint8_t const seed){
+    uint8_t h = seed;
+    h ^= x * 0x9Fu;
+    h ^= y * 0xA3u;
+    h ^= z * 0xC1u;
 
+    h ^= h >> 3;
+    h *= 0x9Fu;
+    h ^= h >> 5;
+    h *= 0xA3u;
+    h ^= h >> 4;
 
-ChunkNode* setNode(Chunk* chunk){
+    return h;  
+}
+
+blockType defaultMapGeneration(int const x, int const y, int const z, unsigned int const seed){
+    blockType type = GRASS;
+    uint8_t height = cheapFastHash(x, y, 0, seed) % 3 + 118;
+
+    if (z > height){
+        type = AIR; 
+    }
+    else if (z < height){
+        type = DIRT;
+    }
+    return type;
+}
+
+blockType coolerMapGeneration(int const x, int const y, int const z, unsigned int const seed){
+    blockType type = GRASS;
+    uint8_t height = x* y/10 + 100;
+    printf("%d, %d, %d\n", x, y, x* y/10 + 100);
+
+    if (z > height){
+        type = AIR; 
+    }
+    else if (z < height){
+        type = DIRT;
+    }
+    return type;
+}
+
+static ChunkNode* setNode(Chunk* chunk){
     ChunkNode* node = malloc(sizeof(ChunkNode));
     node->xKey = chunk->x;
     node->yKey = chunk->y;
@@ -12,9 +52,11 @@ ChunkNode* setNode(Chunk* chunk){
 }
 
 
-World* initWorld(){
+World* initWorld(blockType(*mapGenFunct)(int, int, int, unsigned int)){
     World* world = malloc(sizeof(World));
     world->numOfChunks = 0;
+    world->mapGeneration = mapGenFunct;
+    world->seed = 0x23243;
     for (int i = 0; i < WORLD_CAPACITY; i++){
         world->chunkArray[i] = NULL;
     }
@@ -36,7 +78,7 @@ unsigned int hashChunkCoord(World* world, int x, int y) {
 
 
 void genChunk(World* world, int x, int y){
-    ChunkNode* newNode = setNode(createChunk(x, y));
+    ChunkNode* newNode = setNode(createChunk(x, y, world->mapGeneration, world->seed));
     unsigned int bucketIndex = hashChunkCoord(world, x, y);
 
     if (world->chunkArray[bucketIndex] == NULL){

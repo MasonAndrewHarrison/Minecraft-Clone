@@ -20,16 +20,20 @@ typedef struct node{
 
 typedef struct World{
     int numOfChunks;
+    unsigned int seed;
     ChunkNode* chunkArray[WORLD_CAPACITY];
+    blockType(*mapGeneration)(int, int, int, unsigned int);
 } World;
 
 
-World* initWorld();
+World* initWorld(blockType(*mapGeneration)(int, int, int, unsigned int));
 Chunk* getChunk(World* world, int x, int y);
 void genChunk(World* world, int x, int y);
 void renderChunks(World* world, int* renderList, int TotalChunks);
 void genChunks(World* world, int* renderList, int TotalChunks);
 void renderChunksWireFrame(World* world, int* renderList, int TotalChunks);
 void destroyWorld(World* world);
+blockType defaultMapGeneration(int const x, int const y, int const z, unsigned int const seed);
+blockType coolerMapGeneration(int const x, int const y, int const z, unsigned int const seed);
 
 #endif
