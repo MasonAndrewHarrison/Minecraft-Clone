@@ -161,7 +161,7 @@ static blockType* createBlockState(int xOffset, int yOffset, int* totalBlocks){
             blockType type;
             type = rand() % 3 + 1;
 
-            if (rand() % 10 <= z-118){
+            if (rand() % 8 <= z-118){
                 blockTypeState[blockIndex(localX, localY, z)] = AIR;
             }
             else{
@@ -203,8 +203,19 @@ void freeVertexChunk(VertexChunk* vertexChunk){
     free(vertexChunk);
 }
 
-uint8_t checkVisiblity(blockType* blockState, uint8_t* dirList){
-    dirList[2] = 1;
+uint8_t checkVisiblity(blockType* blockState, int x, int y, int z, uint8_t* dirList){
+    if(blockState[blockIndex(x, y, z)] == AIR){
+        return 0;
+    }
+
+    dirList[FRONT] = blockState[blockIndex(x, y+1, z)] == AIR || y == CHUNK_SIZE-1;
+    dirList[BACK] = blockState[blockIndex(x, y-1, z)] == AIR || y == 0;
+    dirList[LEFT] = blockState[blockIndex(x-1, y, z)] == AIR || x == 0;
+    dirList[RIGHT] = blockState[blockIndex(x+1, y, z)] == AIR || x == CHUNK_SIZE-1;
+    dirList[TOP] = blockState[blockIndex(x, y, z+1)] == AIR || z == CHUNK_HEIGHT-1;
+    dirList[BOTTOM] = blockState[blockIndex(x, y-1, z-1)] == AIR || z == 0;
+
+    return 1;
 }
 
 void rebuildChunk(Chunk* chunk){
@@ -222,11 +233,11 @@ void rebuildChunk(Chunk* chunk){
             type = chunk->blockState[blockIndex(localX, localY, z)];
 
             uint8_t dirList[6];
-            uint8_t isVisible = checkVisiblity(chunk->blockState, dirList);
+            uint8_t isVisible = checkVisiblity(chunk->blockState, localX, localY, z, dirList);
 
-            if (type != AIR || isVisible){
+            if (isVisible){
                 appendCubeToVertexChunk(vertexChunk, totalIndex, 
-                    (vec3){x + (chunk->x*16), z-(CHUNK_HEIGHT/2), y + (chunk->y*16)}, type, dirList);
+                    (vec3){x + (chunk->x*16), z-((int)CHUNK_HEIGHT/2), y + (chunk->y*16)}, type, dirList);
                 totalIndex++;
             }
         }

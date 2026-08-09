@@ -9,6 +9,7 @@
 #include "eventHandling/handler.h"
 #include "entities/mesh.h"
 #include "eventHandling/state.h"
+#include "entities/world.h"
 
 
 #define WIDTH          1920
@@ -71,17 +72,12 @@ int main(void) {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, mouseCallback);
 
-    Chunk* chunk = createChunk(0, 0);
-    rebuildChunk(chunk);
+    unsigned int size = 5;
+    World* world = initWorld();
+    int renderList[10] = {0, 0, 1, 1, 0, 1, 1, 0 , 2, 0};
+    genChunks(world, renderList, size);
 
     while (!glfwWindowShouldClose(window)) {
-
-        if (state->needOfUpdate == 1){
-            rebuildChunk(chunk);
-            state->needOfUpdate = 0;
-        }
-
-        chunk->blockState[blockIndex(0, 0, 130)] = DEFAULT;
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -102,14 +98,14 @@ int main(void) {
         glm_mat4_mul(pv, model, mvp);
         glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, (float*)mvp);
 
-        if (state->wireFrame == 1){drawChunkWireFrame(chunk);}
-        else {drawChunk(chunk);}
+        if (state->wireFrame == 1){renderChunksWireFrame(world, renderList, size);}
+        else {renderChunks(world, renderList, size);}
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    destroyChunk(chunk);
+    //destroyChunk(chunk);
     destroyTexture(&atlas);
     glDeleteProgram(shader);
     glfwTerminate();

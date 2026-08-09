@@ -5,9 +5,9 @@
 #include "state.h"
 
 
-#define forwardSpeed 0.5f
+#define forwardSpeed 0.6f
 #define strifeSpeed 0.3f
-#define upSpeed 0.1f
+#define upSpeed 0.3f
 #define mouseSpeed 0.001f
 
 
