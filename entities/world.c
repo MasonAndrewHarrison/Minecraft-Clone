@@ -30,8 +30,8 @@ blockType defaultMapGeneration(int const x, int const y, int const z, unsigned i
 
 blockType coolerMapGeneration(int const x, int const y, int const z, unsigned int const seed){
     blockType type = GRASS;
-    uint8_t height = x* y/10 + 100;
-    printf("%d, %d, %d\n", x, y, x* y/10 + 100);
+    uint8_t height = x* y/50 + 100;
+
 
     if (z > height){
         type = AIR; 
