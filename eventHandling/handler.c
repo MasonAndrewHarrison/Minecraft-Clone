@@ -11,42 +11,42 @@
 #define mouseSpeed 0.001f
 
 
-void inputHandler(GLFWwindow* window, camera* cam, State* state){
+void inputHandler(State* state){
 
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
-        moveLeftRight(cam, forwardSpeed);
+    if (glfwGetKey(state->window, GLFW_KEY_W) == GLFW_PRESS){
+        moveLeftRight(state->cam, forwardSpeed);
     }
 
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
-        moveLeftRight(cam, (-1.0f)*forwardSpeed);
+    if (glfwGetKey(state->window, GLFW_KEY_S) == GLFW_PRESS){
+        moveLeftRight(state->cam, (-1.0f)*forwardSpeed);
     }
         
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
-        moveForwardBackwards(cam, strifeSpeed);
+    if (glfwGetKey(state->window, GLFW_KEY_A) == GLFW_PRESS){
+        moveForwardBackwards(state->cam, strifeSpeed);
     }
 
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
-        moveForwardBackwards(cam, (-1.0f)*strifeSpeed);
+    if (glfwGetKey(state->window, GLFW_KEY_D) == GLFW_PRESS){
+        moveForwardBackwards(state->cam, (-1.0f)*strifeSpeed);
     }
 
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS){
-        moveUpDown(cam, upSpeed);
+    if (glfwGetKey(state->window, GLFW_KEY_E) == GLFW_PRESS){
+        moveUpDown(state->cam, upSpeed);
     }
 
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS){ 
-        moveUpDown(cam, (-1.0f)*upSpeed);
+    if (glfwGetKey(state->window, GLFW_KEY_Q) == GLFW_PRESS){ 
+        moveUpDown(state->cam, (-1.0f)*upSpeed);
     }
 
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
+    if (glfwGetKey(state->window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
+        glfwSetWindowShouldClose(state->window, GLFW_TRUE);
     }
 
-    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS){
+    if (glfwGetKey(state->window, GLFW_KEY_R) == GLFW_PRESS){
         state->wireFrame=1;
     }else {state->wireFrame=0;}
 
-    if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS){
+    if (glfwGetKey(state->window, GLFW_KEY_F) == GLFW_PRESS){
         state->needOfUpdate = 1;
     }
 }

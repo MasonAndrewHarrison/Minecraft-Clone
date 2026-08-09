@@ -7,7 +7,6 @@
 #include "entities/camera.h"
 #include "textures/texture.h"
 #include "eventHandling/handler.h"
-#include "entities/mesh.h"
 #include "eventHandling/state.h"
 #include "entities/world.h"
 
@@ -18,24 +17,26 @@
 
 int main(void) {
 
-    State* state = malloc(sizeof(State));
-    state->wireFrame = 0;
-    state->needOfUpdate = 0;
-
+    
     if (!glfwInit()) return -1;
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Minecraft Clone", NULL, NULL);
+    State* state = malloc(sizeof(State));
+    state->wireFrame = 0;
+    state->needOfUpdate = 0;
+    state->window = glfwCreateWindow(WIDTH, HEIGHT, "Minecraft Clone", NULL, NULL);
+    state->cam = cameraInit(WIDTH, HEIGHT);
+
     
-    if (!window) { 
+    if (!state->window) { 
         glfwTerminate(); 
         return -1; 
     }
 
-    glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(state->window);
     glfwSwapInterval(VSYNC_INTERVAL);
     glewExperimental = GL_TRUE;
     glewInit();
@@ -56,7 +57,7 @@ int main(void) {
     mat4 pv;
     mat4 mvp;
 
-    glm_perspective(glm_rad(45.0f), (float)WIDTH/HEIGHT, 0.1f, 100.0f, proj);
+    glm_perspective(glm_rad(45.0f), (float)WIDTH/HEIGHT, 0.1f, 1000.0f, proj);
 
     int timeLoc       = glGetUniformLocation(shader, "uTime");
     int resolutionLoc = glGetUniformLocation(shader, "uResolution");
@@ -67,21 +68,31 @@ int main(void) {
 
     float startTime = (float)glfwGetTime();
 
-    camera mainCamera = cameraInit(WIDTH, HEIGHT);
-    glfwSetWindowUserPointer(window, &mainCamera);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetCursorPosCallback(window, mouseCallback);
+    glfwSetWindowUserPointer(state->window, state->cam);
+    glfwSetInputMode(state->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(state->window, mouseCallback);
 
-    unsigned int size = 5;
+    unsigned int length = 2;
+    unsigned int width = 2;
+    unsigned int worldSize = length*width;
+    
+    int renderList[worldSize*2];
+
+    for (int i = 0; i < length * width; i++){
+        int localX = i % width;
+        int localY = i / width;  
+        renderList[i*2] = localX - (int)width/2;
+        renderList[i*2+1] = localY - (int)length/2;
+    }
+
     World* world = initWorld();
-    int renderList[10] = {0, 0, 1, 1, 0, 1, 1, 0 , 2, 0};
-    genChunks(world, renderList, size);
+    genChunks(world, renderList, worldSize);
 
-    while (!glfwWindowShouldClose(window)) {
+    while (!glfwWindowShouldClose(state->window)) {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        inputHandler(window, &mainCamera, state);
+        inputHandler(state);
 
         float currentTime = (float)glfwGetTime() - startTime;
         glUniform1f(timeLoc,       currentTime);
@@ -91,21 +102,21 @@ int main(void) {
         glUniform1i(textureLoc, 0);
         bindTexture(&atlas, 0);
 
-        glm_lookat(mainCamera.eye, mainCamera.center, mainCamera.up, view);
+        glm_lookat(state->cam->eye, state->cam->center, state->cam->up, view);
         glm_mat4_mul(proj,  view,  pv);
 
         glm_mat4_identity(model);
         glm_mat4_mul(pv, model, mvp);
         glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, (float*)mvp);
 
-        if (state->wireFrame == 1){renderChunksWireFrame(world, renderList, size);}
-        else {renderChunks(world, renderList, size);}
+        if (state->wireFrame == 1){renderChunksWireFrame(world, renderList, worldSize);}
+        else {renderChunks(world, renderList, worldSize);}
 
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(state->window);
         glfwPollEvents();
     }
 
-    //destroyChunk(chunk);
+    destroyWorld(world);
     destroyTexture(&atlas);
     glDeleteProgram(shader);
     glfwTerminate();

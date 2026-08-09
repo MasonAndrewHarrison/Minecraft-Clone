@@ -9,26 +9,27 @@
 #include <GLFW/glfw3.h>
 
 
-typedef struct ChunkNode{
+typedef struct node{
     int xKey;
     int yKey;
     Chunk* chunk;
-
+    struct node* next;
 } ChunkNode;
+
+#define WORLD_CAPACITY 2
 
 typedef struct World{
     int numOfChunks;
-    int capacity;
-    ChunkNode** chunkArray;
+    ChunkNode* chunkArray[WORLD_CAPACITY];
 } World;
 
 
 World* initWorld();
-void addChunk(World* world, Chunk* chunk);
 Chunk* getChunk(World* world, int x, int y);
 void genChunk(World* world, int x, int y);
 void renderChunks(World* world, int* renderList, int TotalChunks);
 void genChunks(World* world, int* renderList, int TotalChunks);
 void renderChunksWireFrame(World* world, int* renderList, int TotalChunks);
+void destroyWorld(World* world);
 
 #endif

@@ -16,7 +16,7 @@ typedef struct camera {
   int firstMouse;
 } camera;
 
-camera cameraInit(int height, int width);
+camera* cameraInit(int height, int width);
 void moveLeftRight(camera *cam, float forwardSpeed);
 void moveForwardBackwards(camera *cam, float strifeSpeed);
 void moveUpDown(camera *cam, float upSpeed);
