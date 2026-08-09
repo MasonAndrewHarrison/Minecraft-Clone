@@ -149,6 +149,34 @@ void vertexChunkToChunk(VertexChunk* const vertexChunk, Chunk* chunk){
     _createChunkElement(vertexChunk, size, BACK, &chunk->back);
 }
 
+inline static uint8_t cheapFastHash(uint8_t const x, uint8_t const y, uint8_t const z, uint8_t const seed){
+    uint8_t h = seed;
+    h ^= x * 0x9Fu;
+    h ^= y * 0xA3u;
+    h ^= z * 0xC1u;
+
+    h ^= h >> 3;
+    h *= 0x9Fu;
+    h ^= h >> 5;
+    h *= 0xA3u;
+    h ^= h >> 4;
+
+    return h;  
+}
+
+static blockType worldGeneration(int x, int y, int z, unsigned int const seed){
+    blockType type = GRASS;
+    uint8_t height = cheapFastHash(x, y, 0, seed) % 3 + 118;
+
+    if (z > height){
+        type = AIR; 
+    }
+    else if (z < height){
+        type = DIRT;
+    }
+    return type;
+}
+
 static blockType* createBlockState(int xOffset, int yOffset, int* totalBlocks){
 
     blockType* blockTypeState = malloc(sizeof(blockType) * CHUNK_SIZE_CUBED * CHUNK_HEIGHT);
@@ -158,14 +186,10 @@ static blockType* createBlockState(int xOffset, int yOffset, int* totalBlocks){
         for (int j = 0; j < CHUNK_SIZE_CUBED; j++){
             int localX = j % CHUNK_SIZE;
             int localY = j / CHUNK_SIZE;  
-            blockType type;
-            type = rand() % 3 + 1;
 
-            if (rand() % 8 <= z-118){
-                blockTypeState[blockIndex(localX, localY, z)] = AIR;
-            }
-            else{
-                blockTypeState[blockIndex(localX, localY, z)] = type;
+            blockType type = worldGeneration(localX + xOffset*CHUNK_SIZE, localY + yOffset*CHUNK_SIZE, z, 3);
+            blockTypeState[blockIndex(localX, localY, z)] = type;
+            if (type != AIR){
                 (*totalBlocks)++;
             }
         }
@@ -213,7 +237,7 @@ uint8_t checkVisiblity(blockType* blockState, int x, int y, int z, uint8_t* dirL
     dirList[LEFT] = blockState[blockIndex(x-1, y, z)] == AIR || x == 0;
     dirList[RIGHT] = blockState[blockIndex(x+1, y, z)] == AIR || x == CHUNK_SIZE-1;
     dirList[TOP] = blockState[blockIndex(x, y, z+1)] == AIR || z == CHUNK_HEIGHT-1;
-    dirList[BOTTOM] = blockState[blockIndex(x, y-1, z-1)] == AIR || z == 0;
+    dirList[BOTTOM] = blockState[blockIndex(x, y, z-1)] == AIR || z == 0;
 
     return 1;
 }
