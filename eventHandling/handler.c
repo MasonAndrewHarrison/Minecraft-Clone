@@ -45,4 +45,8 @@ void inputHandler(GLFWwindow* window, camera* cam, State* state){
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS){
         state->wireFrame=1;
     }else {state->wireFrame=0;}
+
+    if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS){
+        state->needOfUpdate = 1;
+    }
 }

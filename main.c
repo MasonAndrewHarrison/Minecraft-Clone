@@ -19,6 +19,7 @@ int main(void) {
 
     State* state = malloc(sizeof(State));
     state->wireFrame = 0;
+    state->needOfUpdate = 0;
 
     if (!glfwInit()) return -1;
 
@@ -74,6 +75,13 @@ int main(void) {
     rebuildChunk(chunk);
 
     while (!glfwWindowShouldClose(window)) {
+
+        if (state->needOfUpdate == 1){
+            rebuildChunk(chunk);
+            state->needOfUpdate = 0;
+        }
+
+        chunk->blockState[blockIndex(0, 0, 130)] = DEFAULT;
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

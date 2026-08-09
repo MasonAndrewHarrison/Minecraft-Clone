@@ -3,6 +3,7 @@
 
 typedef struct State{
     int wireFrame;
+    int needOfUpdate;
 } State;
 
 #endif

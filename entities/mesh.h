@@ -239,7 +239,6 @@ typedef enum CubeDirection{
   BOTTOM = 5,
 } CubeDirection;
 
-
 #define CHUNK_SIZE 16
 #define CHUNK_HEIGHT 256
 #define CHUNK_SIZE_CUBED (CHUNK_SIZE * CHUNK_SIZE)
@@ -277,7 +276,7 @@ void drawChunkWireFrame(Chunk* chunk);
 void destroyMesh(Mesh *mesh);
 void destroyChunk(Chunk* chunk);
 void appendCube(float* vertices, unsigned int* indices, int cubeIndex, vec3 position, blockType);
-void appendCubeToVertexChunk(VertexChunk* vertexChunk, int cubeIndex, vec3 position, blockType type);
+void appendCubeToVertexChunk(VertexChunk* vertexChunk, int cubeIndex, vec3 position, blockType type, uint8_t* dirList);
 void vertexChunkToChunk(VertexChunk* const vertexChunk, Chunk* chunk);
 Chunk* createChunk(int x, int y);
 void rebuildChunk(Chunk* chunk);

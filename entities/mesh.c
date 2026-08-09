@@ -78,9 +78,11 @@ void static appendCubeToVertexChunkDir(VertexChunk* vertexChunk, int cubeIndex, 
     }
 }
 
-void appendCubeToVertexChunk(VertexChunk* vertexChunk, int cubeIndex, vec3 position, blockType type){
+void appendCubeToVertexChunk(VertexChunk* vertexChunk, int cubeIndex, vec3 position, blockType type, uint8_t* dirList){
     for(int dir = FRONT; dir < BOTTOM+1; dir++){
-        appendCubeToVertexChunkDir(vertexChunk, cubeIndex, position, type, dir);
+        if(dirList[dir] == 1){
+            appendCubeToVertexChunkDir(vertexChunk, cubeIndex, position, type, dir);
+        }
     }
     
 }
@@ -201,6 +203,10 @@ void freeVertexChunk(VertexChunk* vertexChunk){
     free(vertexChunk);
 }
 
+uint8_t checkVisiblity(blockType* blockState, uint8_t* dirList){
+    dirList[2] = 1;
+}
+
 void rebuildChunk(Chunk* chunk){
 
     VertexChunk* vertexChunk = initVertexChunk(chunk->totalBlocks);
@@ -215,8 +221,12 @@ void rebuildChunk(Chunk* chunk){
             blockType type;
             type = chunk->blockState[blockIndex(localX, localY, z)];
 
-            if (type != AIR){
-                appendCubeToVertexChunk(vertexChunk, totalIndex, (vec3){x + (chunk->x*16), z-(CHUNK_HEIGHT/2), y + (chunk->y*16)}, type);
+            uint8_t dirList[6];
+            uint8_t isVisible = checkVisiblity(chunk->blockState, dirList);
+
+            if (type != AIR || isVisible){
+                appendCubeToVertexChunk(vertexChunk, totalIndex, 
+                    (vec3){x + (chunk->x*16), z-(CHUNK_HEIGHT/2), y + (chunk->y*16)}, type, dirList);
                 totalIndex++;
             }
         }
