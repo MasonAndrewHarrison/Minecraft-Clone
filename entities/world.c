@@ -28,18 +28,47 @@ blockType defaultMapGeneration(int const x, int const y, int const z, unsigned i
     return type;
 }
 
+static float smoothstep(float t){
+    return t * t * (3.0f - 2.0f * t);
+}
+
+static float valueNoise2D(float x, float y, unsigned int seed){
+    int x0 = (int)floorf(x);
+    int y0 = (int)floorf(y);
+    int x1 = x0 + 1;
+    int y1 = y0 + 1;
+
+    float sx = smoothstep(x - (float)x0);
+    float sy = smoothstep(y - (float)y0);
+
+    float n00 = cheapFastHash((uint8_t)x0, (uint8_t)y0, 0, seed) / 255.0f;
+    float n10 = cheapFastHash((uint8_t)x1, (uint8_t)y0, 0, seed) / 255.0f;
+    float n01 = cheapFastHash((uint8_t)x0, (uint8_t)y1, 0, seed) / 255.0f;
+    float n11 = cheapFastHash((uint8_t)x1, (uint8_t)y1, 0, seed) / 255.0f;
+
+    float nx0 = n00 + sx * (n10 - n00);
+    float nx1 = n01 + sx * (n11 - n01);
+
+    return nx0 + sy * (nx1 - nx0);   // 0.0 .. 1.0
+}
+
 blockType coolerMapGeneration(int const x, int const y, int const z, unsigned int const seed){
     blockType type = GRASS;
-    uint8_t height = (-x)* y/100 + CHUNK_HEIGHT/2 - 5;
+
+    float frequency = 0.05f;
+    float noise = valueNoise2D(x * frequency, y * frequency, seed);
+
+    uint8_t height = (uint8_t)(noise * 20.0f) + CHUNK_HEIGHT/2 - 20; 
 
     if (z > height){
-        type = AIR; 
+        type = AIR;
     }
     else if (z < height){
         type = DIRT;
     }
     return type;
 }
+
 
 static ChunkNode* setNode(Chunk* chunk){
     ChunkNode* node = malloc(sizeof(ChunkNode));
