@@ -25,37 +25,37 @@ typedef uint8_t blockType;
 static const float CUBE_VERTICES[] = {
   // Position (X,Z,Y)      | Normal (X,Y,Z)     | UV (U,V)
   // --- Front Face ---
-  -0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  -0.5f, -0.5f,  0.5f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
   0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
   0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
   -0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
 
   // --- Back Face ---
-  -0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  -0.5f, -0.5f, -0.5f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
   0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
   0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
   -0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
 
   // --- Left Face ---
-  -0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  -0.5f, -0.5f,  0.5f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
   -0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
   -0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
   -0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
 
   // --- Right Face ---
-  0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  0.5f, -0.5f,  0.5f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
   0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
   0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
   0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
 
   // --- Top Face ---
-  -0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  -0.5f,  0.5f,  0.5f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
   0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
   0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
   -0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
 
   // --- Bottom Face ---
-  -0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  -0.5f, -0.5f,  0.5f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
   0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
   0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
   -0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
@@ -214,7 +214,7 @@ static const float CUBE_UV_DEFAULT[] = {
 };
 
 #define CUBE_BYTES sizeof(CUBE_VERTICES)
-#define CUBE_COUNT (sizeof(CUBE_VERTICES) / sizeof(float))
+#define CUBE_COUNT (int)(sizeof(CUBE_VERTICES) / sizeof(float))
 #define CUBE_VERTEX_LENGTH 8
 #define CUBE_VERTEX_BYTES (sizeof(float) * CUBE_VERTEX_LENGTH)
 #define CUBE_VERTEX_COUNT (CUBE_COUNT / CUBE_VERTEX_LENGTH)
@@ -279,7 +279,6 @@ void drawChunkWireFrame(Chunk* chunk);
 void destroyMesh(Mesh *mesh);
 void destroyChunk(Chunk* chunk);
 void appendCube(float* vertices, unsigned int* indices, int cubeIndex, vec3 position, blockType);
-void appendCubeToVertexChunk(VertexChunk* vertexChunk, int cubeIndex, vec3 position, blockType type, uint8_t* dirList);
 void vertexChunkToChunk(VertexChunk* const vertexChunk, Chunk* chunk);
 Chunk* createChunk(int x, int y, blockType(*mapGeneration)(int, int, int, unsigned int), unsigned int seed);
 VertexChunk* rebuildChunk(AdjecentChunks* adjecentChunks);

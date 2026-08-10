@@ -33,6 +33,10 @@ Mesh createMesh(float* vertices, int vertexCount, const unsigned int* indices, i
 }
 
 void vertexChunkToChunk(VertexChunk* const vertexChunk, Chunk* chunk){
+    /*for( int i = 0; i < 200; i++){
+        printf("%f\n", vertexChunk->vertices[i]);
+    }*/
+    printf("||%d, %d, %d\n", CUBE_VERTEX_COUNT * vertexChunk->sizeOfChunkLength, CUBE_INDEX_COUNT * vertexChunk->sizeOfChunkLength, vertexChunk->sizeOfChunkLength);
     chunk->mesh = createMesh(vertexChunk->vertices, CUBE_VERTEX_COUNT * vertexChunk->sizeOfChunkLength,
                               vertexChunk->indices, CUBE_INDEX_COUNT * vertexChunk->sizeOfChunkLength);
 }
@@ -205,12 +209,12 @@ static uint8_t checkVisiblityBetweenChunks(int x, int y, int z, uint8_t* dirList
     return 1;
 }
 
-void static appendCubeToVertexChunkDir(VertexChunk* vertexChunk, int cubeIndex, vec3 position, blockType type, CubeDirection dir){
+void static appendCubeToVertexChunkDir(VertexChunk* vertexChunk, int cursorIndex, vec3 position, blockType type, CubeDirection dir){
 
-    float* dest = &vertexChunk->vertices[cubeIndex * CUBE_COUNT];
+    float* dest = &vertexChunk->vertices[cursorIndex * CUBE_COUNT];
 
     int faceStartVertex = 4 * dir;
-    int faceEndVertex   = 4 * (dir + 1);
+    int faceEndVertex   = faceStartVertex + 4;
     size_t faceBytes = 4 * CUBE_VERTEX_LENGTH * sizeof(float);
 
     memcpy(&dest[faceStartVertex * CUBE_VERTEX_LENGTH],
@@ -220,6 +224,7 @@ void static appendCubeToVertexChunkDir(VertexChunk* vertexChunk, int cubeIndex, 
     for (int i = faceStartVertex; i < faceEndVertex; i++){
 
         float* vertexPos = &dest[i*CUBE_VERTEX_LENGTH];
+        
         glm_vec3_add(vertexPos, position, vertexPos);
         setBlockType(dest, i, type);
     }
@@ -227,14 +232,14 @@ void static appendCubeToVertexChunkDir(VertexChunk* vertexChunk, int cubeIndex, 
     unsigned int* indices = vertexChunk->indices;
 
     for (int i = 6 * dir; i < 6 * (dir+1); i++){
-        indices[i + cubeIndex * CUBE_INDEX_COUNT] = CUBE_INDICES[i] + cubeIndex * CUBE_VERTEX_COUNT;
+        indices[i + cursorIndex * CUBE_INDEX_COUNT] = CUBE_INDICES[i] + cursorIndex * CUBE_VERTEX_COUNT;
     }
 }
 
-void appendCubeToVertexChunk(VertexChunk* vertexChunk, int cubeIndex, vec3 position, blockType type, uint8_t* dirList){
+static void appendCubeToVertexChunk(VertexChunk* vertexChunk, int cursorIndex, vec3 position, blockType type, uint8_t* dirList){
     for(int dir = FRONT; dir < BOTTOM+1; dir++){
         if(dirList[dir] == 1){
-            appendCubeToVertexChunkDir(vertexChunk, cubeIndex, position, type, dir);
+            appendCubeToVertexChunkDir(vertexChunk, cursorIndex, position, type, dir);
         }
     }
     
