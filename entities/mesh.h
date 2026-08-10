@@ -219,16 +219,13 @@ static const float CUBE_UV_DEFAULT[] = {
 #define CUBE_VERTEX_BYTES (sizeof(float) * CUBE_VERTEX_LENGTH)
 #define CUBE_VERTEX_COUNT (CUBE_COUNT / CUBE_VERTEX_LENGTH)
 
-static const unsigned int CUBE_INDICES[] = {
+static const unsigned int CUBE_INDICES_TEMPLATE[] = {
   0, 1, 2,   2, 3, 0,
-  4, 5, 6,   6, 7, 4,
-  8, 9,10,  10,11, 8,
-  12,13,14,  14,15,12,
-  16,17,18,  18,19,16,
-  20,21,22,  22,23,20,
 };
 
 #define CUBE_INDEX_COUNT 36
+#define SIZE_OF_FACE 32
+#define SIZE_OF_FACES_INDEX 6
 
 typedef enum CubeDirection{
   FRONT = 0,
@@ -247,7 +244,7 @@ typedef enum CubeDirection{
 typedef struct VertexChunk{
   float* vertices;
   unsigned int* indices;
-  int sizeOfChunkLength;
+  int numberOfFaces;
   blockType* blockState;
 } VertexChunk;
 

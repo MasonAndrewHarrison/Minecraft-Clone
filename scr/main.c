@@ -72,8 +72,8 @@ int main(void) {
     glfwSetInputMode(state->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(state->window, mouseCallback);
 
-    unsigned int length = 2;
-    unsigned int width = 2;
+    unsigned int length = 25;
+    unsigned int width = 25;
     unsigned int worldSize = length*width;
     
     int renderList[worldSize*2];

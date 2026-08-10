@@ -33,32 +33,8 @@ Mesh createMesh(float* vertices, int vertexCount, const unsigned int* indices, i
 }
 
 void vertexChunkToChunk(VertexChunk* const vertexChunk, Chunk* chunk){
-    /*for( int i = 0; i < 200; i++){
-        printf("%f\n", vertexChunk->vertices[i]);
-    }*/
-    printf("||%d, %d, %d\n", CUBE_VERTEX_COUNT * vertexChunk->sizeOfChunkLength, CUBE_INDEX_COUNT * vertexChunk->sizeOfChunkLength, vertexChunk->sizeOfChunkLength);
-    chunk->mesh = createMesh(vertexChunk->vertices, CUBE_VERTEX_COUNT * vertexChunk->sizeOfChunkLength,
-                              vertexChunk->indices, CUBE_INDEX_COUNT * vertexChunk->sizeOfChunkLength);
-}
-
-void setBlockType(float* vertices, int cubeIndex, blockType type){
-
-    if (type == GRASS){
-        vertices[cubeIndex * CUBE_VERTEX_LENGTH+6] = CUBE_UV_GRASS[cubeIndex * 2];
-        vertices[cubeIndex * CUBE_VERTEX_LENGTH+7] = CUBE_UV_GRASS[cubeIndex * 2 + 1];
-    }
-    else if (type == WOOD){
-        vertices[cubeIndex * CUBE_VERTEX_LENGTH+6] = CUBE_UV_WOOD[cubeIndex * 2];
-        vertices[cubeIndex * CUBE_VERTEX_LENGTH+7] = CUBE_UV_WOOD[cubeIndex * 2 + 1];
-    }
-    else if (type == DIRT){
-        vertices[cubeIndex * CUBE_VERTEX_LENGTH+6] = CUBE_UV_DIRT[cubeIndex * 2];
-        vertices[cubeIndex * CUBE_VERTEX_LENGTH+7] = CUBE_UV_DIRT[cubeIndex * 2 + 1];
-    }
-    else{
-        vertices[cubeIndex * CUBE_VERTEX_LENGTH+6] = CUBE_UV_DEFAULT[cubeIndex * 2];
-        vertices[cubeIndex * CUBE_VERTEX_LENGTH+7] = CUBE_UV_DEFAULT[cubeIndex * 2 + 1];
-    } 
+    chunk->mesh = createMesh(vertexChunk->vertices, SIZE_OF_FACE * vertexChunk->numberOfFaces,
+                              vertexChunk->indices, SIZE_OF_FACES_INDEX * vertexChunk->numberOfFaces);
 }
 
 void drawMesh(Mesh* mesh) {
@@ -132,10 +108,8 @@ Chunk* createChunk(int x, int y, blockType(*mapGeneration)(int, int, int, unsign
 
 VertexChunk* initVertexChunk(int totalBlocks){
     VertexChunk* vertexChunk = malloc(sizeof(VertexChunk));
-    for (int dir = FRONT; dir <= BOTTOM; dir++){
-        vertexChunk->vertices = malloc(6*totalBlocks * CUBE_COUNT * sizeof(float));
-        vertexChunk->indices = malloc(6*totalBlocks * CUBE_INDEX_COUNT * sizeof(unsigned int));
-    }
+    vertexChunk->vertices = malloc(6*totalBlocks * SIZE_OF_FACE * sizeof(float));
+    vertexChunk->indices = malloc(6*totalBlocks * SIZE_OF_FACES_INDEX * sizeof(unsigned int));
     return vertexChunk;
 } 
 
@@ -209,40 +183,52 @@ static uint8_t checkVisiblityBetweenChunks(int x, int y, int z, uint8_t* dirList
     return 1;
 }
 
-void static appendCubeToVertexChunkDir(VertexChunk* vertexChunk, int cursorIndex, vec3 position, blockType type, CubeDirection dir){
+void static setFaceType(float* vertices, blockType type, CubeDirection dir, int corner){
 
-    float* dest = &vertexChunk->vertices[cursorIndex * CUBE_COUNT];
+    if (type == GRASS){
+        vertices[6] = CUBE_UV_GRASS[corner * 2 + (dir*8)];
+        vertices[7] = CUBE_UV_GRASS[corner * 2 + 1 + (dir*8)];
+    }
+    else if (type == WOOD){
+        vertices[6] = CUBE_UV_WOOD[corner * 2 + (dir*8)];
+        vertices[7] = CUBE_UV_WOOD[corner * 2 + 1 + (dir*8)];
+    }
+    else if (type == DIRT){
+        vertices[6] = CUBE_UV_DIRT[corner * 2 + (dir*8)];
+        vertices[7] = CUBE_UV_DIRT[corner * 2 + 1 + (dir*8)];
+    }
+    else{
+        vertices[6] = CUBE_UV_DEFAULT[corner * 2 + (dir*8)];
+        vertices[7] = CUBE_UV_DEFAULT[corner * 2 + 1 + (dir*8)];
+    } 
+}
 
-    int faceStartVertex = 4 * dir;
-    int faceEndVertex   = faceStartVertex + 4;
-    size_t faceBytes = 4 * CUBE_VERTEX_LENGTH * sizeof(float);
+void static appendFaceToVertexChunk(VertexChunk* vertexChunk, int cursorIndex, vec3 position, blockType type, CubeDirection dir){
 
-    memcpy(&dest[faceStartVertex * CUBE_VERTEX_LENGTH],
-        &CUBE_VERTICES[faceStartVertex * CUBE_VERTEX_LENGTH],
-        faceBytes);
+    unsigned int* destIndex = &vertexChunk->indices[cursorIndex * SIZE_OF_FACES_INDEX];
+    memcpy(destIndex, &CUBE_INDICES_TEMPLATE, sizeof(unsigned int)*SIZE_OF_FACES_INDEX);   
 
-    for (int i = faceStartVertex; i < faceEndVertex; i++){
-
-        float* vertexPos = &dest[i*CUBE_VERTEX_LENGTH];
-        
-        glm_vec3_add(vertexPos, position, vertexPos);
-        setBlockType(dest, i, type);
+    for (int i = 0; i < 6; i++){
+        destIndex[i] += cursorIndex * 4;
     }
 
-    unsigned int* indices = vertexChunk->indices;
+    float* destVertex = &vertexChunk->vertices[cursorIndex * SIZE_OF_FACE];
+    memcpy(destVertex, &CUBE_VERTICES[dir * SIZE_OF_FACE], sizeof(float)*SIZE_OF_FACE);
 
-    for (int i = 6 * dir; i < 6 * (dir+1); i++){
-        indices[i + cursorIndex * CUBE_INDEX_COUNT] = CUBE_INDICES[i] + cursorIndex * CUBE_VERTEX_COUNT;
+    for (int i = 0; i < 4; i++){
+        glm_vec3_add(&destVertex[i*8], position, &destVertex[i*8]); 
+        setFaceType(&destVertex[i*8], type, dir, i);
+
     }
 }
 
-static void appendCubeToVertexChunk(VertexChunk* vertexChunk, int cursorIndex, vec3 position, blockType type, uint8_t* dirList){
+static void appendCubeToVertexChunk(VertexChunk* vertexChunk, int* cursorIndex, vec3 position, blockType type, uint8_t* dirList){
     for(int dir = FRONT; dir < BOTTOM+1; dir++){
         if(dirList[dir] == 1){
-            appendCubeToVertexChunkDir(vertexChunk, cursorIndex, position, type, dir);
+            appendFaceToVertexChunk(vertexChunk, *cursorIndex, position, type, dir);
+            (*cursorIndex)++;
         }
     }
-    
 }
 
 VertexChunk* rebuildChunk(AdjecentChunks* adjectChunks){
@@ -251,7 +237,7 @@ VertexChunk* rebuildChunk(AdjecentChunks* adjectChunks){
 
     VertexChunk* vertexChunk = initVertexChunk(chunk->totalBlocks);
 
-    int totalIndex = 0;
+    int totalFaces = 0;
     for (int z = 0; z < CHUNK_HEIGHT; z++){
         for (int j = 0; j < CHUNK_SIZE_CUBED; j++){
             int localX = j % CHUNK_SIZE;
@@ -267,14 +253,13 @@ VertexChunk* rebuildChunk(AdjecentChunks* adjectChunks){
                 localX, localY, z, dirList, adjectChunks);
 
             if (isVisible && isVisibleBetweenChunks){
-                appendCubeToVertexChunk(vertexChunk, totalIndex, 
+                appendCubeToVertexChunk(vertexChunk, &totalFaces, 
                     (vec3){x + (chunk->x*16), z-((int)CHUNK_HEIGHT/2), y + (chunk->y*16)}, type, dirList);
-                totalIndex++;
             }
         }
     }
 
-    vertexChunk->sizeOfChunkLength = totalIndex;
+    vertexChunk->numberOfFaces = totalFaces;
     vertexChunk->blockState = chunk->blockState;
 
     return vertexChunk;
