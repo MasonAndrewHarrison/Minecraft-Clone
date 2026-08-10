@@ -30,7 +30,7 @@ blockType defaultMapGeneration(int const x, int const y, int const z, unsigned i
 
 blockType coolerMapGeneration(int const x, int const y, int const z, unsigned int const seed){
     blockType type = GRASS;
-    uint8_t height = x* y/50 + 100;
+    uint8_t height = (-x)* y/50 + 120;
 
     if (z > height){
         type = AIR; 
@@ -56,6 +56,7 @@ World* initWorld(blockType(*mapGenFunct)(int, int, int, unsigned int)){
     world->numOfChunks = 0;
     world->mapGeneration = mapGenFunct;
     world->seed = 0x23243;
+    pthread_mutex_init(&world->hashInsertLock, NULL);
     for (int i = 0; i < WORLD_CAPACITY; i++){
         world->chunkArray[i] = NULL;
     }
@@ -123,6 +124,7 @@ static void* genChunkThread(void* arg){
     ChunkNode* newNode = setNode(createChunk(x, y, world->mapGeneration, world->seed));
     unsigned int bucketIndex = hashChunkCoord(world, x, y);
 
+    pthread_mutex_lock(&world->hashInsertLock);
     if (world->chunkArray[bucketIndex] == NULL){
         world->chunkArray[bucketIndex] = newNode;
     }
@@ -132,6 +134,7 @@ static void* genChunkThread(void* arg){
     }
 
     world->numOfChunks++;
+    pthread_mutex_unlock(&world->hashInsertLock);
     return NULL;
     
 }
@@ -139,38 +142,35 @@ static void* genChunkThread(void* arg){
 void genChunks(World* world, int* renderList, int TotalChunks){
 
     clock_t startTime, endTime;
-
-    startTime = clock();
-
-
     
-    pthread_t thread;
-    for (int i = 0; i < TotalChunks;i++){
-        int x = renderList[i*2];
-        int y = renderList[i*2+1];
-        genThreadInput input;
-        input.world = world;
-        input.x = x;
-        input.y = y;
-        pthread_create(&thread, NULL, genChunkThread, (void*)&input);
-        pthread_join(thread, NULL);
+    pthread_t* threads = malloc(TotalChunks * sizeof(pthread_t));
+    genThreadInput* inputs = malloc(TotalChunks * sizeof(genThreadInput));
+
+    for (int i = 0; i < TotalChunks; i++){
+        inputs[i].world = world;
+        inputs[i].x = renderList[i*2];
+        inputs[i].y = renderList[i*2+1];
+        pthread_create(&threads[i], NULL, genChunkThread, &inputs[i]);
     }
 
+    for (int i = 0; i < TotalChunks; i++){
+        pthread_join(threads[i], NULL);
+    }
 
+    free(threads);
+    free(inputs);
+    
+    startTime = glfwGetTime();
 
-    endTime = clock();
-    printf("Time: %f\n", (double)(endTime - startTime) / CLOCKS_PER_SEC);
-
-    startTime = clock();
     for (int i = 0; i < TotalChunks;i++){
         int x = renderList[i*2];
         int y = renderList[i*2+1];
         Chunk* chunk = getChunk(world, x, y);
+        if (!chunk) { printf("missing chunk %d %d\n", x, y); continue; }
         rebuildChunk(chunk);
     }
-    endTime = clock();
 
-    printf("Time: %f\n", (double)(endTime - startTime) / CLOCKS_PER_SEC);
+    printf("Time: %f s\n", glfwGetTime() - startTime);
     
 }
 
@@ -183,6 +183,8 @@ void static freeNode(ChunkNode* node){
 }
 
 void destroyWorld(World* world){
+
+    pthread_mutex_destroy(&world->hashInsertLock);
 
     ChunkNode** chunkArray = world->chunkArray;
     for (int i = 0; i < WORLD_CAPACITY; i++){

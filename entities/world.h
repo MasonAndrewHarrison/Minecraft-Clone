@@ -10,6 +10,7 @@
 #include <pthread.h>
 #include <time.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 
 typedef struct node{
@@ -26,6 +27,7 @@ typedef struct World{
     unsigned int seed;
     ChunkNode* chunkArray[WORLD_CAPACITY];
     blockType(*mapGeneration)(int, int, int, unsigned int);
+    pthread_mutex_t hashInsertLock;
 } World;
 
 

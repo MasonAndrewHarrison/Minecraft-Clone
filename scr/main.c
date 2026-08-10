@@ -72,8 +72,8 @@ int main(void) {
     glfwSetInputMode(state->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(state->window, mouseCallback);
 
-    unsigned int length = 20;
-    unsigned int width = 20;
+    unsigned int length = 3;
+    unsigned int width = 3;
     unsigned int worldSize = length*width;
     
     int renderList[worldSize*2];
@@ -88,6 +88,9 @@ int main(void) {
     World* world = initWorld(coolerMapGeneration);
 
     genChunks(world, renderList, worldSize);
+
+
+    printf("GAME LOOP STARTED\n");
 
     while (!glfwWindowShouldClose(state->window)) {
 
