@@ -174,8 +174,7 @@ static blockType* createBlockState(int xOffset, int yOffset, int* totalBlocks,
 /*
  *  This function need to have the rebuildChunk(..) function to be run on each
  *  chunk for the chunks generated to be fully build. After the Chunk is rebuild
- *  it also needs to be binded useing the bindChunk(..) function. This function
- *  cannot be multithreaded.
+ *  it also needs to be binded useing the bindChunk(..) function.
  */
 Chunk* createChunk(int x, int y, blockType(*mapGeneration)(int, int, int, unsigned int), unsigned int seed){
 
@@ -205,7 +204,7 @@ void freeVertexChunk(VertexChunk* vertexChunk){
     free(vertexChunk);
 }
 
-uint8_t checkVisiblity(blockType* blockState, int x, int y, int z, uint8_t* dirList){
+static uint8_t checkVisiblity(blockType* blockState, int x, int y, int z, uint8_t* dirList){
     if(blockState[blockIndex(x, y, z)] == AIR){
         return 0;
     }
@@ -220,8 +219,51 @@ uint8_t checkVisiblity(blockType* blockState, int x, int y, int z, uint8_t* dirL
     return 1;
 }
 
-VertexChunk* rebuildChunk(Chunk* chunk){
+/*
+ * This is espected to be run after checkVisiblity.
+ */
+static uint8_t checkVisiblityBetweenChunks(int x, int y, int z, uint8_t* dirList, AdjecentChunks* adjecentChunks){
 
+    if (y == CHUNK_SIZE-1){
+        Chunk* frontAdjecentChunk = adjecentChunks->front;
+        if (frontAdjecentChunk != NULL){
+            blockType* adjecentBlockStateFront = frontAdjecentChunk->blockState;
+            uint8_t parallelBlockVisible = adjecentBlockStateFront[blockIndex(x, 0, z)] == AIR;
+            dirList[FRONT] = parallelBlockVisible;
+        }
+    }
+    else if (y == 0){
+        Chunk* backAdjecentChunk = adjecentChunks->back;
+        if (backAdjecentChunk != NULL){
+            blockType* adjecentBlockStateBack = backAdjecentChunk->blockState;
+            uint8_t parallelBlockVisible = adjecentBlockStateBack[blockIndex(x, CHUNK_SIZE-1, z)] == AIR;
+            dirList[BACK] = parallelBlockVisible;
+        }
+    }
+
+    if (x == CHUNK_SIZE-1){
+        Chunk* rightAdjecentChunk = adjecentChunks->right;
+        if (rightAdjecentChunk != NULL){
+            blockType* adjecentBlockStateRight = rightAdjecentChunk->blockState;
+            uint8_t parallelBlockVisible = adjecentBlockStateRight[blockIndex(0, y, z)] == AIR;
+            dirList[RIGHT] = parallelBlockVisible;
+        }
+    }
+    else if (x == 0){
+        Chunk* leftAdjecentChunk = adjecentChunks->left;
+        if (leftAdjecentChunk != NULL){
+            blockType* adjecentBlockStateLeft = leftAdjecentChunk->blockState;
+            uint8_t parallelBlockVisible = adjecentBlockStateLeft[blockIndex(CHUNK_SIZE-1, y, z)] == AIR;
+            dirList[LEFT] = parallelBlockVisible;
+        }
+    }
+
+    return 1;
+}
+
+VertexChunk* rebuildChunk(AdjecentChunks* adjectChunks){
+
+    Chunk* chunk = adjectChunks->center;
     VertexChunk* vertexChunk = initVertexChunk(chunk->totalBlocks);
 
     int totalIndex = 0;
@@ -236,8 +278,10 @@ VertexChunk* rebuildChunk(Chunk* chunk){
 
             uint8_t dirList[6];
             uint8_t isVisible = checkVisiblity(chunk->blockState, localX, localY, z, dirList);
+            uint8_t isVisibleBetweenChunks = checkVisiblityBetweenChunks(
+                localX, localY, z, dirList, adjectChunks);
 
-            if (isVisible){
+            if (isVisible && isVisibleBetweenChunks){
                 appendCubeToVertexChunk(vertexChunk, totalIndex, 
                     (vec3){x + (chunk->x*16), z-((int)CHUNK_HEIGHT/2), y + (chunk->y*16)}, type, dirList);
                 totalIndex++;

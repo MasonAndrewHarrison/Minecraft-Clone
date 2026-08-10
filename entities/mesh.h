@@ -23,7 +23,7 @@ typedef uint8_t blockType;
 #define ATLAS_STEP 1.0f/16.0f
 
 static const float CUBE_VERTICES[] = {
-  // Position (X,Y,Z)      | Normal (X,Y,Z)     | UV (U,V)
+  // Position (X,Z,Y)      | Normal (X,Y,Z)     | UV (U,V)
   // --- Front Face ---
   -0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
   0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
@@ -240,7 +240,7 @@ typedef enum CubeDirection{
 } CubeDirection;
 
 #define CHUNK_SIZE 16
-#define CHUNK_HEIGHT 256
+#define CHUNK_HEIGHT 64
 #define CHUNK_SIZE_CUBED (CHUNK_SIZE * CHUNK_SIZE)
 
 
@@ -265,6 +265,14 @@ typedef struct Chunk{
   int totalBlocks;
 } Chunk;
 
+typedef struct AdjecentChunks{
+    Chunk* center;
+    Chunk* left;
+    Chunk* right;
+    Chunk* front;
+    Chunk* back;
+} AdjecentChunks;
+
 
 Mesh createMesh(float *vertices, int vertexCount, const unsigned int *indices,
                 int indexCount);
@@ -279,7 +287,7 @@ void appendCube(float* vertices, unsigned int* indices, int cubeIndex, vec3 posi
 void appendCubeToVertexChunk(VertexChunk* vertexChunk, int cubeIndex, vec3 position, blockType type, uint8_t* dirList);
 void vertexChunkToChunk(VertexChunk* const vertexChunk, Chunk* chunk);
 Chunk* createChunk(int x, int y, blockType(*mapGeneration)(int, int, int, unsigned int), unsigned int seed);
-VertexChunk* rebuildChunk(Chunk* chunk);
+VertexChunk* rebuildChunk(AdjecentChunks* adjecentChunks);
 void bindChunk(Chunk* chunk, VertexChunk* vertexChunk);
 
 static inline int blockIndex(int x, int y, int z) {

@@ -17,7 +17,7 @@ inline static uint8_t cheapFastHash(uint8_t const x, uint8_t const y, uint8_t co
 
 blockType defaultMapGeneration(int const x, int const y, int const z, unsigned int const seed){
     blockType type = GRASS;
-    uint8_t height = cheapFastHash(x, y, 0, seed) % 3 + 118;
+    uint8_t height = cheapFastHash(x, y, 0, seed) % 3 + CHUNK_HEIGHT/2 + 25;
 
     if (z > height){
         type = AIR; 
@@ -30,7 +30,7 @@ blockType defaultMapGeneration(int const x, int const y, int const z, unsigned i
 
 blockType coolerMapGeneration(int const x, int const y, int const z, unsigned int const seed){
     blockType type = GRASS;
-    uint8_t height = (-x)* y/50 + 120;
+    uint8_t height = (-x)* y/100 + CHUNK_HEIGHT/2 - 5;
 
     if (z > height){
         type = AIR; 
@@ -140,9 +140,15 @@ static void* genChunkThread(void* arg){
 }
 
 static void* rebuildChunkThreadSafe(void* arg){
-    Chunk* chunk = arg;
-    return rebuildChunk(chunk);
+    AdjecentChunks* adjectChunks = arg;
+    return rebuildChunk(adjectChunks);
 }
+
+/*
+ * This uses multithreading to use the createChunk(..) function for each chunk in the renderList
+ * and rebuilds each chunk using the rebuildChunk(..) function. As each thread is joined or finshes
+ * it job it binds it to the GPU using the bindChunk(..) function.
+*/
 
 void genChunks(World* world, int* renderList, int TotalChunks){
     
@@ -163,13 +169,18 @@ void genChunks(World* world, int* renderList, int TotalChunks){
     free(inputs);
 
     Chunk* savedChunkPtr[TotalChunks];
+    AdjecentChunks adjectChunks[TotalChunks];
 
     for (int i = 0; i < TotalChunks;i++){
         int x = renderList[i*2];
         int y = renderList[i*2+1];
         savedChunkPtr[i] = getChunk(world, x, y);
-        pthread_create(&threads[i], NULL, rebuildChunkThreadSafe, savedChunkPtr[i]);
-        //TODO vertexChunkArray[i] = rebuildChunk(chunk, adjectChunks); 
+        adjectChunks[i].center = savedChunkPtr[i];
+        adjectChunks[i].left = getChunk(world, x-1, y);
+        adjectChunks[i].right = getChunk(world, x+1, y);
+        adjectChunks[i].front = getChunk(world, x, y+1);
+        adjectChunks[i].back = getChunk(world, x, y-1);
+        pthread_create(&threads[i], NULL, rebuildChunkThreadSafe, &adjectChunks[i]);
     }
 
     for (int i = 0; i < TotalChunks; i++){

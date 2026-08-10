@@ -20,7 +20,7 @@ typedef struct node{
     struct node* next;
 } ChunkNode;
 
-#define WORLD_CAPACITY 2
+#define WORLD_CAPACITY 128
 
 typedef struct World{
     int numOfChunks;
