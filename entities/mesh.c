@@ -171,13 +171,16 @@ static blockType* createBlockState(int xOffset, int yOffset, int* totalBlocks,
     return blockTypeState;
 }
 
+/*
+ *  This function need to have the rebuildChunk(..) function to be run on each
+ *  chunk for the chunks generated to be fully build. 
+ */
 Chunk* createChunk(int x, int y, blockType(*mapGeneration)(int, int, int, unsigned int), unsigned int seed){
 
     Chunk* chunk = malloc(sizeof(Chunk));
     chunk->blockState = createBlockState(x, y, &chunk->totalBlocks, mapGeneration, seed);
     chunk->x=x;
     chunk->y=y;
-    rebuildChunk(chunk);
     
     return chunk;
 }

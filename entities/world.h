@@ -7,6 +7,9 @@
 #include "mesh.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <pthread.h>
+#include <time.h>
+#include <unistd.h>
 
 
 typedef struct node{
@@ -28,7 +31,6 @@ typedef struct World{
 
 World* initWorld(blockType(*mapGeneration)(int, int, int, unsigned int));
 Chunk* getChunk(World* world, int x, int y);
-void genChunk(World* world, int x, int y);
 void renderChunks(World* world, int* renderList, int TotalChunks);
 void genChunks(World* world, int* renderList, int TotalChunks);
 void renderChunksWireFrame(World* world, int* renderList, int TotalChunks);

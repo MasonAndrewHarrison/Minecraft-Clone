@@ -32,7 +32,6 @@ blockType coolerMapGeneration(int const x, int const y, int const z, unsigned in
     blockType type = GRASS;
     uint8_t height = x* y/50 + 100;
 
-
     if (z > height){
         type = AIR; 
     }
@@ -76,24 +75,6 @@ unsigned int hashChunkCoord(World* world, int x, int y) {
     return h % WORLD_CAPACITY;
 }
 
-
-void genChunk(World* world, int x, int y){
-    ChunkNode* newNode = setNode(createChunk(x, y, world->mapGeneration, world->seed));
-    unsigned int bucketIndex = hashChunkCoord(world, x, y);
-
-    if (world->chunkArray[bucketIndex] == NULL){
-        world->chunkArray[bucketIndex] = newNode;
-    }
-    else{
-        newNode->next = world->chunkArray[bucketIndex];
-        world->chunkArray[bucketIndex] = newNode;
-        
-    }
-
-    world->numOfChunks++;
-    
-}
-
 Chunk* getChunk(World* world, int x, int y){
     ChunkNode* current = world->chunkArray[hashChunkCoord(world, x, y)]; 
     while (current != NULL){
@@ -111,6 +92,7 @@ void renderChunks(World* world, int* renderList, int TotalChunks){
         int x = renderList[i*2];
         int y = renderList[i*2+1];
         Chunk* chunk = getChunk(world, x, y);
+        
         drawChunk(chunk);
     }
 }
@@ -125,12 +107,71 @@ void renderChunksWireFrame(World* world, int* renderList, int TotalChunks){
     }
 }
 
+typedef struct genThreadInput{
+    World* world;
+    int x;
+    int y;
+} genThreadInput;
+
+static void* genChunkThread(void* arg){
+
+    genThreadInput* input = arg;
+    World* world = input->world;
+    int x = input->x;
+    int y = input->y;
+
+    ChunkNode* newNode = setNode(createChunk(x, y, world->mapGeneration, world->seed));
+    unsigned int bucketIndex = hashChunkCoord(world, x, y);
+
+    if (world->chunkArray[bucketIndex] == NULL){
+        world->chunkArray[bucketIndex] = newNode;
+    }
+    else{
+        newNode->next = world->chunkArray[bucketIndex];
+        world->chunkArray[bucketIndex] = newNode;
+    }
+
+    world->numOfChunks++;
+    return NULL;
+    
+}
+
 void genChunks(World* world, int* renderList, int TotalChunks){
+
+    clock_t startTime, endTime;
+
+    startTime = clock();
+
+
+    
+    pthread_t thread;
     for (int i = 0; i < TotalChunks;i++){
         int x = renderList[i*2];
         int y = renderList[i*2+1];
-        genChunk(world, x, y);
+        genThreadInput input;
+        input.world = world;
+        input.x = x;
+        input.y = y;
+        pthread_create(&thread, NULL, genChunkThread, (void*)&input);
+        pthread_join(thread, NULL);
     }
+
+
+
+    endTime = clock();
+    printf("Time: %f\n", (double)(endTime - startTime) / CLOCKS_PER_SEC);
+
+    startTime = clock();
+    for (int i = 0; i < TotalChunks;i++){
+        int x = renderList[i*2];
+        int y = renderList[i*2+1];
+        Chunk* chunk = getChunk(world, x, y);
+        rebuildChunk(chunk);
+    }
+    endTime = clock();
+
+    printf("Time: %f\n", (double)(endTime - startTime) / CLOCKS_PER_SEC);
+    
 }
 
 void static freeNode(ChunkNode* node){
