@@ -245,20 +245,15 @@ typedef enum CubeDirection{
 
 
 typedef struct VertexChunk{
-  float* vertices[6];
-  unsigned int* indices[6];
+  float* vertices;
+  unsigned int* indices;
   int sizeOfChunkLength;
   blockType* blockState;
 } VertexChunk;
 
 
 typedef struct Chunk{
-  Mesh top;
-  Mesh bottom;
-  Mesh right;
-  Mesh left;
-  Mesh front;
-  Mesh back;
+  Mesh mesh;
   int x;
   int y;
   blockType* blockState;

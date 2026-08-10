@@ -39,5 +39,6 @@ void renderChunksWireFrame(World* world, int* renderList, int TotalChunks);
 void destroyWorld(World* world);
 blockType defaultMapGeneration(int const x, int const y, int const z, unsigned int const seed);
 blockType coolerMapGeneration(int const x, int const y, int const z, unsigned int const seed);
+void rebuildChunks(World* world, int* renderList, int TotalChunks);
 
 #endif

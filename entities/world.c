@@ -49,16 +49,18 @@ static float valueNoise2D(float x, float y, unsigned int seed){
     float nx0 = n00 + sx * (n10 - n00);
     float nx1 = n01 + sx * (n11 - n01);
 
-    return nx0 + sy * (nx1 - nx0);   // 0.0 .. 1.0
+    return nx0 + sy * (nx1 - nx0); 
 }
 
 blockType coolerMapGeneration(int const x, int const y, int const z, unsigned int const seed){
     blockType type = GRASS;
 
-    float frequency = 0.05f;
-    float noise = valueNoise2D(x * frequency, y * frequency, seed);
+    float frequency1 = 0.05f;
+    float frequency2 = 0.1f;
+    float noise1 = valueNoise2D(x * frequency1, y * frequency1, seed);
+    float noise2 = valueNoise2D(x * frequency2, y * frequency2, seed);
 
-    uint8_t height = (uint8_t)(noise * 20.0f) + CHUNK_HEIGHT/2 - 20; 
+    uint8_t height = (uint8_t)(noise1 * 20.0f) + (uint8_t)(noise2 * 10.0f) + CHUNK_HEIGHT/2 - 20; 
 
     if (z > height){
         type = AIR;
@@ -175,8 +177,7 @@ static void* rebuildChunkThreadSafe(void* arg){
 
 /*
  * This uses multithreading to use the createChunk(..) function for each chunk in the renderList
- * and rebuilds each chunk using the rebuildChunk(..) function. As each thread is joined or finshes
- * it job it binds it to the GPU using the bindChunk(..) function.
+ * and rebuildChunks(..) is expect to be run after to have chunks that are fully useable.
 */
 
 void genChunks(World* world, int* renderList, int TotalChunks){
@@ -196,7 +197,17 @@ void genChunks(World* world, int* renderList, int TotalChunks){
     }
 
     free(inputs);
+    free(threads);
 
+}
+
+/*
+ * This rebuilds each chunk using the rebuildChunk(..) function. As each thread is joined or finshes
+ * it job it binds it to the GPU using the bindChunk(..) function.
+ */
+void rebuildChunks(World* world, int* renderList, int TotalChunks){
+
+    pthread_t* threads = malloc(TotalChunks * sizeof(pthread_t));
     Chunk* savedChunkPtr[TotalChunks];
     AdjecentChunks adjectChunks[TotalChunks];
 

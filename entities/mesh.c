@@ -32,6 +32,11 @@ Mesh createMesh(float* vertices, int vertexCount, const unsigned int* indices, i
     return mesh;
 }
 
+void vertexChunkToChunk(VertexChunk* const vertexChunk, Chunk* chunk){
+    chunk->mesh = createMesh(vertexChunk->vertices, CUBE_VERTEX_COUNT * vertexChunk->sizeOfChunkLength,
+                              vertexChunk->indices, CUBE_INDEX_COUNT * vertexChunk->sizeOfChunkLength);
+}
+
 void setBlockType(float* vertices, int cubeIndex, blockType type){
 
     if (type == GRASS){
@@ -52,62 +57,17 @@ void setBlockType(float* vertices, int cubeIndex, blockType type){
     } 
 }
 
-void static appendCubeToVertexChunkDir(VertexChunk* vertexChunk, int cubeIndex, vec3 position, blockType type, CubeDirection dir){
-
-    float* dest = &vertexChunk->vertices[dir][cubeIndex * CUBE_COUNT];
-
-    int faceStartVertex = 4 * dir;
-    int faceEndVertex   = 4 * (dir + 1);
-    size_t faceBytes = 4 * CUBE_VERTEX_LENGTH * sizeof(float);
-
-    memcpy(&dest[faceStartVertex * CUBE_VERTEX_LENGTH],
-        &CUBE_VERTICES[faceStartVertex * CUBE_VERTEX_LENGTH],
-        faceBytes);
-
-    for (int i = faceStartVertex; i < faceEndVertex; i++){
-
-        float* vertexPos = &dest[i*CUBE_VERTEX_LENGTH];
-        glm_vec3_add(vertexPos, position, vertexPos);
-        setBlockType(dest, i, type);
-    }
-
-    unsigned int* indices = vertexChunk->indices[dir];
-
-    for (int i = 6 * dir; i < 6 * (dir+1); i++){
-        indices[i + cubeIndex * CUBE_INDEX_COUNT] = CUBE_INDICES[i] + cubeIndex * CUBE_VERTEX_COUNT;
-    }
-}
-
-void appendCubeToVertexChunk(VertexChunk* vertexChunk, int cubeIndex, vec3 position, blockType type, uint8_t* dirList){
-    for(int dir = FRONT; dir < BOTTOM+1; dir++){
-        if(dirList[dir] == 1){
-            appendCubeToVertexChunkDir(vertexChunk, cubeIndex, position, type, dir);
-        }
-    }
-    
-}
-
 void drawMesh(Mesh* mesh) {
     glBindVertexArray(mesh->vao);
     glDrawElements(GL_TRIANGLES, mesh->indexCount, GL_UNSIGNED_INT, NULL);
 }
 
 void drawChunk(Chunk* chunk){
-    drawMesh(&chunk->top);
-    drawMesh(&chunk->front);
-    drawMesh(&chunk->bottom);
-    drawMesh(&chunk->back);
-    drawMesh(&chunk->left);
-    drawMesh(&chunk->right);
+    drawMesh(&chunk->mesh);
 }
 
 void drawChunkWireFrame(Chunk* chunk){
-    drawLines(&chunk->top);
-    drawLines(&chunk->front);
-    drawLines(&chunk->bottom);
-    drawLines(&chunk->back);
-    drawLines(&chunk->left);
-    drawLines(&chunk->right);
+    drawLines(&chunk->mesh);
 }
 
 void drawLines(Mesh* mesh){
@@ -124,29 +84,9 @@ void destroyMesh(Mesh* mesh) {
 }
 
 void destroyChunk(Chunk* chunk){
-    destroyMesh(&chunk->back);
-    destroyMesh(&chunk->front);
-    destroyMesh(&chunk->top);
-    destroyMesh(&chunk->bottom);
-    destroyMesh(&chunk->left);
-    destroyMesh(&chunk->right);
+    destroyMesh(&chunk->mesh);
     free(chunk->blockState);
     free(chunk);
-}
-
-inline void static _createChunkElement(VertexChunk* const vertexChunk, int const chunkSize, CubeDirection const dir, Mesh* element){
-    *element = createMesh(vertexChunk->vertices[dir], CUBE_VERTEX_COUNT * chunkSize, 
-    vertexChunk->indices[dir], CUBE_INDEX_COUNT * chunkSize);
-}
-
-void vertexChunkToChunk(VertexChunk* const vertexChunk, Chunk* chunk){
-    int size = vertexChunk->sizeOfChunkLength;
-    _createChunkElement(vertexChunk, size, TOP, &chunk->top);
-    _createChunkElement(vertexChunk, size, BOTTOM, &chunk->bottom);
-    _createChunkElement(vertexChunk, size, LEFT, &chunk->left);
-    _createChunkElement(vertexChunk, size, RIGHT, &chunk->right);
-    _createChunkElement(vertexChunk, size, FRONT, &chunk->front);
-    _createChunkElement(vertexChunk, size, BACK, &chunk->back);
 }
 
 static blockType* createBlockState(int xOffset, int yOffset, int* totalBlocks, 
@@ -189,17 +129,21 @@ Chunk* createChunk(int x, int y, blockType(*mapGeneration)(int, int, int, unsign
 VertexChunk* initVertexChunk(int totalBlocks){
     VertexChunk* vertexChunk = malloc(sizeof(VertexChunk));
     for (int dir = FRONT; dir <= BOTTOM; dir++){
-        vertexChunk->vertices[dir] = malloc(totalBlocks * CUBE_COUNT * sizeof(float));
-        vertexChunk->indices[dir] = malloc(totalBlocks * CUBE_INDEX_COUNT * sizeof(unsigned int));
+        vertexChunk->vertices = malloc(6*totalBlocks * CUBE_COUNT * sizeof(float));
+        vertexChunk->indices = malloc(6*totalBlocks * CUBE_INDEX_COUNT * sizeof(unsigned int));
     }
     return vertexChunk;
-}
+} 
 
+/*
+ * Notes this does not free blockState because it is later
+ * used by the Chunk structs later.
+ */
 void freeVertexChunk(VertexChunk* vertexChunk){
 
     for (int dir = TOP; dir <= BACK; dir++){
-        free(vertexChunk->vertices[dir]);
-        free(vertexChunk->indices[dir]);
+        free(vertexChunk->vertices);
+        free(vertexChunk->indices);
     }
     free(vertexChunk);
 }
@@ -261,9 +205,45 @@ static uint8_t checkVisiblityBetweenChunks(int x, int y, int z, uint8_t* dirList
     return 1;
 }
 
+void static appendCubeToVertexChunkDir(VertexChunk* vertexChunk, int cubeIndex, vec3 position, blockType type, CubeDirection dir){
+
+    float* dest = &vertexChunk->vertices[cubeIndex * CUBE_COUNT];
+
+    int faceStartVertex = 4 * dir;
+    int faceEndVertex   = 4 * (dir + 1);
+    size_t faceBytes = 4 * CUBE_VERTEX_LENGTH * sizeof(float);
+
+    memcpy(&dest[faceStartVertex * CUBE_VERTEX_LENGTH],
+        &CUBE_VERTICES[faceStartVertex * CUBE_VERTEX_LENGTH],
+        faceBytes);
+
+    for (int i = faceStartVertex; i < faceEndVertex; i++){
+
+        float* vertexPos = &dest[i*CUBE_VERTEX_LENGTH];
+        glm_vec3_add(vertexPos, position, vertexPos);
+        setBlockType(dest, i, type);
+    }
+
+    unsigned int* indices = vertexChunk->indices;
+
+    for (int i = 6 * dir; i < 6 * (dir+1); i++){
+        indices[i + cubeIndex * CUBE_INDEX_COUNT] = CUBE_INDICES[i] + cubeIndex * CUBE_VERTEX_COUNT;
+    }
+}
+
+void appendCubeToVertexChunk(VertexChunk* vertexChunk, int cubeIndex, vec3 position, blockType type, uint8_t* dirList){
+    for(int dir = FRONT; dir < BOTTOM+1; dir++){
+        if(dirList[dir] == 1){
+            appendCubeToVertexChunkDir(vertexChunk, cubeIndex, position, type, dir);
+        }
+    }
+    
+}
+
 VertexChunk* rebuildChunk(AdjecentChunks* adjectChunks){
 
     Chunk* chunk = adjectChunks->center;
+
     VertexChunk* vertexChunk = initVertexChunk(chunk->totalBlocks);
 
     int totalIndex = 0;
