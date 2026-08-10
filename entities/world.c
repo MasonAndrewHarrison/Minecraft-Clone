@@ -162,21 +162,20 @@ void genChunks(World* world, int* renderList, int TotalChunks){
 
     free(inputs);
 
+    Chunk* savedChunkPtr[TotalChunks];
+
     for (int i = 0; i < TotalChunks;i++){
         int x = renderList[i*2];
         int y = renderList[i*2+1];
-        Chunk* chunk = getChunk(world, x, y);
-        pthread_create(&threads[i], NULL, rebuildChunkThreadSafe, chunk);
+        savedChunkPtr[i] = getChunk(world, x, y);
+        pthread_create(&threads[i], NULL, rebuildChunkThreadSafe, savedChunkPtr[i]);
         //TODO vertexChunkArray[i] = rebuildChunk(chunk, adjectChunks); 
     }
 
     for (int i = 0; i < TotalChunks; i++){
-        int x = renderList[i*2];
-        int y = renderList[i*2+1];
         void* result = NULL;
         pthread_join(threads[i], &result);
-        //TODO fix stop doing rehashing later.
-        bindChunk(getChunk(world, x, y), (VertexChunk*)result);
+        bindChunk(savedChunkPtr[i], (VertexChunk*)result);
     }
 
     free(threads);
