@@ -173,7 +173,9 @@ static blockType* createBlockState(int xOffset, int yOffset, int* totalBlocks,
 
 /*
  *  This function need to have the rebuildChunk(..) function to be run on each
- *  chunk for the chunks generated to be fully build. 
+ *  chunk for the chunks generated to be fully build. After the Chunk is rebuild
+ *  it also needs to be binded useing the bindChunk(..) function. This function
+ *  cannot be multithreaded.
  */
 Chunk* createChunk(int x, int y, blockType(*mapGeneration)(int, int, int, unsigned int), unsigned int seed){
 
@@ -218,7 +220,7 @@ uint8_t checkVisiblity(blockType* blockState, int x, int y, int z, uint8_t* dirL
     return 1;
 }
 
-void rebuildChunk(Chunk* chunk){
+VertexChunk* rebuildChunk(Chunk* chunk){
 
     VertexChunk* vertexChunk = initVertexChunk(chunk->totalBlocks);
 
@@ -246,6 +248,10 @@ void rebuildChunk(Chunk* chunk){
     vertexChunk->sizeOfChunkLength = totalIndex;
     vertexChunk->blockState = chunk->blockState;
 
+    return vertexChunk;
+}
+
+void bindChunk(Chunk* chunk, VertexChunk* vertexChunk){
     vertexChunkToChunk(vertexChunk, chunk);
     freeVertexChunk(vertexChunk);
 }

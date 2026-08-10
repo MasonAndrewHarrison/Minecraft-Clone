@@ -279,8 +279,8 @@ void appendCube(float* vertices, unsigned int* indices, int cubeIndex, vec3 posi
 void appendCubeToVertexChunk(VertexChunk* vertexChunk, int cubeIndex, vec3 position, blockType type, uint8_t* dirList);
 void vertexChunkToChunk(VertexChunk* const vertexChunk, Chunk* chunk);
 Chunk* createChunk(int x, int y, blockType(*mapGeneration)(int, int, int, unsigned int), unsigned int seed);
-void rebuildChunk(Chunk* chunk);
-
+VertexChunk* rebuildChunk(Chunk* chunk);
+void bindChunk(Chunk* chunk, VertexChunk* vertexChunk);
 
 static inline int blockIndex(int x, int y, int z) {
     return x + y * CHUNK_SIZE + z * CHUNK_SIZE_CUBED;

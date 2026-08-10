@@ -139,9 +139,12 @@ static void* genChunkThread(void* arg){
     
 }
 
-void genChunks(World* world, int* renderList, int TotalChunks){
+static void* rebuildChunkThreadSafe(void* arg){
+    Chunk* chunk = arg;
+    return rebuildChunk(chunk);
+}
 
-    clock_t startTime, endTime;
+void genChunks(World* world, int* renderList, int TotalChunks){
     
     pthread_t* threads = malloc(TotalChunks * sizeof(pthread_t));
     genThreadInput* inputs = malloc(TotalChunks * sizeof(genThreadInput));
@@ -157,21 +160,26 @@ void genChunks(World* world, int* renderList, int TotalChunks){
         pthread_join(threads[i], NULL);
     }
 
-    free(threads);
     free(inputs);
-    
-    startTime = glfwGetTime();
 
     for (int i = 0; i < TotalChunks;i++){
         int x = renderList[i*2];
         int y = renderList[i*2+1];
         Chunk* chunk = getChunk(world, x, y);
-        if (!chunk) { printf("missing chunk %d %d\n", x, y); continue; }
-        rebuildChunk(chunk);
+        pthread_create(&threads[i], NULL, rebuildChunkThreadSafe, chunk);
+        //TODO vertexChunkArray[i] = rebuildChunk(chunk, adjectChunks); 
     }
 
-    printf("Time: %f s\n", glfwGetTime() - startTime);
-    
+    for (int i = 0; i < TotalChunks; i++){
+        int x = renderList[i*2];
+        int y = renderList[i*2+1];
+        void* result = NULL;
+        pthread_join(threads[i], &result);
+        //TODO fix stop doing rehashing later.
+        bindChunk(getChunk(world, x, y), (VertexChunk*)result);
+    }
+
+    free(threads);
 }
 
 void static freeNode(ChunkNode* node){
