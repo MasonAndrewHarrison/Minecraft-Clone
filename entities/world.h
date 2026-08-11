@@ -26,19 +26,19 @@ typedef struct World{
     int numOfChunks;
     unsigned int seed;
     ChunkNode* chunkArray[WORLD_CAPACITY];
-    blockType(*mapGeneration)(int, int, int, unsigned int);
+    blockType(*mapGeneration)(int16_t, int16_t, int16_t, uint8_t);
     pthread_mutex_t hashInsertLock;
 } World;
 
 
-World* initWorld(blockType(*mapGeneration)(int, int, int, unsigned int));
+World* initWorld(blockType(*mapGeneration)(int16_t, int16_t, int16_t, uint8_t));
 Chunk* getChunk(World* world, int x, int y);
 void renderChunks(World* world, int* renderList, int TotalChunks);
 void genChunks(World* world, int* renderList, int TotalChunks);
 void renderChunksWireFrame(World* world, int* renderList, int TotalChunks);
 void destroyWorld(World* world);
-blockType defaultMapGeneration(int const x, int const y, int const z, unsigned int const seed);
-blockType coolerMapGeneration(int const x, int const y, int const z, unsigned int const seed);
+blockType defaultMapGeneration(int16_t const x, int16_t const y, int16_t const z, uint8_t const seed);
+blockType coolerMapGeneration(int16_t const x, int16_t const y, int16_t const z, uint8_t const seed);
 void rebuildChunks(World* world, int* renderList, int TotalChunks);
 
 #endif

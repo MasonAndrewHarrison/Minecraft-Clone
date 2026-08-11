@@ -10,6 +10,7 @@ typedef struct State{
     int needOfUpdate;
     camera* cam;
     GLFWwindow* window;
+    double deltaTime;
 } State;
 
 #endif

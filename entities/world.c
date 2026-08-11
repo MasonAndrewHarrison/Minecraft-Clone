@@ -15,7 +15,7 @@ inline static uint8_t cheapFastHash(uint8_t const x, uint8_t const y, uint8_t co
     return h;  
 }
 
-blockType defaultMapGeneration(int const x, int const y, int const z, unsigned int const seed){
+blockType defaultMapGeneration(int16_t const x, int16_t const y, int16_t const z, uint8_t const seed){
     blockType type = GRASS;
     uint8_t height = cheapFastHash(x, y, 0, seed) % 3 + CHUNK_HEIGHT/2 + 25;
 
@@ -52,21 +52,21 @@ static float valueNoise2D(float x, float y, unsigned int seed){
     return nx0 + sy * (nx1 - nx0); 
 }
 
-blockType coolerMapGeneration(int const x, int const y, int const z, unsigned int const seed){
-    blockType type = GRASS;
+blockType coolerMapGeneration(int16_t const x, int16_t const y, int16_t const z, uint8_t const seed){
+    blockType type = DIRT;
 
-    float frequency1 = 0.05f;
-    float frequency2 = 0.1f;
+    float frequency1 = 0.005f;
+    float frequency2 = 0.10f;
     float noise1 = valueNoise2D(x * frequency1, y * frequency1, seed);
     float noise2 = valueNoise2D(x * frequency2, y * frequency2, seed);
 
-    uint8_t height = (uint8_t)(noise1 * 20.0f) + (uint8_t)(noise2 * 10.0f) + CHUNK_HEIGHT/2 - 20; 
+    uint8_t height = (uint8_t)(noise1 * 5.0f) + (uint8_t)(noise2 * 10.0f) + CHUNK_HEIGHT/2 - 20; 
 
     if (z > height){
         type = AIR;
     }
-    else if (z < height){
-        type = DIRT;
+    else if (z == height){
+        type =  GRASS;
     }
     return type;
 }
@@ -82,7 +82,7 @@ static ChunkNode* setNode(Chunk* chunk){
 }
 
 
-World* initWorld(blockType(*mapGenFunct)(int, int, int, unsigned int)){
+World* initWorld(blockType(*mapGenFunct)(int16_t, int16_t, int16_t, uint8_t)){
     World* world = malloc(sizeof(World));
     world->numOfChunks = 0;
     world->mapGeneration = mapGenFunct;

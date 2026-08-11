@@ -19,153 +19,154 @@ typedef uint8_t blockType;
   #define DIRT 3
   #define AIR 4
 
+
 static const int16_t CUBE_VERTICES[] = {
-  // Position (X,Z,Y)      | Normal (X,Y,Z)     | UV (U,V)
-  // --- Front Face ---
-  0, 0,  1,   0, 0, 0,   0, 0,
-  1, 0,  1,   0, 0, 0,   0, 0,
-  1,  1,  1,   0, 0, 0,   0, 0,
-  0,  1,  1,   0, 0, 0,   0, 0,
+  // Position (X,Z,Y)      | Normal (X,Z,Y)     | UV (U,V)
+  // Front Face  
+0, 0,  1,   0, 0, 1,   0, 0,
+1, 0,  1,   0, 0, 1,   0, 0,
+1,  1,  1,   0, 0, 1,   0, 0,
+0,  1,  1,   0, 0, 1,   0, 0,
 
-  // --- Back Face ---
-  0, 0, 0,   0, 0, 0,   0, 0,
-  1, 0, 0,   0, 0, 0,   0, 0,
-  1,  1, 0,   0, 0, 0,   0, 0,
-  0,  1, 0,   0, 0, 0,   0, 0,
+  // Back Face
+0, 0, 0,   0, 0, -1,   0, 0,
+0,  1, 0,   0, 0, -1,   0, 0,
+1,  1, 0,   0, 0, -1,   0, 0,
+1, 0, 0,   0, 0, -1,   0, 0,
 
-  // --- Left Face ---
-  0, 0,  1,   0, 0, 0,   0, 0,
-  0,  1,  1,   0, 0, 0,   0, 0,
-  0,  1, 0,   0, 0, 0,   0, 0,
-  0, 0, 0,   0, 0, 0,   0, 0,
+  // Left Face 
+0, 0,  1,   -1, 0, 0,   0, 0,
+0,  1,  1,   -1, 0, 0,   0, 0,
+0,  1, 0,   -1, 0, 0,   0, 0,
+0, 0, 0,   -1, 0, 0,   0, 0,
 
-  // --- Right Face ---
-  1, 0,  1,   0, 0, 0,   0, 0,
-  1,  1,  1,   0, 0, 0,   0, 0,
-  1,  1, 0,   0, 0, 0,   0, 0,
-  1, 0, 0,   0, 0, 0,   0, 0,
+  // Right Face
+1, 0,  1,   1, 0, 0,   0, 0,
+1, 0, 0,   1, 0, 0,   0, 0,
+1,  1, 0,   1, 0, 0,   0, 0,
+1,  1,  1,   1, 0, 0,   0, 0,
 
-  // --- Top Face ---
-  0,  1,  1,   0, 0, 0,   0, 0,
-  1,  1,  1,   0, 0, 0,   0, 0,
-  1,  1, 0,   0, 0, 0,   0, 0,
-  0,  1, 0,   0, 0, 0,   0, 0,
+  // Top Face
+0,  1,  1,   0, 1, 0,   0, 0,
+1,  1,  1,   0, 1, 0,   0, 0,
+1,  1, 0,   0, 1, 0,   0, 0,
+0,  1, 0,   0, 1, 0,   0, 0,
 
-  // --- Bottom Face ---
-  0, 0,  1,   0, 0, 0,   0, 0,
-  1, 0,  1,   0, 0, 0,   0, 0,
-  1, 0, 0,   0, 0, 0,   0, 0,
-  0, 0, 0,   0, 0, 0,   0, 0,
+  // Bottom Face
+0, 0,  1,   0, -1, 0,   0, 0,
+0, 0, 0,   0, -1, 0,   0, 0,
+1, 0, 0,   0, -1, 0,   0, 0,
+1, 0,  1,   0, -1, 0,   0, 0,
 };
 
 static const int16_t CUBE_UV_GRASS[] = {
-  // --- Front Face --- 
-  1, 15,
-  2, 15,
-  2, 16,
-  1, 16,
+  // Front
+1, 15,
+2, 15,
+2, 16,
+1, 16,
 
-  // --- Back Face ---
-  1, 15,
-  2, 15,
-  2, 16,
-  1, 16,
+  // Back
+1, 15,
+1, 16,
+2, 16,
+2, 15,
 
-  // --- Left Face --- 
-  2, 15,
-  2, 16,
-  1, 16,
-  1, 15,
+  // Left
+2, 15,
+2, 16,
+1, 16,
+1, 15,
 
-  // --- Right Face ---
-  2, 15,
-  2, 16,
-  1, 16,
-  1, 15,
+  // Right 
+2, 15,
+1, 15,
+1, 16,
+2, 16,
 
-  // --- Top Face ---
-  0, 15,
-  1, 15,
-  1, 16,
-  0, 16,
+  // Top 
+0, 15,
+1, 15,
+1, 16,
+0, 16,
 
-  // --- Bottom Face --- 
-  2, 15,
-  3, 15,
-  3, 16,
-  2, 16,
+  // Bottom
+2, 15,
+2, 16,
+3, 16,
+3, 15,
 };
 
 static const int16_t CUBE_UV_WOOD[] = {
-  // --- Front Face --- 
+  // Front 
   2, 14,
   3, 14,
   3, 15,
   2, 15,
 
-  // --- Back Face ---
+    // Back
   2, 14,
-  3, 14,
-  3, 15,
   2, 15,
-
-  // --- Left Face --- 
-  3, 14,
   3, 15,
-  2, 15,
-  2, 14,
+  3, 14,
 
-  // --- Right Face ---
+    // Left
   3, 14,
   3, 15,
   2, 15,
   2, 14,
 
-  // --- Top Face ---
+    // Right
+  3, 14,
+  2, 14,
+  2, 15,
+  3, 15,
+
+    // Top 
   4, 14,
   4, 15,
   3, 15,
   3, 14,
 
-  // --- Bottom Face --- 
+    // Bottom 
   4, 14,
-  4, 15,
-  3, 15,
   3, 14,
+  3, 15,
+  4, 15,
 };
 
 static const int16_t CUBE_UV_DIRT[] = {
-  // --- Front Face --- 
+  // Front Face 
   2, 15,
   3, 15,
   3, 16,
   2, 16,
 
-  // --- Back Face ---
+  // Back Face
   2, 15,
   3, 15,
   3, 16,
   2, 16,
 
-  // --- Left Face --- 
+  // Left Face
   2, 15,
   3, 15,
   3, 16,
   2, 16,
 
-  // --- Right Face ---
+  // Right Face
   2, 15,
   3, 15,
   3, 16,
   2, 16,
 
-  // --- Top Face ---
+  // Top Face
   2, 15,
   3, 15,
   3, 16,
   2, 16,
 
-  // --- Bottom Face --- 
+  // Bottom Face
   2, 15,
   3, 15,
   3, 16,
@@ -173,37 +174,37 @@ static const int16_t CUBE_UV_DIRT[] = {
 };
 
 static const int16_t CUBE_UV_DEFAULT[] = {
-  // --- Front Face --- 
+  // Front Face
   15, 15,
   16, 15,
   16, 16,
   15, 16,
 
-  // --- Back Face ---
+  // Back Face
   15, 15,
   16, 15,
   16, 16,
   15, 16,
 
-  // --- Left Face --- 
+  // Left Face
   15, 15,
   16, 15,
   16, 16,
   15, 16,
 
-  // --- Right Face ---
+  // Right Face
   15, 15,
   16, 15,
   16, 16,
   15, 16,
 
-  // --- Top Face ---
+  // Top Face
   15, 15,
   16, 15,
   16, 16,
   15, 16,
 
-  // --- Bottom Face --- 
+  // Bottom Face
   15, 15,
   16, 15,
   16, 16,
@@ -273,7 +274,7 @@ void destroyMesh(Mesh *mesh);
 void destroyChunk(Chunk* chunk);
 void appendCube(float* vertices, unsigned int* indices, int cubeIndex, vec3 position, blockType);
 void vertexChunkToChunk(VertexChunk* const vertexChunk, Chunk* chunk);
-Chunk* createChunk(int x, int y, blockType(*mapGeneration)(int, int, int, unsigned int), unsigned int seed);
+Chunk* createChunk(int x, int y, blockType(*mapGeneration)(int16_t, int16_t, int16_t, uint8_t), uint8_t seed);
 VertexChunk* rebuildChunk(AdjecentChunks* adjecentChunks);
 void bindChunk(Chunk* chunk, VertexChunk* vertexChunk);
 

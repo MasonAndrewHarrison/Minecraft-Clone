@@ -5,37 +5,41 @@
 #include "state.h"
 
 
-#define forwardSpeed 0.6f
-#define strifeSpeed 0.3f
-#define upSpeed 0.3f
-#define mouseSpeed 0.001f
+#define forwardSpeed 100.0f
+#define strifeSpeed 60.0f
+#define upSpeed 50.0f
 
 
 void inputHandler(State* state){
 
+    double deltaTime = state->deltaTime;
+
+    if (glfwGetKey(state->window, GLFW_KEY_SPACE) == GLFW_PRESS){
+        deltaTime *= 20;
+    }
 
     if (glfwGetKey(state->window, GLFW_KEY_W) == GLFW_PRESS){
-        moveLeftRight(state->cam, forwardSpeed);
+        moveLeftRight(state->cam, forwardSpeed * deltaTime);
     }
 
     if (glfwGetKey(state->window, GLFW_KEY_S) == GLFW_PRESS){
-        moveLeftRight(state->cam, (-1.0f)*forwardSpeed);
+        moveLeftRight(state->cam, (-1.0f)*forwardSpeed * deltaTime);
     }
         
     if (glfwGetKey(state->window, GLFW_KEY_A) == GLFW_PRESS){
-        moveForwardBackwards(state->cam, strifeSpeed);
+        moveForwardBackwards(state->cam, strifeSpeed * deltaTime);
     }
 
     if (glfwGetKey(state->window, GLFW_KEY_D) == GLFW_PRESS){
-        moveForwardBackwards(state->cam, (-1.0f)*strifeSpeed);
+        moveForwardBackwards(state->cam, (-1.0f)*strifeSpeed * deltaTime);
     }
 
     if (glfwGetKey(state->window, GLFW_KEY_E) == GLFW_PRESS){
-        moveUpDown(state->cam, upSpeed);
+        moveUpDown(state->cam, upSpeed * deltaTime);
     }
 
     if (glfwGetKey(state->window, GLFW_KEY_Q) == GLFW_PRESS){ 
-        moveUpDown(state->cam, (-1.0f)*upSpeed);
+        moveUpDown(state->cam, (-1.0f)*upSpeed * deltaTime);
     }
 
     if (glfwGetKey(state->window, GLFW_KEY_ESCAPE) == GLFW_PRESS){

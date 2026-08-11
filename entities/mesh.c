@@ -70,7 +70,7 @@ void destroyChunk(Chunk* chunk){
 }
 
 static blockType* createBlockState(int xOffset, int yOffset, int* totalBlocks, 
-    blockType(*mapGeneration)(int, int, int, unsigned int), unsigned int seed){
+    blockType(*mapGeneration)(int16_t const x, int16_t const y, int16_t const z, uint8_t const seed), uint8_t seed){
 
     blockType* blockTypeState = malloc(sizeof(blockType) * CHUNK_SIZE_CUBED * CHUNK_HEIGHT);
     *totalBlocks = 0;
@@ -96,7 +96,7 @@ static blockType* createBlockState(int xOffset, int yOffset, int* totalBlocks,
  *  chunk for the chunks generated to be fully build. After the Chunk is rebuild
  *  it also needs to be binded useing the bindChunk(..) function.
  */
-Chunk* createChunk(int x, int y, blockType(*mapGeneration)(int, int, int, unsigned int), unsigned int seed){
+Chunk* createChunk(int x, int y, blockType(*mapGeneration)(int16_t, int16_t, int16_t, uint8_t), uint8_t seed){
 
     Chunk* chunk = malloc(sizeof(Chunk));
     chunk->blockState = createBlockState(x, y, &chunk->totalBlocks, mapGeneration, seed);
@@ -126,7 +126,7 @@ void freeVertexChunk(VertexChunk* vertexChunk){
     free(vertexChunk);
 }
 
-static uint8_t checkVisiblity(blockType* blockState, int x, int y, int z, uint8_t* dirList){
+static uint8_t checkVisiblity(blockType* blockState, int16_t x, int16_t y, int16_t z, uint8_t* dirList){
     if(blockState[blockIndex(x, y, z)] == AIR){
         return 0;
     }
@@ -142,10 +142,14 @@ static uint8_t checkVisiblity(blockType* blockState, int x, int y, int z, uint8_
 }
 
 /*
- * This is espected to be run after checkVisiblity.
+ * This is espected to be run after checkVisiblity. Also check if it is 
+ * the bottom block and won't render it.
  */
-static uint8_t checkVisiblityBetweenChunks(int x, int y, int z, uint8_t* dirList, AdjecentChunks* adjecentChunks){
+static uint8_t checkVisiblityBetweenChunks(int16_t x, int16_t y, int16_t z, uint8_t* dirList, AdjecentChunks* adjecentChunks){
 
+    if (z == 0){
+        return 0;
+    }
     if (y == CHUNK_SIZE-1){
         Chunk* frontAdjecentChunk = adjecentChunks->front;
         if (frontAdjecentChunk != NULL){
@@ -240,12 +244,12 @@ VertexChunk* rebuildChunk(AdjecentChunks* adjectChunks){
     VertexChunk* vertexChunk = initVertexChunk(chunk->totalBlocks);
 
     int totalFaces = 0;
-    for (int z = 0; z < CHUNK_HEIGHT; z++){
-        for (int j = 0; j < CHUNK_SIZE_CUBED; j++){
-            int localX = j % CHUNK_SIZE;
-            int localY = j / CHUNK_SIZE;
-            int x = localX - (CHUNK_SIZE/2);
-            int y = localY - (CHUNK_SIZE/2);  
+    for (int16_t z = 0; z < CHUNK_HEIGHT; z++){
+        for (int16_t j = 0; j < CHUNK_SIZE_CUBED; j++){
+            int16_t localX = j % CHUNK_SIZE;
+            int16_t localY = j / CHUNK_SIZE;
+            int16_t x = localX - (CHUNK_SIZE/2);
+            int16_t y = localY - (CHUNK_SIZE/2);  
             blockType type;
             type = chunk->blockState[blockIndex(localX, localY, z)];
 

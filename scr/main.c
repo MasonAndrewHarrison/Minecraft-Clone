@@ -13,9 +13,11 @@
 
 #define WIDTH          1920
 #define HEIGHT         1080
-#define VSYNC_INTERVAL 1
+#define VSYNC_INTERVAL 0
 
 int main(void) {
+
+
 
     
     if (!glfwInit()) return -1;
@@ -46,6 +48,10 @@ int main(void) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);  
+
     Texture atlas = loadTexture("textures/images/atlas.png");
 
     unsigned int shader = createShader("shaders/vertex.glsl", "shaders/fragment.glsl");
@@ -72,8 +78,8 @@ int main(void) {
     glfwSetInputMode(state->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(state->window, mouseCallback);
 
-    unsigned int length = 50;
-    unsigned int width = 50;
+    unsigned int length = 100;
+    unsigned int width = 100;
     unsigned int worldSize = length*width;
     
     int renderList[worldSize*2];
@@ -90,7 +96,28 @@ int main(void) {
     genChunks(world, renderList, worldSize);
     rebuildChunks(world, renderList, worldSize);
 
+    double lastFPSTime = glfwGetTime();
+    double lastDeltaTime = glfwGetTime();
+    int frameCount = 0;
+
     while (!glfwWindowShouldClose(state->window)) {
+
+        frameCount++;
+        double now = glfwGetTime();
+        if (now - lastFPSTime >= 1.0) {
+            double fps = frameCount / (now - lastFPSTime);
+            double frameTimeMs = 1000.0 / fps;
+
+            char title[64];
+            snprintf(title, sizeof(title), "Minecraft Clone | %.1f FPS | %.2f ms", fps, frameTimeMs);
+            glfwSetWindowTitle(state->window, title);
+
+            frameCount = 0;
+            lastFPSTime = now;
+        }
+
+        state->deltaTime = glfwGetTime() - lastDeltaTime;
+        lastDeltaTime = glfwGetTime();
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
