@@ -12,5 +12,5 @@ void main() {
     gl_Position = uMVP * vec4(position, 1.0);
     //uvCoord = position.xy * 0.5 + 0.5;
     vColor = aColor;
-    uvCoord = aTexCoord;
+    uvCoord = aTexCoord/16;
 }

@@ -2,6 +2,7 @@
 #define MESH_H
 
 #include "cglm/cglm.h"
+#include <stdlib.h>
 
 typedef struct Mesh {
   unsigned int vao;
@@ -17,200 +18,196 @@ typedef uint8_t blockType;
   #define WOOD 2
   #define DIRT 3
   #define AIR 4
-  
 
-
-#define ATLAS_STEP 1.0f/16.0f
-
-static const float CUBE_VERTICES[] = {
+static const int16_t CUBE_VERTICES[] = {
   // Position (X,Z,Y)      | Normal (X,Y,Z)     | UV (U,V)
   // --- Front Face ---
-  -0.5f, -0.5f,  0.5f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
-  0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-  0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-  -0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  0, 0,  1,   0, 0, 0,   0, 0,
+  1, 0,  1,   0, 0, 0,   0, 0,
+  1,  1,  1,   0, 0, 0,   0, 0,
+  0,  1,  1,   0, 0, 0,   0, 0,
 
   // --- Back Face ---
-  -0.5f, -0.5f, -0.5f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
-  0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-  0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-  -0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  0, 0, 0,   0, 0, 0,   0, 0,
+  1, 0, 0,   0, 0, 0,   0, 0,
+  1,  1, 0,   0, 0, 0,   0, 0,
+  0,  1, 0,   0, 0, 0,   0, 0,
 
   // --- Left Face ---
-  -0.5f, -0.5f,  0.5f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
-  -0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-  -0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-  -0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  0, 0,  1,   0, 0, 0,   0, 0,
+  0,  1,  1,   0, 0, 0,   0, 0,
+  0,  1, 0,   0, 0, 0,   0, 0,
+  0, 0, 0,   0, 0, 0,   0, 0,
 
   // --- Right Face ---
-  0.5f, -0.5f,  0.5f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
-  0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-  0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-  0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  1, 0,  1,   0, 0, 0,   0, 0,
+  1,  1,  1,   0, 0, 0,   0, 0,
+  1,  1, 0,   0, 0, 0,   0, 0,
+  1, 0, 0,   0, 0, 0,   0, 0,
 
   // --- Top Face ---
-  -0.5f,  0.5f,  0.5f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
-  0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-  0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-  -0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  0,  1,  1,   0, 0, 0,   0, 0,
+  1,  1,  1,   0, 0, 0,   0, 0,
+  1,  1, 0,   0, 0, 0,   0, 0,
+  0,  1, 0,   0, 0, 0,   0, 0,
 
   // --- Bottom Face ---
-  -0.5f, -0.5f,  0.5f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
-  0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-  0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-  -0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+  0, 0,  1,   0, 0, 0,   0, 0,
+  1, 0,  1,   0, 0, 0,   0, 0,
+  1, 0, 0,   0, 0, 0,   0, 0,
+  0, 0, 0,   0, 0, 0,   0, 0,
 };
 
-static const float CUBE_UV_GRASS[] = {
+static const int16_t CUBE_UV_GRASS[] = {
   // --- Front Face --- 
-  ATLAS_STEP*1, ATLAS_STEP*15,
-  ATLAS_STEP*2, ATLAS_STEP*15,
-  ATLAS_STEP*2, ATLAS_STEP*16,
-  ATLAS_STEP*1, ATLAS_STEP*16,
+  1, 15,
+  2, 15,
+  2, 16,
+  1, 16,
 
   // --- Back Face ---
-  ATLAS_STEP*1, ATLAS_STEP*15,
-  ATLAS_STEP*2, ATLAS_STEP*15,
-  ATLAS_STEP*2, ATLAS_STEP*16,
-  ATLAS_STEP*1, ATLAS_STEP*16,
+  1, 15,
+  2, 15,
+  2, 16,
+  1, 16,
 
   // --- Left Face --- 
-  ATLAS_STEP*2, ATLAS_STEP*15,
-  ATLAS_STEP*2, ATLAS_STEP*16,
-  ATLAS_STEP*1, ATLAS_STEP*16,
-  ATLAS_STEP*1, ATLAS_STEP*15,
+  2, 15,
+  2, 16,
+  1, 16,
+  1, 15,
 
   // --- Right Face ---
-  ATLAS_STEP*2, ATLAS_STEP*15,
-  ATLAS_STEP*2, ATLAS_STEP*16,
-  ATLAS_STEP*1, ATLAS_STEP*16,
-  ATLAS_STEP*1, ATLAS_STEP*15,
+  2, 15,
+  2, 16,
+  1, 16,
+  1, 15,
 
   // --- Top Face ---
-  ATLAS_STEP*0, ATLAS_STEP*15,
-  ATLAS_STEP*1, ATLAS_STEP*15,
-  ATLAS_STEP*1, ATLAS_STEP*16,
-  ATLAS_STEP*0, ATLAS_STEP*16,
+  0, 15,
+  1, 15,
+  1, 16,
+  0, 16,
 
   // --- Bottom Face --- 
-  ATLAS_STEP*2, ATLAS_STEP*15,
-  ATLAS_STEP*3, ATLAS_STEP*15,
-  ATLAS_STEP*3, ATLAS_STEP*16,
-  ATLAS_STEP*2, ATLAS_STEP*16,
+  2, 15,
+  3, 15,
+  3, 16,
+  2, 16,
 };
 
-static const float CUBE_UV_WOOD[] = {
+static const int16_t CUBE_UV_WOOD[] = {
   // --- Front Face --- 
-  ATLAS_STEP*2, ATLAS_STEP*14,
-  ATLAS_STEP*3, ATLAS_STEP*14,
-  ATLAS_STEP*3, ATLAS_STEP*15,
-  ATLAS_STEP*2, ATLAS_STEP*15,
+  2, 14,
+  3, 14,
+  3, 15,
+  2, 15,
 
   // --- Back Face ---
-  ATLAS_STEP*2, ATLAS_STEP*14,
-  ATLAS_STEP*3, ATLAS_STEP*14,
-  ATLAS_STEP*3, ATLAS_STEP*15,
-  ATLAS_STEP*2, ATLAS_STEP*15,
+  2, 14,
+  3, 14,
+  3, 15,
+  2, 15,
 
   // --- Left Face --- 
-  ATLAS_STEP*3, ATLAS_STEP*14,
-  ATLAS_STEP*3, ATLAS_STEP*15,
-  ATLAS_STEP*2, ATLAS_STEP*15,
-  ATLAS_STEP*2, ATLAS_STEP*14,
+  3, 14,
+  3, 15,
+  2, 15,
+  2, 14,
 
   // --- Right Face ---
-  ATLAS_STEP*3, ATLAS_STEP*14,
-  ATLAS_STEP*3, ATLAS_STEP*15,
-  ATLAS_STEP*2, ATLAS_STEP*15,
-  ATLAS_STEP*2, ATLAS_STEP*14,
+  3, 14,
+  3, 15,
+  2, 15,
+  2, 14,
 
   // --- Top Face ---
-  ATLAS_STEP*4, ATLAS_STEP*14,
-  ATLAS_STEP*4, ATLAS_STEP*15,
-  ATLAS_STEP*3, ATLAS_STEP*15,
-  ATLAS_STEP*3, ATLAS_STEP*14,
+  4, 14,
+  4, 15,
+  3, 15,
+  3, 14,
 
   // --- Bottom Face --- 
-  ATLAS_STEP*4, ATLAS_STEP*14,
-  ATLAS_STEP*4, ATLAS_STEP*15,
-  ATLAS_STEP*3, ATLAS_STEP*15,
-  ATLAS_STEP*3, ATLAS_STEP*14,
+  4, 14,
+  4, 15,
+  3, 15,
+  3, 14,
 };
 
-static const float CUBE_UV_DIRT[] = {
+static const int16_t CUBE_UV_DIRT[] = {
   // --- Front Face --- 
-  ATLAS_STEP*2, ATLAS_STEP*15,
-  ATLAS_STEP*3, ATLAS_STEP*15,
-  ATLAS_STEP*3, ATLAS_STEP*16,
-  ATLAS_STEP*2, ATLAS_STEP*16,
+  2, 15,
+  3, 15,
+  3, 16,
+  2, 16,
 
   // --- Back Face ---
-  ATLAS_STEP*2, ATLAS_STEP*15,
-  ATLAS_STEP*3, ATLAS_STEP*15,
-  ATLAS_STEP*3, ATLAS_STEP*16,
-  ATLAS_STEP*2, ATLAS_STEP*16,
+  2, 15,
+  3, 15,
+  3, 16,
+  2, 16,
 
   // --- Left Face --- 
-  ATLAS_STEP*2, ATLAS_STEP*15,
-  ATLAS_STEP*3, ATLAS_STEP*15,
-  ATLAS_STEP*3, ATLAS_STEP*16,
-  ATLAS_STEP*2, ATLAS_STEP*16,
+  2, 15,
+  3, 15,
+  3, 16,
+  2, 16,
 
   // --- Right Face ---
-  ATLAS_STEP*2, ATLAS_STEP*15,
-  ATLAS_STEP*3, ATLAS_STEP*15,
-  ATLAS_STEP*3, ATLAS_STEP*16,
-  ATLAS_STEP*2, ATLAS_STEP*16,
+  2, 15,
+  3, 15,
+  3, 16,
+  2, 16,
 
   // --- Top Face ---
-  ATLAS_STEP*2, ATLAS_STEP*15,
-  ATLAS_STEP*3, ATLAS_STEP*15,
-  ATLAS_STEP*3, ATLAS_STEP*16,
-  ATLAS_STEP*2, ATLAS_STEP*16,
+  2, 15,
+  3, 15,
+  3, 16,
+  2, 16,
 
   // --- Bottom Face --- 
-  ATLAS_STEP*2, ATLAS_STEP*15,
-  ATLAS_STEP*3, ATLAS_STEP*15,
-  ATLAS_STEP*3, ATLAS_STEP*16,
-  ATLAS_STEP*2, ATLAS_STEP*16,
+  2, 15,
+  3, 15,
+  3, 16,
+  2, 16,
 };
 
-static const float CUBE_UV_DEFAULT[] = {
+static const int16_t CUBE_UV_DEFAULT[] = {
   // --- Front Face --- 
-  ATLAS_STEP*15, ATLAS_STEP*15,
-  ATLAS_STEP*16, ATLAS_STEP*15,
-  ATLAS_STEP*16, ATLAS_STEP*16,
-  ATLAS_STEP*15, ATLAS_STEP*16,
+  15, 15,
+  16, 15,
+  16, 16,
+  15, 16,
 
   // --- Back Face ---
-  ATLAS_STEP*15, ATLAS_STEP*15,
-  ATLAS_STEP*16, ATLAS_STEP*15,
-  ATLAS_STEP*16, ATLAS_STEP*16,
-  ATLAS_STEP*15, ATLAS_STEP*16,
+  15, 15,
+  16, 15,
+  16, 16,
+  15, 16,
 
   // --- Left Face --- 
-  ATLAS_STEP*15, ATLAS_STEP*15,
-  ATLAS_STEP*16, ATLAS_STEP*15,
-  ATLAS_STEP*16, ATLAS_STEP*16,
-  ATLAS_STEP*15, ATLAS_STEP*16,
+  15, 15,
+  16, 15,
+  16, 16,
+  15, 16,
 
   // --- Right Face ---
-  ATLAS_STEP*15, ATLAS_STEP*15,
-  ATLAS_STEP*16, ATLAS_STEP*15,
-  ATLAS_STEP*16, ATLAS_STEP*16,
-  ATLAS_STEP*15, ATLAS_STEP*16,
+  15, 15,
+  16, 15,
+  16, 16,
+  15, 16,
 
   // --- Top Face ---
-  ATLAS_STEP*15, ATLAS_STEP*15,
-  ATLAS_STEP*16, ATLAS_STEP*15,
-  ATLAS_STEP*16, ATLAS_STEP*16,
-  ATLAS_STEP*15, ATLAS_STEP*16,
+  15, 15,
+  16, 15,
+  16, 16,
+  15, 16,
 
   // --- Bottom Face --- 
-  ATLAS_STEP*15, ATLAS_STEP*15,
-  ATLAS_STEP*16, ATLAS_STEP*15,
-  ATLAS_STEP*16, ATLAS_STEP*16,
-  ATLAS_STEP*15, ATLAS_STEP*16,
+  15, 15,
+  16, 15,
+  16, 16,
+  15, 16,
 };
 
 #define CUBE_BYTES sizeof(CUBE_VERTICES)
@@ -242,7 +239,7 @@ typedef enum CubeDirection{
 
 
 typedef struct VertexChunk{
-  float* vertices;
+  int16_t* vertices;
   unsigned int* indices;
   int numberOfFaces;
   blockType* blockState;
@@ -266,8 +263,7 @@ typedef struct AdjecentChunks{
 } AdjecentChunks;
 
 
-Mesh createMesh(float *vertices, int vertexCount, const unsigned int *indices,
-                int indexCount);
+Mesh createMesh(const int16_t* vertices, int vertexCount, const unsigned int* indices, int indexCount);
 Mesh createCube(vec3 position, blockType type);
 void drawMesh(Mesh *mesh);
 void drawChunk(Chunk* chunk);

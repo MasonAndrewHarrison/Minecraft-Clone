@@ -4,7 +4,7 @@
 #include "mesh.h"
 #include <string.h>
 
-Mesh createMesh(float* vertices, int vertexCount, const unsigned int* indices, int indexCount){
+Mesh createMesh(const int16_t* vertices, int vertexCount, const unsigned int* indices, int indexCount){
 
     Mesh mesh;
     mesh.indexCount = indexCount;
@@ -14,18 +14,18 @@ Mesh createMesh(float* vertices, int vertexCount, const unsigned int* indices, i
 
     glGenBuffers(1, &mesh.vbo);
     glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
-    glBufferData(GL_ARRAY_BUFFER, vertexCount * 8 * sizeof(float), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertexCount * 8 * sizeof(int16_t), vertices, GL_STATIC_DRAW);   // int16_t here now
 
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)0);
+    glVertexAttribPointer(0, 3, GL_SHORT, GL_FALSE, sizeof(int16_t) * 8, (void*)0);
 
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(sizeof(float) * 3));
+    glVertexAttribPointer(1, 3, GL_SHORT, GL_FALSE, sizeof(int16_t) * 8, (void*)(sizeof(int16_t) * 3));
 
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(sizeof(float) * 6));
+    glVertexAttribPointer(2, 2, GL_SHORT, GL_FALSE, sizeof(int16_t) * 8, (void*)(sizeof(int16_t) * 6));
 
-    glGenBuffers(1, &mesh.ibo   );
+    glGenBuffers(1, &mesh.ibo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ibo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
@@ -183,7 +183,7 @@ static uint8_t checkVisiblityBetweenChunks(int x, int y, int z, uint8_t* dirList
     return 1;
 }
 
-void static setFaceType(float* vertices, blockType type, CubeDirection dir, int corner){
+void static setFaceType(int16_t* vertices, blockType type, CubeDirection dir, int corner){
 
     if (type == GRASS){
         vertices[6] = CUBE_UV_GRASS[corner * 2 + (dir*8)];
@@ -203,7 +203,7 @@ void static setFaceType(float* vertices, blockType type, CubeDirection dir, int 
     } 
 }
 
-void static appendFaceToVertexChunk(VertexChunk* vertexChunk, int cursorIndex, vec3 position, blockType type, CubeDirection dir){
+void static appendFaceToVertexChunk(VertexChunk* vertexChunk, int cursorIndex, ivec3 position, blockType type, CubeDirection dir){
 
     unsigned int* destIndex = &vertexChunk->indices[cursorIndex * SIZE_OF_FACES_INDEX];
     memcpy(destIndex, &CUBE_INDICES_TEMPLATE, sizeof(unsigned int)*SIZE_OF_FACES_INDEX);   
@@ -212,17 +212,19 @@ void static appendFaceToVertexChunk(VertexChunk* vertexChunk, int cursorIndex, v
         destIndex[i] += cursorIndex * 4;
     }
 
-    float* destVertex = &vertexChunk->vertices[cursorIndex * SIZE_OF_FACE];
+    int16_t* destVertex = &vertexChunk->vertices[cursorIndex * SIZE_OF_FACE];
     memcpy(destVertex, &CUBE_VERTICES[dir * SIZE_OF_FACE], sizeof(float)*SIZE_OF_FACE);
 
     for (int i = 0; i < 4; i++){
-        glm_vec3_add(&destVertex[i*8], position, &destVertex[i*8]); 
+        destVertex[i*8] += position[0];
+        destVertex[i*8+1] += position[1];
+        destVertex[i*8+2] += position[2];
         setFaceType(&destVertex[i*8], type, dir, i);
 
     }
 }
 
-static void appendCubeToVertexChunk(VertexChunk* vertexChunk, int* cursorIndex, vec3 position, blockType type, uint8_t* dirList){
+static void appendCubeToVertexChunk(VertexChunk* vertexChunk, int* cursorIndex, ivec3 position, blockType type, uint8_t* dirList){
     for(int dir = FRONT; dir < BOTTOM+1; dir++){
         if(dirList[dir] == 1){
             appendFaceToVertexChunk(vertexChunk, *cursorIndex, position, type, dir);
@@ -254,7 +256,7 @@ VertexChunk* rebuildChunk(AdjecentChunks* adjectChunks){
 
             if (isVisible && isVisibleBetweenChunks){
                 appendCubeToVertexChunk(vertexChunk, &totalFaces, 
-                    (vec3){x + (chunk->x*16), z-((int)CHUNK_HEIGHT/2), y + (chunk->y*16)}, type, dirList);
+                    (   ivec3){x + (chunk->x*16), z-((int)CHUNK_HEIGHT/2), y + (chunk->y*16)}, type, dirList);
             }
         }
     }
