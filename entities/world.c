@@ -41,36 +41,45 @@ ChunkDoList initCircleChunkDoList(int16_t centerX, int16_t centerY, int radius){
 }
 
 
-ChunkDoList removeChunkDoList(ChunkDoList const target, ChunkDoList const cutter){
+void removeChunkDoList(ChunkDoList* target, ChunkDoList* const cutter){
 
-    ChunkDoList booleanResult;
-    booleanResult.positionList = malloc(sizeof(int) * target.size);
-    booleanResult.size = 0;
+
+    free(target->positionList);
+    target->positionList = malloc(sizeof(int) * target->size * 2);
 
     int targetX;
     int targetY;
+    int newTargetSize = 0;
 
     int toolX;
     int toolY;
 
-    for (int i = 0; i < target.size; i++){
-        for (int j = 0; j < cutter.size; i++){
+    //printf("Size %d\n", target->size);
 
-            targetX = target.positionList[i*2];
-            targetY = target.positionList[i*2+1];
+    for (int i = 0; i < target->size; i++){
 
-            toolX = cutter.positionList[j*2];
-            toolY = cutter.positionList[j*2+1];
+        targetX = target->positionList[i*2];
+        targetY = target->positionList[i*2+1];
+        bool isInCutter = false;
+
+        for (int j = 0; j < cutter->size; j++){
+            toolX = cutter->positionList[j*2];
+            toolY = cutter->positionList[j*2+1];
 
             if (targetX == toolX && targetY == toolY){
-                booleanResult.positionList[booleanResult.size*2] = toolX;
-                booleanResult.positionList[booleanResult.size*2+1] = toolY;
+                isInCutter = true;
             }
             
         }
+        if (isInCutter == false){
+            target->positionList[newTargetSize*2] = targetX;
+            target->positionList[newTargetSize*2+1] = targetY;
+            newTargetSize++;
+        }
     }
 
-    return booleanResult;
+    target->size = newTargetSize;
+
 }
 
 
@@ -238,10 +247,6 @@ static void* genChunkThread(void* arg){
     int x = input->x;
     int y = input->y;
 
-    if (chunkExist(world, x, y) == true){
-        return NULL;
-    }
-
     ChunkNode* newNode = setNode(createChunk(x, y, world->mapGeneration, world->seed));
     unsigned int bucketIndex = hashChunkCoord(world, x, y);
 
@@ -260,11 +265,6 @@ static void* genChunkThread(void* arg){
     
 }
 
-static void* rebuildChunkThreadSafe(void* arg){
-    AdjecentChunks* adjectChunks = arg;
-    return rebuildChunk(adjectChunks);
-}
-
 /*
  * This uses multithreading to use the createChunk(..) function for each chunk in the renderList
  * and rebuildChunks(..) is expect to be run after to have chunks that are fully useable.
@@ -273,21 +273,31 @@ static void* rebuildChunkThreadSafe(void* arg){
 void genChunks(World* world, ChunkDoList* genList){
     
     pthread_t* threads = malloc(genList->size * sizeof(pthread_t));
+    int threadsUsed = 0;
     genThreadInput* inputs = malloc(genList->size * sizeof(genThreadInput));
 
     for (int i = 0; i < genList->size; i++){
         inputs[i].world = world;
         inputs[i].x = genList->positionList[i*2];
         inputs[i].y = genList->positionList[i*2+1];
-        pthread_create(&threads[i], NULL, genChunkThread, &inputs[i]);
+        if (chunkExist(world, inputs[i].x, inputs[i].y) == false){
+            pthread_create(&threads[threadsUsed], NULL, genChunkThread, &inputs[i]);
+            threadsUsed++;
+        }
     }
 
-    for (int i = 0; i < genList->size; i++){
+    for (int i = 0; i < threadsUsed; i++){
         pthread_join(threads[i], NULL);
     }
 
     free(inputs);
     free(threads);
+}
+
+
+static void* rebuildChunkThreadSafe(void* arg){
+    AdjecentChunks* adjectChunks = arg;
+    return rebuildChunk(adjectChunks);
 }
 
 /*
@@ -338,7 +348,6 @@ void static freeNode(ChunkNode* node){
     }
     free(node);
 }
-
 void destroyWorld(World* world){
 
     pthread_mutex_destroy(&world->hashInsertLock);
@@ -352,4 +361,35 @@ void destroyWorld(World* world){
         }
     }
     free(world);
+}
+
+bool static isInList(Chunk* chunk, ChunkDoList* list){
+    for (int i = 0; i < list->size; i++){
+        if ((list->positionList[i*2] == chunk->x) && (list->positionList[i*2+1] == chunk->y)){ return true;}
+    }
+    return false;
+}
+
+void static unBuildNode(ChunkNode* node, ChunkDoList* const exclusion){
+
+    if(node->next != NULL){
+        unBuildNode(node->next, exclusion);
+    }
+    if(isInList(node->chunk, exclusion) == false){
+        destroyMesh(&node->chunk->mesh);
+        node->chunk->isBuild = false;
+    }
+    
+}
+
+void unBuildChunks(World* world, ChunkDoList* const exclusion){
+
+    ChunkNode** chunkArray = world->chunkArray;
+    for (int i = 0; i < WORLD_CAPACITY; i++){
+
+        ChunkNode* node = chunkArray[i];
+        if(node != NULL){
+            unBuildNode(node, exclusion);
+        }
+    }
 }

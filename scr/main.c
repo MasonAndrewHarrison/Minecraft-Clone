@@ -18,8 +18,6 @@
 int main(void) {
 
 
-
-    
     if (!glfwInit()) return -1;
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -78,8 +76,8 @@ int main(void) {
     glfwSetInputMode(state->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(state->window, mouseCallback);
 
-    ChunkDoList genList = initCircleChunkDoList(0, 0, 30);
-    ChunkDoList rebuildList = initCircleChunkDoList(0, 0, 25);
+    ChunkDoList genList = initCircleChunkDoList(0, 0, 50);
+    ChunkDoList rebuildList = initCircleChunkDoList(0, 0, 50);
     ChunkDoList renderList;
 
     World* world = initWorld(coolerMapGeneration);
@@ -94,14 +92,18 @@ int main(void) {
 
     while (!glfwWindowShouldClose(state->window)) {
 
+        int currentX = (int)floorf(state->cam->eye[0] / 16.0f);
+        int currentY = (int)floorf(state->cam->eye[2] / 16.0f);
         frameCount++;
         double now = glfwGetTime();
+
         if (now - lastFPSTime >= 1.0) {
             double fps = frameCount / (now - lastFPSTime);
             double frameTimeMs = 1000.0 / fps;
 
             char title[64];
-            snprintf(title, sizeof(title), "Minecraft Clone | %.1f FPS | %.2f ms", fps, frameTimeMs);
+            snprintf(title, sizeof(title), "Minecraft Clone | %.1f FPS | %.2f ms | Chunk (%d, %d)",
+                    fps, frameTimeMs, currentX, currentY);
             glfwSetWindowTitle(state->window, title);
 
             frameCount = 0;
@@ -130,17 +132,12 @@ int main(void) {
         glm_mat4_identity(model);
         glm_mat4_mul(pv, model, mvp);
         glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, (float*)mvp);
-
-        int currentX = state->cam->eye[0]/16;
-        int currentY = state->cam->eye[2]/16;
-
-
         
-        renderList = initCircleChunkDoList(currentX, currentY, 20);
-        genList = initCircleChunkDoList(currentX, currentY, 25);
-        genChunks(world, &genList);
-        rebuildChunks(world, &renderList, true);
-
+        renderList = initCircleChunkDoList(currentX, currentY, 50);
+        genList = initCircleChunkDoList(currentX, currentY, 60);
+        //genChunks(world, &genList);
+        //unBuildChunks(world, &genList);
+        //rebuildChunks(world, &renderList, true);
         if (state->wireFrame == 1){renderChunksWireFrame(world, &renderList);}
         else {renderChunks(world, &renderList);}
 

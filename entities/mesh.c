@@ -137,12 +137,12 @@ static uint8_t checkVisiblity(blockType* blockState, int16_t x, int16_t y, int16
         return 0;
     }
 
-    dirList[FRONT] = blockState[blockIndex(x, y+1, z)] == AIR || y == CHUNK_SIZE-1;
-    dirList[BACK] = blockState[blockIndex(x, y-1, z)] == AIR || y == 0;
-    dirList[LEFT] = blockState[blockIndex(x-1, y, z)] == AIR || x == 0;
-    dirList[RIGHT] = blockState[blockIndex(x+1, y, z)] == AIR || x == CHUNK_SIZE-1;
-    dirList[TOP] = blockState[blockIndex(x, y, z+1)] == AIR || z == CHUNK_HEIGHT-1;
-    dirList[BOTTOM] = blockState[blockIndex(x, y, z-1)] == AIR || z == 0;
+    dirList[FRONT]  = y == CHUNK_SIZE-1   || blockState[blockIndex(x, y+1, z)] == AIR;
+    dirList[BACK]   = y == 0              || blockState[blockIndex(x, y-1, z)] == AIR;
+    dirList[LEFT]   = x == 0              || blockState[blockIndex(x-1, y, z)] == AIR;
+    dirList[RIGHT]  = x == CHUNK_SIZE-1   || blockState[blockIndex(x+1, y, z)] == AIR;
+    dirList[TOP]    = z == CHUNK_HEIGHT-1 || blockState[blockIndex(x, y, z+1)] == AIR;
+    dirList[BOTTOM] = z == 0              || blockState[blockIndex(x, y, z-1)] == AIR;
 
     return 1;
 }
