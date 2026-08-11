@@ -270,7 +270,7 @@ static void* genChunkThread(void* arg){
  * and rebuildChunks(..) is expect to be run after to have chunks that are fully useable.
 */
 
-void genChunks(World* world, ChunkDoList* genList){
+void genChunks(World* world, ChunkDoList* genList, struct timespec pauseTime){
     
     pthread_t* threads = malloc(genList->size * sizeof(pthread_t));
     int threadsUsed = 0;
@@ -283,6 +283,10 @@ void genChunks(World* world, ChunkDoList* genList){
         if (chunkExist(world, inputs[i].x, inputs[i].y) == false){
             pthread_create(&threads[threadsUsed], NULL, genChunkThread, &inputs[i]);
             threadsUsed++;
+        }
+
+        if (pauseTime.tv_nsec > 0 || pauseTime.tv_sec > 0) {
+            nanosleep(&pauseTime, NULL);
         }
     }
 
@@ -392,4 +396,22 @@ void unBuildChunks(World* world, ChunkDoList* const exclusion){
             unBuildNode(node, exclusion);
         }
     }
+}
+
+
+void* genThreadFn(void* arg){
+    GenThreadArgs* args = arg;
+    struct timespec timePause = {0, 100000};
+    while (atomic_load(&args->running)){
+
+        int x = (int)floorf(args->appState->cam->eye[0] / 16.0f);
+        int y = (int)floorf(args->appState->cam->eye[2] / 16.0f);
+
+        ChunkDoList genList = initCircleChunkDoList(x, y, args->radius);
+
+        genChunks(args->world, &genList, timePause);
+        struct timespec ts = {1, 0};   
+        nanosleep(&ts, NULL);
+    }
+    return NULL;
 }

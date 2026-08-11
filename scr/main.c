@@ -82,8 +82,18 @@ int main(void) {
 
     World* world = initWorld(coolerMapGeneration);
 
-    genChunks(world, &genList);
+    struct timespec timePause = {0, 0};
+    genChunks(world, &genList, timePause);
     rebuildChunks(world, &rebuildList, true);
+
+    GenThreadArgs genArgs = { 
+        .world = world, 
+        .appState = state,
+        .radius = 60,
+    };
+    atomic_init(&genArgs.running, 1);
+    pthread_t genThread;
+    pthread_create(&genThread, NULL, genThreadFn, &genArgs);
     
 
     double lastFPSTime = glfwGetTime();
@@ -134,10 +144,9 @@ int main(void) {
         glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, (float*)mvp);
         
         renderList = initCircleChunkDoList(currentX, currentY, 50);
-        genList = initCircleChunkDoList(currentX, currentY, 60);
-        //genChunks(world, &genList);
         //unBuildChunks(world, &genList);
-        //rebuildChunks(world, &renderList, true);
+
+        rebuildChunks(world, &renderList, true);
         if (state->wireFrame == 1){renderChunksWireFrame(world, &renderList);}
         else {renderChunks(world, &renderList);}
 
@@ -145,6 +154,8 @@ int main(void) {
         glfwPollEvents();
     }
 
+    atomic_store(&genArgs.running, 0);
+    pthread_join(genThread, NULL);
     destroyWorld(world);
     destroyTexture(&atlas);
     glDeleteProgram(shader);
