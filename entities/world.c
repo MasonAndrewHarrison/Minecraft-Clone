@@ -1,5 +1,22 @@
 #include "world.h"
 
+
+ChunkDoList initChunkDoList(int width, int length){
+
+    ChunkDoList doList;
+    doList.size = width * length;
+    doList.positionList = malloc(sizeof(int)*doList.size*2);
+
+    for (int i = 0; i < length * width; i++){
+        int localX = i % width;
+        int localY = i / width;  
+        doList.positionList[i*2] = localX - (int)width/2;
+        doList.positionList[i*2+1] = localY - (int)length/2;
+    }
+
+    return doList;
+}
+
 inline static uint8_t cheapFastHash(uint8_t const x, uint8_t const y, uint8_t const z, uint8_t const seed){
     uint8_t h = seed;
     h ^= x * 0x9Fu;
@@ -118,22 +135,22 @@ Chunk* getChunk(World* world, int x, int y){
     return NULL;
 }
 
-void renderChunks(World* world, int* renderList, int TotalChunks){
+void renderChunks(World* world, ChunkDoList* renderList){
 
-    for (int i = 0; i < TotalChunks;i++){
-        int x = renderList[i*2];
-        int y = renderList[i*2+1];
+    for (int i = 0; i < renderList->size;i++){
+        int x = renderList->positionList[i*2];
+        int y = renderList->positionList[i*2+1];
         Chunk* chunk = getChunk(world, x, y);
         
         drawChunk(chunk);
     }
 }
 
-void renderChunksWireFrame(World* world, int* renderList, int TotalChunks){
+void renderChunksWireFrame(World* world, ChunkDoList* renderList){
 
-    for (int i = 0; i < TotalChunks;i++){
-        int x = renderList[i*2];
-        int y = renderList[i*2+1];
+    for (int i = 0; i < renderList->size;i++){
+        int x = renderList->positionList[i*2];
+        int y = renderList->positionList[i*2+1];
         Chunk* chunk = getChunk(world, x, y);
         drawChunkWireFrame(chunk);
     }
@@ -180,19 +197,19 @@ static void* rebuildChunkThreadSafe(void* arg){
  * and rebuildChunks(..) is expect to be run after to have chunks that are fully useable.
 */
 
-void genChunks(World* world, int* renderList, int TotalChunks){
+void genChunks(World* world, ChunkDoList* genList){
     
-    pthread_t* threads = malloc(TotalChunks * sizeof(pthread_t));
-    genThreadInput* inputs = malloc(TotalChunks * sizeof(genThreadInput));
+    pthread_t* threads = malloc(genList->size * sizeof(pthread_t));
+    genThreadInput* inputs = malloc(genList->size * sizeof(genThreadInput));
 
-    for (int i = 0; i < TotalChunks; i++){
+    for (int i = 0; i < genList->size; i++){
         inputs[i].world = world;
-        inputs[i].x = renderList[i*2];
-        inputs[i].y = renderList[i*2+1];
+        inputs[i].x = genList->positionList[i*2];
+        inputs[i].y = genList->positionList[i*2+1];
         pthread_create(&threads[i], NULL, genChunkThread, &inputs[i]);
     }
 
-    for (int i = 0; i < TotalChunks; i++){
+    for (int i = 0; i < genList->size; i++){
         pthread_join(threads[i], NULL);
     }
 
@@ -205,15 +222,15 @@ void genChunks(World* world, int* renderList, int TotalChunks){
  * This rebuilds each chunk using the rebuildChunk(..) function. As each thread is joined or finshes
  * it job it binds it to the GPU using the bindChunk(..) function.
  */
-void rebuildChunks(World* world, int* renderList, int TotalChunks){
+void rebuildChunks(World* world, ChunkDoList* genList){
 
-    pthread_t* threads = malloc(TotalChunks * sizeof(pthread_t));
-    Chunk* savedChunkPtr[TotalChunks];
-    AdjecentChunks adjectChunks[TotalChunks];
+    pthread_t* threads = malloc(genList->size * sizeof(pthread_t));
+    Chunk* savedChunkPtr[genList->size];
+    AdjecentChunks adjectChunks[genList->size];
 
-    for (int i = 0; i < TotalChunks;i++){
-        int x = renderList[i*2];
-        int y = renderList[i*2+1];
+    for (int i = 0; i < genList->size;i++){
+        int x = genList->positionList[i*2];
+        int y = genList->positionList[i*2+1];
         savedChunkPtr[i] = getChunk(world, x, y);
         adjectChunks[i].center = savedChunkPtr[i];
         adjectChunks[i].left = getChunk(world, x-1, y);
@@ -223,7 +240,7 @@ void rebuildChunks(World* world, int* renderList, int TotalChunks){
         pthread_create(&threads[i], NULL, rebuildChunkThreadSafe, &adjectChunks[i]);
     }
 
-    for (int i = 0; i < TotalChunks; i++){
+    for (int i = 0; i < genList->size; i++){
         void* result = NULL;
         pthread_join(threads[i], &result);
         bindChunk(savedChunkPtr[i], (VertexChunk*)result);

@@ -31,14 +31,19 @@ typedef struct World{
 } World;
 
 
+typedef struct ChunkDoList{
+    int* positionList;
+    int size;
+} ChunkDoList;
+
+ChunkDoList initChunkDoList(int width, int length);
 World* initWorld(blockType(*mapGeneration)(int16_t, int16_t, int16_t, uint8_t));
-Chunk* getChunk(World* world, int x, int y);
-void renderChunks(World* world, int* renderList, int TotalChunks);
-void genChunks(World* world, int* renderList, int TotalChunks);
-void renderChunksWireFrame(World* world, int* renderList, int TotalChunks);
+void genChunks(World* world, ChunkDoList* genList);
+void renderChunks(World* world, ChunkDoList* renderList);
+void renderChunksWireFrame(World* world, ChunkDoList* renderList);
 void destroyWorld(World* world);
 blockType defaultMapGeneration(int16_t const x, int16_t const y, int16_t const z, uint8_t const seed);
 blockType coolerMapGeneration(int16_t const x, int16_t const y, int16_t const z, uint8_t const seed);
-void rebuildChunks(World* world, int* renderList, int TotalChunks);
+void rebuildChunks(World* world, ChunkDoList* genList);
 
 #endif

@@ -78,23 +78,16 @@ int main(void) {
     glfwSetInputMode(state->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(state->window, mouseCallback);
 
-    unsigned int length = 100;
-    unsigned int width = 100;
-    unsigned int worldSize = length*width;
-    
-    int renderList[worldSize*2];
+    unsigned int length = 30;
+    unsigned int width = 30;
 
-    for (int i = 0; i < length * width; i++){
-        int localX = i % width;
-        int localY = i / width;  
-        renderList[i*2] = localX - (int)width/2;
-        renderList[i*2+1] = localY - (int)length/2;
-    }
+    ChunkDoList genList = initChunkDoList(length, width);
+    ChunkDoList renderList = initChunkDoList(length-5, width-5);
 
     World* world = initWorld(coolerMapGeneration);
 
-    genChunks(world, renderList, worldSize);
-    rebuildChunks(world, renderList, worldSize);
+    genChunks(world, &genList);
+    rebuildChunks(world, &genList);
 
     double lastFPSTime = glfwGetTime();
     double lastDeltaTime = glfwGetTime();
@@ -120,6 +113,7 @@ int main(void) {
         lastDeltaTime = glfwGetTime();
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClearColor(0.3f, 0.6f, 0.9f, 1.0f);
 
         inputHandler(state);
 
@@ -138,8 +132,8 @@ int main(void) {
         glm_mat4_mul(pv, model, mvp);
         glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, (float*)mvp);
 
-        if (state->wireFrame == 1){renderChunksWireFrame(world, renderList, worldSize);}
-        else {renderChunks(world, renderList, worldSize);}
+        if (state->wireFrame == 1){renderChunksWireFrame(world, &renderList);}
+        else {renderChunks(world, &renderList);}
 
         glfwSwapBuffers(state->window);
         glfwPollEvents();
