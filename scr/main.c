@@ -78,11 +78,10 @@ int main(void) {
     glfwSetInputMode(state->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(state->window, mouseCallback);
 
-    unsigned int length = 30;
-    unsigned int width = 30;
+    unsigned int length = 100;
+    unsigned int width = 100;
 
     ChunkDoList genList = initChunkDoList(length, width);
-    ChunkDoList renderList = initChunkDoList(length-5, width-5);
 
     World* world = initWorld(coolerMapGeneration);
 
@@ -131,6 +130,11 @@ int main(void) {
         glm_mat4_identity(model);
         glm_mat4_mul(pv, model, mvp);
         glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, (float*)mvp);
+
+        int currentX = state->cam->eye[0]/16;
+        int currentY = state->cam->eye[2]/16;
+
+        ChunkDoList renderList = initCircleChunkDoList(currentX, currentY, 5);
 
         if (state->wireFrame == 1){renderChunksWireFrame(world, &renderList);}
         else {renderChunks(world, &renderList);}

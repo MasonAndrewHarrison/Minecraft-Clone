@@ -37,6 +37,7 @@ typedef struct ChunkDoList{
 } ChunkDoList;
 
 ChunkDoList initChunkDoList(int width, int length);
+ChunkDoList initCircleChunkDoList(int16_t centerX, int16_t centerY, int radius);
 World* initWorld(blockType(*mapGeneration)(int16_t, int16_t, int16_t, uint8_t));
 void genChunks(World* world, ChunkDoList* genList);
 void renderChunks(World* world, ChunkDoList* renderList);

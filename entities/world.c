@@ -17,6 +17,30 @@ ChunkDoList initChunkDoList(int width, int length){
     return doList;
 }
 
+
+ChunkDoList initCircleChunkDoList(int16_t centerX, int16_t centerY, int radius){
+
+    ChunkDoList doList;
+    int maxSize = (radius*2+1) * (radius*2+1);     
+    doList.positionList = malloc(sizeof(int) * maxSize * 2);
+
+    int count = 0;   
+
+    for (int y = -radius; y <= radius; y++){
+        for (int x = -radius; x <= radius; x++){
+            if (x*x + y*y <= radius*radius){   
+                doList.positionList[count*2]   = centerX + x;
+                doList.positionList[count*2+1] = centerY + y;
+                count++;
+            }
+        }
+    }
+
+    doList.size = count;
+    return doList;
+}
+
+
 inline static uint8_t cheapFastHash(uint8_t const x, uint8_t const y, uint8_t const z, uint8_t const seed){
     uint8_t h = seed;
     h ^= x * 0x9Fu;
