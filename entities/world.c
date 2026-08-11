@@ -41,6 +41,39 @@ ChunkDoList initCircleChunkDoList(int16_t centerX, int16_t centerY, int radius){
 }
 
 
+ChunkDoList removeChunkDoList(ChunkDoList const target, ChunkDoList const cutter){
+
+    ChunkDoList booleanResult;
+    booleanResult.positionList = malloc(sizeof(int) * target.size);
+    booleanResult.size = 0;
+
+    int targetX;
+    int targetY;
+
+    int toolX;
+    int toolY;
+
+    for (int i = 0; i < target.size; i++){
+        for (int j = 0; j < cutter.size; i++){
+
+            targetX = target.positionList[i*2];
+            targetY = target.positionList[i*2+1];
+
+            toolX = cutter.positionList[j*2];
+            toolY = cutter.positionList[j*2+1];
+
+            if (targetX == toolX && targetY == toolY){
+                booleanResult.positionList[booleanResult.size*2] = toolX;
+                booleanResult.positionList[booleanResult.size*2+1] = toolY;
+            }
+            
+        }
+    }
+
+    return booleanResult;
+}
+
+
 inline static uint8_t cheapFastHash(uint8_t const x, uint8_t const y, uint8_t const z, uint8_t const seed){
     uint8_t h = seed;
     h ^= x * 0x9Fu;
@@ -159,14 +192,26 @@ Chunk* getChunk(World* world, int x, int y){
     return NULL;
 }
 
+uint8_t chunkExist(World* world, int x, int y){
+    ChunkNode* current = world->chunkArray[hashChunkCoord(world, x, y)]; 
+    while (current != NULL){
+        if (current->xKey == x && current->yKey == y){
+            return 1;
+        }
+        current = current->next;
+    }
+    return 0;
+}
+
 void renderChunks(World* world, ChunkDoList* renderList){
 
     for (int i = 0; i < renderList->size;i++){
         int x = renderList->positionList[i*2];
         int y = renderList->positionList[i*2+1];
         Chunk* chunk = getChunk(world, x, y);
-        
-        drawChunk(chunk);
+        if (chunk != NULL){
+            drawChunk(chunk);
+        }
     }
 }
 
@@ -192,6 +237,10 @@ static void* genChunkThread(void* arg){
     World* world = input->world;
     int x = input->x;
     int y = input->y;
+
+    if (chunkExist(world, x, y) == true){
+        return NULL;
+    }
 
     ChunkNode* newNode = setNode(createChunk(x, y, world->mapGeneration, world->seed));
     unsigned int bucketIndex = hashChunkCoord(world, x, y);
@@ -239,23 +288,27 @@ void genChunks(World* world, ChunkDoList* genList){
 
     free(inputs);
     free(threads);
-
 }
 
 /*
  * This rebuilds each chunk using the rebuildChunk(..) function. As each thread is joined or finshes
  * it job it binds it to the GPU using the bindChunk(..) function.
  */
-void rebuildChunks(World* world, ChunkDoList* genList){
+void rebuildChunks(World* world, ChunkDoList* genList, bool unbuildOnly){
 
     pthread_t* threads = malloc(genList->size * sizeof(pthread_t));
     Chunk* savedChunkPtr[genList->size];
     AdjecentChunks adjectChunks[genList->size];
 
     for (int i = 0; i < genList->size;i++){
+
         int x = genList->positionList[i*2];
         int y = genList->positionList[i*2+1];
         savedChunkPtr[i] = getChunk(world, x, y);
+
+        if (savedChunkPtr[i] == NULL){ continue; }
+        if (unbuildOnly && savedChunkPtr[i]->isBuild == true){ continue; }
+
         adjectChunks[i].center = savedChunkPtr[i];
         adjectChunks[i].left = getChunk(world, x-1, y);
         adjectChunks[i].right = getChunk(world, x+1, y);
@@ -265,9 +318,14 @@ void rebuildChunks(World* world, ChunkDoList* genList){
     }
 
     for (int i = 0; i < genList->size; i++){
+
+        if (savedChunkPtr[i] == NULL){ continue; }
+        if (unbuildOnly && savedChunkPtr[i]->isBuild == true){ continue; }
+
         void* result = NULL;
         pthread_join(threads[i], &result);
         bindChunk(savedChunkPtr[i], (VertexChunk*)result);
+        savedChunkPtr[i]->isBuild = true;
     }
 
     free(threads);

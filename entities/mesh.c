@@ -43,11 +43,16 @@ void drawMesh(Mesh* mesh) {
 }
 
 void drawChunk(Chunk* chunk){
-    drawMesh(&chunk->mesh);
+    if (chunk->mesh.indexCount != 0){
+        drawMesh(&chunk->mesh);
+    }
+    
 }
 
 void drawChunkWireFrame(Chunk* chunk){
-    drawLines(&chunk->mesh);
+    if (chunk->mesh.indexCount != 0){
+        drawLines(&chunk->mesh);
+    }
 }
 
 void drawLines(Mesh* mesh){
@@ -102,6 +107,7 @@ Chunk* createChunk(int x, int y, blockType(*mapGeneration)(int16_t, int16_t, int
     chunk->blockState = createBlockState(x, y, &chunk->totalBlocks, mapGeneration, seed);
     chunk->x=x;
     chunk->y=y;
+    chunk->isBuild = false;
     
     return chunk;
 }

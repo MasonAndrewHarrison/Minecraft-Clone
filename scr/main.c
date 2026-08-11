@@ -78,15 +78,15 @@ int main(void) {
     glfwSetInputMode(state->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(state->window, mouseCallback);
 
-    unsigned int length = 100;
-    unsigned int width = 100;
-
-    ChunkDoList genList = initChunkDoList(length, width);
+    ChunkDoList genList = initCircleChunkDoList(0, 0, 30);
+    ChunkDoList rebuildList = initCircleChunkDoList(0, 0, 25);
+    ChunkDoList renderList;
 
     World* world = initWorld(coolerMapGeneration);
 
     genChunks(world, &genList);
-    rebuildChunks(world, &genList);
+    rebuildChunks(world, &rebuildList, true);
+    
 
     double lastFPSTime = glfwGetTime();
     double lastDeltaTime = glfwGetTime();
@@ -134,7 +134,12 @@ int main(void) {
         int currentX = state->cam->eye[0]/16;
         int currentY = state->cam->eye[2]/16;
 
-        ChunkDoList renderList = initCircleChunkDoList(currentX, currentY, 5);
+
+        
+        renderList = initCircleChunkDoList(currentX, currentY, 20);
+        genList = initCircleChunkDoList(currentX, currentY, 25);
+        genChunks(world, &genList);
+        rebuildChunks(world, &renderList, true);
 
         if (state->wireFrame == 1){renderChunksWireFrame(world, &renderList);}
         else {renderChunks(world, &renderList);}

@@ -253,6 +253,7 @@ typedef struct Chunk{
   int y;
   blockType* blockState;
   int totalBlocks;
+  bool isBuild;
 } Chunk;
 
 typedef struct AdjecentChunks{
