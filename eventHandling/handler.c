@@ -5,9 +5,9 @@
 #include "state.h"
 
 
-#define forwardSpeed 100.0f
-#define strifeSpeed 60.0f
-#define upSpeed 50.0f
+#define forwardSpeed 50.0f
+#define strifeSpeed 30.0f
+#define upSpeed 10.0f
 
 
 void inputHandler(State* state){

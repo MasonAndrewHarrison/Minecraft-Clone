@@ -15,9 +15,10 @@
 #define HEIGHT         1080
 #define VSYNC_INTERVAL 0
 #define PRELOADED_GENERATED_RADIUS 40
-#define ROLLING_GENERATED_RADIUS 60
-#define UNBUILD_RADIUS 1000
+#define ROLLING_GENERATED_RADIUS 55
+#define UNBUILD_RADIUS 500
 #define RENDER_RADIUS 50
+#define SPAWN_POSITION (vec3){573.0f, -6.0f, 9.0f}
 
 int main(void) {
 
@@ -80,8 +81,10 @@ int main(void) {
     glfwSetInputMode(state->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(state->window, mouseCallback);
 
-    ChunkDoList genList = initCircleChunkDoList(0, 0, PRELOADED_GENERATED_RADIUS);
-    ChunkDoList rebuildList = initCircleChunkDoList(0, 0, PRELOADED_GENERATED_RADIUS);
+    uint16_t spawnX = floorf(SPAWN_POSITION[0]/16.0f);
+    uint16_t spawnY = floorf(SPAWN_POSITION[2]/16.0f);
+    ChunkDoList genList = initCircleChunkDoList(spawnX, spawnY, PRELOADED_GENERATED_RADIUS);
+    ChunkDoList rebuildList = initCircleChunkDoList(spawnX, spawnY, PRELOADED_GENERATED_RADIUS);
     ChunkDoList renderList;
 
     World* world = initWorld(coolerMapGeneration);
@@ -114,18 +117,16 @@ int main(void) {
     double lastDeltaTime = glfwGetTime();
     int frameCount = 0;
 
-    //TODO FIX THIS
-    Chunk* spawnChunk = getChunk(world, 0, 0);
-    int spawnHight = getHighestBlock(spawnChunk->blockState, 0, 0);
-    state->cam->eye[1] = spawnHight;
-    state->cam->center[1] = spawnHight;
+    glm_vec3_copy(SPAWN_POSITION, state->cam->eye);
+    glm_vec3_copy(SPAWN_POSITION, state->cam->eye);
 
     while (!glfwWindowShouldClose(state->window)) {
 
         
 
-        int currentX = (int)floorf(state->cam->eye[0] / 16.0f);
-        int currentY = (int)floorf(state->cam->eye[2] / 16.0f);
+        int currentX = (int)state->cam->eye[0];
+        int currentZ = (int)state->cam->eye[1];
+        int currentY = (int)state->cam->eye[2];
         frameCount++;
         double now = glfwGetTime();
 
@@ -134,8 +135,8 @@ int main(void) {
             double frameTimeMs = 1000.0 / fps;
 
             char title[64];
-            snprintf(title, sizeof(title), "Minecraft Clone | %.1f FPS | %.2f ms | Chunk (%d, %d)",
-                    fps, frameTimeMs, currentX, currentY);
+            snprintf(title, sizeof(title), "Minecraft Clone | %.1f FPS | %.2f ms | Position (%d, %d, %d)",
+                    fps, frameTimeMs, currentX, currentY, currentZ);
             glfwSetWindowTitle(state->window, title);
 
             frameCount = 0;
@@ -165,8 +166,9 @@ int main(void) {
         glm_mat4_mul(pv, model, mvp);
         glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, (float*)mvp);
         
-        renderList = initCircleChunkDoList(currentX, currentY, RENDER_RADIUS);
+        renderList = initCircleChunkDoList(floorf(currentX/16.0f), floorf(currentY/16.0f), RENDER_RADIUS);
 
+        //TODO make this faster and one own thread
         rebuildChunks(world, &renderList, true);
         if (state->wireFrame == 1){renderChunksWireFrame(world, &renderList);}
         else {renderChunks(world, &renderList);}

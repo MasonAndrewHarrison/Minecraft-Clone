@@ -107,11 +107,12 @@ uint8_t getHighestBlock(blockType* blockState, uint8_t x, uint8_t y){
 
 void static addTree(blockType* blockState, uint8_t seed){
 
-    if (rand() % 10 > 3){return;}
+    if (rand() % 10 > 9){return;}
     uint8_t x = rand() % 10 + 3;
     uint8_t y = rand() % 10 + 3;
     uint8_t z = getHighestBlock(blockState, x, y);
-    if (z > 50) {return;}
+    if (blockState[blockIndex(x, y, z)] == LEAVES){return;}
+    if (z < 45 && z > 40) {return;}
     for (int i = 0; i < BLOCKS_IN_TREE; i++){
         uint8_t dx = TREE_TEMPLATE[i*4] + x;
         uint8_t dy = TREE_TEMPLATE[i*4+1] + y;
@@ -133,7 +134,7 @@ Chunk* createChunk(int x, int y, blockType(*mapGeneration)(int16_t, int16_t, int
     chunk->y=y;
     chunk->isBuild = false;
   
-    for (int i = 0; i < 3; i++){
+    for (int i = 0; i < 1; i++){
         addTree(chunk->blockState, seed);
     }
     
