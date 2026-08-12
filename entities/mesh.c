@@ -113,6 +113,7 @@ void static addTree(blockType* blockState, uint8_t seed){
     uint8_t z = getHighestBlock(blockState, x, y);
     if (blockState[blockIndex(x, y, z)] == LEAVES){return;}
     if (z < 45 && z > 40) {return;}
+    if (z > CHUNK_HEIGHT-6) {return;}
     for (int i = 0; i < BLOCKS_IN_TREE; i++){
         uint8_t dx = TREE_TEMPLATE[i*4] + x;
         uint8_t dy = TREE_TEMPLATE[i*4+1] + y;
@@ -284,7 +285,7 @@ void static appendFaceToVertexChunk(VertexChunk* vertexChunk, int cursorIndex, i
     }
 
     int16_t* destVertex = &vertexChunk->vertices[cursorIndex * SIZE_OF_FACE];
-    memcpy(destVertex, &CUBE_VERTICES[dir * SIZE_OF_FACE], sizeof(float)*SIZE_OF_FACE);
+    memcpy(destVertex, &CUBE_VERTICES[dir * SIZE_OF_FACE], sizeof(uint16_t)*SIZE_OF_FACE);
 
     for (int i = 0; i < 4; i++){
         destVertex[i*8] += position[0];

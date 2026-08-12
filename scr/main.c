@@ -103,15 +103,6 @@ int main(void) {
     pthread_t genThread;
     pthread_create(&genThread, NULL, genThreadFn, &genArgs);
 
-    UnbuildThreadArgs unbuildArgs = {
-        .world = world,
-        .appState = state,
-        .radius = UNBUILD_RADIUS,
-    };
-    atomic_init(&unbuildArgs.running, 1);
-    pthread_t unbuildThread;
-    pthread_create(&unbuildThread, NULL, unbuildThreadFn, &unbuildArgs);
-    
 
     double lastFPSTime = glfwGetTime();
     double lastDeltaTime = glfwGetTime();
@@ -174,10 +165,8 @@ int main(void) {
         if (movedToDifferentChunk(state->cam, &lastX, &lastY, &lastZ) && INFINITE_WORLD_GEN){
             rebuildChunks(world, &renderList, true);
             atomic_store(&genArgs.paused, 0);
-            //atomic_store(&unbuildArgs.paused, 0);
         } else {
             atomic_store(&genArgs.paused, 1);
-            atomic_store(&unbuildArgs.paused, 1);
         }
         
         if (state->wireFrame == 1){renderChunksWireFrame(world, &renderList);}
@@ -187,11 +176,8 @@ int main(void) {
         glfwPollEvents();
     }
 
-    exit(0); //REMOVE FOR FINAL CODE!!!!!!
     atomic_store(&genArgs.running, 0);
-    atomic_store(&unbuildArgs.running, 0);
     pthread_join(genThread, NULL);
-    pthread_join(unbuildThread, NULL);
     destroyWorld(world);
     destroyTexture(&atlas);
     glDeleteProgram(shader);

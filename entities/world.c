@@ -142,7 +142,6 @@ blockType coolerMapGeneration(int16_t const x, int16_t const y, int16_t const z,
     float noise1 = valueNoise2D(x * frequency1, y * frequency1, seed);
     float noise2 = valueNoise2D(x * frequency2, y * frequency2, seed);
     float noise3 = valueNoise2D(x * frequency3, y * frequency3, seed);
-    uint8_t randomDec = cheapFastHash(x, y, z, seed) % 10;
 
     uint8_t height = 
         (uint8_t)(noise1 * 35.0f) + \
