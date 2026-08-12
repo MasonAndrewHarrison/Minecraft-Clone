@@ -22,6 +22,13 @@ camera* cameraInit(int width, int height){
     return cam;
 }
 
+void teleportCamera(camera* cam, vec3 position){
+    glm_vec3_copy(position, cam->eye);
+    glm_vec3_copy(position, cam->center);
+    glm_vec3_add(cam->eye, (vec3){0.0f, 0.0f, 1.0f}, cam->eye);
+    correctsPitchYaw(cam);
+}
+
 void moveCamera(vec3 move, camera* cam){
     glm_vec3_add(cam->eye, move, cam->eye);
     glm_vec3_add(cam->center, move, cam->center);

@@ -2,7 +2,7 @@ CC       = gcc
 CFLAGS   = -Wall -O2
 INCLUDES = -Ivendor/stb -Ientities
 LIBS     = -lGL -lGLEW -lglfw -lm -lcglm
-SRC      = scr/main.c shaders/shader.c eventHandling/glError.c textures/texture.c eventHandling/handler.c entities/camera.c entities/mesh.c entities/world.c
+SRC      = scr/main.c shaders/shader.c eventHandling/glError.c textures/texture.c eventHandling/handler.c entities/camera.c entities/mesh.c entities/world.c eventHandling/state.c
 OBJ      = $(SRC:.c=.o)
 
 all: output

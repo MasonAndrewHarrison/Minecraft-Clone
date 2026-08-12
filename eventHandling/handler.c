@@ -6,8 +6,8 @@
 
 
 #define forwardSpeed 20.0f
-#define strifeSpeed 10.0f
-#define upSpeed 5.0f
+#define strifeSpeed 15.0f
+#define upSpeed 10.0f
 
 
 void inputHandler(State* state){

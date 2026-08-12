@@ -15,4 +15,6 @@ typedef struct State{
     bool infiniteWorldGen;
 } State;
 
+State* initState(GLFWwindow* window, const GLFWvidmode* mode, bool startWithInfiniteWorldGen);
+
 #endif

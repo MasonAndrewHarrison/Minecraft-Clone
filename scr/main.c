@@ -1,7 +1,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include "../shaders/shader.h"
 #include <cglm/cglm.h>
@@ -16,6 +15,7 @@
 #define VSYNC_INTERVAL 0
 #define PRELOADED_RADIUS 30
 #define RENDER_RADIUS 40
+#define GENERATION_RADIUS 45
 #define SPAWN_POSITION (vec3){573.0f, -6.0f, 9.0f}
 
 int main(void) {
@@ -29,16 +29,9 @@ int main(void) {
 
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-    GLFWwindow* window = glfwCreateWindow(mode->width, mode->height, "Minecraft Clone", NULL, NULL);
-
-    State* state = malloc(sizeof(State));
-    state->wireFrame = 0;
-    state->needOfUpdate = 0;
-    state->window = window;
-    state->cam = cameraInit(mode->width, mode->height);
-    state->infiniteWorldGen = false;
-    state->tabWasPressed = 0;
+    GLFWwindow* window = glfwCreateWindow(mode->width, mode->height, "Minecraft Clone (LOADING...)", NULL, NULL);
     
+    State* state = initState(window, mode, true);
     if (!state->window) { 
         glfwTerminate(); 
         return -1; 
@@ -51,7 +44,6 @@ int main(void) {
     printf("%s\n", glGetString(GL_VERSION));
 
     
-
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -102,7 +94,7 @@ int main(void) {
     GenThreadArgs genArgs = { 
         .world = world, 
         .appState = state,
-        .radius = RENDER_RADIUS+5,
+        .radius = GENERATION_RADIUS,
     };
     atomic_init(&genArgs.running, 1);
     atomic_init(&genArgs.paused, !state->infiniteWorldGen);
@@ -113,8 +105,7 @@ int main(void) {
     double lastDeltaTime = glfwGetTime();
     int frameCount = 0;
 
-    glm_vec3_copy(SPAWN_POSITION, state->cam->eye);
-    glm_vec3_copy(SPAWN_POSITION, state->cam->eye);
+    teleportCamera(state->cam, SPAWN_POSITION);
 
     int lastX = (int)state->cam->eye[0];
     int lastZ = (int)state->cam->eye[1];
