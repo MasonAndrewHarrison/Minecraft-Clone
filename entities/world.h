@@ -37,12 +37,14 @@ typedef struct ChunkDoList{
     int size;
 } ChunkDoList;
 
-typedef struct GenThreadArgs {
+typedef struct GenThreadArgs{
     World* world;
     State* appState;
     atomic_int running;
     int radius;
 } GenThreadArgs;
+
+typedef GenThreadArgs UnbuildThreadArgs;
 
 
 ChunkDoList initChunkDoList(int width, int length);
@@ -56,7 +58,8 @@ void destroyWorld(World* world);
 blockType defaultMapGeneration(int16_t const x, int16_t const y, int16_t const z, uint8_t const seed);
 blockType coolerMapGeneration(int16_t const x, int16_t const y, int16_t const z, uint8_t const seed);
 void rebuildChunks(World* world, ChunkDoList* genList, bool unbuildOnly);
-void unBuildChunks(World* world, ChunkDoList* const exclusion);
+void unBuildChunks(World* world, ChunkDoList* const exclusion, struct timespec* slowDown);
 void* genThreadFn(void* arg);
+void* unbuildThreadFn(void *arg);
 
 #endif

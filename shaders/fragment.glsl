@@ -16,5 +16,17 @@ void main(){
     else if (vNormal.x < -0.5) brightness = 0.95;   
     else                       brightness = 0.75;
 
-    color = vec4(texColor.rgb * brightness, texColor.a);
+    float near = 0.1; 
+    float far = 500.0; 
+
+    float ndc = gl_FragCoord.z * 2.0 - 1.0;
+    float linearDepth = (2.0 * near * far) / (far + near - ndc * (far - near));
+
+    vec3 skyColor = vec3(0.3f, 0.6f, 0.9f);
+    float depth = (linearDepth / far);
+
+    vec3 rgbColor = mix((texColor.rgb * brightness), skyColor, depth);
+
+    color = vec4( rgbColor, texColor.a);
+
 }

@@ -14,6 +14,10 @@
 #define WIDTH          1920
 #define HEIGHT         1080
 #define VSYNC_INTERVAL 0
+#define PRELOADED_GENERATED_RADIUS 40
+#define ROLLING_GENERATED_RADIUS 60
+#define UNBUILD_RADIUS 1000
+#define RENDER_RADIUS 50
 
 int main(void) {
 
@@ -76,8 +80,8 @@ int main(void) {
     glfwSetInputMode(state->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(state->window, mouseCallback);
 
-    ChunkDoList genList = initCircleChunkDoList(0, 0, 50);
-    ChunkDoList rebuildList = initCircleChunkDoList(0, 0, 50);
+    ChunkDoList genList = initCircleChunkDoList(0, 0, PRELOADED_GENERATED_RADIUS);
+    ChunkDoList rebuildList = initCircleChunkDoList(0, 0, PRELOADED_GENERATED_RADIUS);
     ChunkDoList renderList;
 
     World* world = initWorld(coolerMapGeneration);
@@ -89,11 +93,20 @@ int main(void) {
     GenThreadArgs genArgs = { 
         .world = world, 
         .appState = state,
-        .radius = 60,
+        .radius = ROLLING_GENERATED_RADIUS,
     };
     atomic_init(&genArgs.running, 1);
     pthread_t genThread;
     pthread_create(&genThread, NULL, genThreadFn, &genArgs);
+
+    UnbuildThreadArgs unbuildArgs = {
+        .world = world,
+        .appState = state,
+        .radius = UNBUILD_RADIUS,
+    };
+    atomic_init(&unbuildArgs.running, 1);
+    pthread_t unbuildThread;
+    pthread_create(&unbuildThread, NULL, unbuildThreadFn, &unbuildArgs);
     
 
     double lastFPSTime = glfwGetTime();
@@ -143,8 +156,7 @@ int main(void) {
         glm_mat4_mul(pv, model, mvp);
         glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, (float*)mvp);
         
-        renderList = initCircleChunkDoList(currentX, currentY, 50);
-        //unBuildChunks(world, &genList);
+        renderList = initCircleChunkDoList(currentX, currentY, RENDER_RADIUS);
 
         rebuildChunks(world, &renderList, true);
         if (state->wireFrame == 1){renderChunksWireFrame(world, &renderList);}
@@ -154,8 +166,11 @@ int main(void) {
         glfwPollEvents();
     }
 
+    exit(0); //REMOVE FOR FINAL CODE!!!!!!
     atomic_store(&genArgs.running, 0);
+    atomic_store(&unbuildArgs.running, 0);
     pthread_join(genThread, NULL);
+    pthread_join(unbuildThread, NULL);
     destroyWorld(world);
     destroyTexture(&atlas);
     glDeleteProgram(shader);

@@ -54,8 +54,6 @@ void removeChunkDoList(ChunkDoList* target, ChunkDoList* const cutter){
     int toolX;
     int toolY;
 
-    //printf("Size %d\n", target->size);
-
     for (int i = 0; i < target->size; i++){
 
         targetX = target->positionList[i*2];
@@ -386,7 +384,7 @@ void static unBuildNode(ChunkNode* node, ChunkDoList* const exclusion){
     
 }
 
-void unBuildChunks(World* world, ChunkDoList* const exclusion){
+void unBuildChunks(World* world, ChunkDoList* const exclusion, struct timespec* slowDown){
 
     ChunkNode** chunkArray = world->chunkArray;
     for (int i = 0; i < WORLD_CAPACITY; i++){
@@ -395,6 +393,7 @@ void unBuildChunks(World* world, ChunkDoList* const exclusion){
         if(node != NULL){
             unBuildNode(node, exclusion);
         }
+        nanosleep(slowDown, NULL);
     }
 }
 
@@ -402,15 +401,34 @@ void unBuildChunks(World* world, ChunkDoList* const exclusion){
 void* genThreadFn(void* arg){
     GenThreadArgs* args = arg;
     struct timespec timePause = {0, 100000};
+    int x;
+    int y;
     while (atomic_load(&args->running)){
 
-        int x = (int)floorf(args->appState->cam->eye[0] / 16.0f);
-        int y = (int)floorf(args->appState->cam->eye[2] / 16.0f);
+        x = (int)floorf(args->appState->cam->eye[0] / 16.0f);
+        y = (int)floorf(args->appState->cam->eye[2] / 16.0f);
 
         ChunkDoList genList = initCircleChunkDoList(x, y, args->radius);
 
         genChunks(args->world, &genList, timePause);
-        struct timespec ts = {1, 0};   
+        nanosleep(&timePause, NULL);
+    }
+    return NULL;
+}
+
+
+void* unbuildThreadFn(void *arg){
+
+    UnbuildThreadArgs* args = arg;
+    while (atomic_load(&args->running)){
+        int x = (int)floorf(args->appState->cam->eye[0] / 16.0f);
+        int y = (int)floorf(args->appState->cam->eye[2] / 16.0f);
+
+        ChunkDoList genList = initCircleChunkDoList(x, y, args->radius);
+        struct timespec waitTime = {0, 1000};      
+        unBuildChunks(args->world, &genList, &waitTime);
+
+        struct timespec ts = {0, 1000};   
         nanosleep(&ts, NULL);
     }
     return NULL;
