@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../shaders/shader.h"
 #include <cglm/cglm.h>
 #include "../entities/camera.h"
@@ -11,14 +12,11 @@
 #include "../entities/world.h"
 
 
-#define WIDTH          1920
-#define HEIGHT         1080
+
 #define VSYNC_INTERVAL 0
 #define PRELOADED_RADIUS 30
-#define UNBUILD_RADIUS 250
 #define RENDER_RADIUS 40
 #define SPAWN_POSITION (vec3){573.0f, -6.0f, 9.0f}
-#define INFINITE_WORLD_GEN true
 
 int main(void) {
 
@@ -29,12 +27,17 @@ int main(void) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+    GLFWwindow* window = glfwCreateWindow(mode->width, mode->height, "Minecraft Clone", NULL, NULL);
+
     State* state = malloc(sizeof(State));
     state->wireFrame = 0;
     state->needOfUpdate = 0;
-    state->window = glfwCreateWindow(WIDTH, HEIGHT, "Minecraft Clone", NULL, NULL);
-    state->cam = cameraInit(WIDTH, HEIGHT);
-
+    state->window = window;
+    state->cam = cameraInit(mode->width, mode->height);
+    state->infiniteWorldGen = false;
+    state->tabWasPressed = 0;
     
     if (!state->window) { 
         glfwTerminate(); 
@@ -46,6 +49,8 @@ int main(void) {
     glewExperimental = GL_TRUE;
     glewInit();
     printf("%s\n", glGetString(GL_VERSION));
+
+    
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
@@ -66,7 +71,7 @@ int main(void) {
     mat4 pv;
     mat4 mvp;
 
-    glm_perspective(glm_rad(45.0f), (float)WIDTH/HEIGHT, 0.1f, 1000.0f, proj);
+    glm_perspective(glm_rad(75.0f), (float)mode->width/mode->height, 0.1f, 1000.0f, proj);
 
     int timeLoc       = glGetUniformLocation(shader, "uTime");
     int resolutionLoc = glGetUniformLocation(shader, "uResolution");
@@ -100,9 +105,9 @@ int main(void) {
         .radius = RENDER_RADIUS+5,
     };
     atomic_init(&genArgs.running, 1);
+    atomic_init(&genArgs.paused, !state->infiniteWorldGen);
     pthread_t genThread;
     pthread_create(&genThread, NULL, genThreadFn, &genArgs);
-
 
     double lastFPSTime = glfwGetTime();
     double lastDeltaTime = glfwGetTime();
@@ -127,10 +132,17 @@ int main(void) {
         if (now - lastFPSTime >= 1.0) {
             double fps = frameCount / (now - lastFPSTime);
             double frameTimeMs = 1000.0 / fps;
+            char worldGenState[8];
+            if (state->infiniteWorldGen){
+                strcpy(worldGenState, "ON");
+            }
+            else {
+                strcpy(worldGenState, "OFF");
+            }
 
-            char title[64];
-            snprintf(title, sizeof(title), "Minecraft Clone | %.1f FPS | %.2f ms | Position (%d, %d, %d)",
-                    fps, frameTimeMs, currentX, currentY, currentZ);
+            char title[128];
+            snprintf(title, sizeof(title), "Minecraft Clone | %.1f FPS | %.2f ms | Position (%d, %d, %d) | Infinite World Generation (%s) | ESC to exit window",
+                    fps, frameTimeMs, currentX, currentY, currentZ, worldGenState);
             glfwSetWindowTitle(state->window, title);
 
             frameCount = 0;
@@ -147,7 +159,7 @@ int main(void) {
 
         float currentTime = (float)glfwGetTime() - startTime;
         glUniform1f(timeLoc,       currentTime);
-        glUniform2f(resolutionLoc, (float)WIDTH, (float)HEIGHT);
+        glUniform2f(resolutionLoc, (float)mode->width, (float)mode->height);
         glUniform2f(stretchLoc,    3.0f, 7.0f);
         glUniform1f(angleLoc,      currentTime);
         glUniform1i(textureLoc, 0);
@@ -162,12 +174,14 @@ int main(void) {
         
         renderList = initCircleChunkDoList(floorf(currentX/16.0f), floorf(currentY/16.0f), RENDER_RADIUS);
 
-        if (movedToDifferentChunk(state->cam, &lastX, &lastY, &lastZ) && INFINITE_WORLD_GEN){
+        if (movedToDifferentChunk(state->cam, &lastX, &lastY, &lastZ)){
             rebuildChunks(world, &renderList, true);
-            atomic_store(&genArgs.paused, 0);
+            atomic_store(&genArgs.paused, !state->infiniteWorldGen);
         } else {
             atomic_store(&genArgs.paused, 1);
         }
+
+
         
         if (state->wireFrame == 1){renderChunksWireFrame(world, &renderList);}
         else {renderChunks(world, &renderList);}

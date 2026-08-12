@@ -5,9 +5,9 @@
 #include "state.h"
 
 
-#define forwardSpeed 50.0f
-#define strifeSpeed 30.0f
-#define upSpeed 10.0f
+#define forwardSpeed 20.0f
+#define strifeSpeed 10.0f
+#define upSpeed 5.0f
 
 
 void inputHandler(State* state){
@@ -15,7 +15,7 @@ void inputHandler(State* state){
     double deltaTime = state->deltaTime;
 
     if (glfwGetKey(state->window, GLFW_KEY_SPACE) == GLFW_PRESS){
-        deltaTime *= 20;
+        deltaTime *= 10;
     }
 
     if (glfwGetKey(state->window, GLFW_KEY_W) == GLFW_PRESS){
@@ -53,4 +53,9 @@ void inputHandler(State* state){
     if (glfwGetKey(state->window, GLFW_KEY_F) == GLFW_PRESS){
         state->needOfUpdate = 1;
     }
+    bool tabIsPressed = glfwGetKey(state->window, GLFW_KEY_TAB) == GLFW_PRESS;
+    if (tabIsPressed && !state->tabWasPressed){
+        state->infiniteWorldGen = !state->infiniteWorldGen;
+    }
+    state->tabWasPressed = tabIsPressed;
 }

@@ -11,6 +11,8 @@ typedef struct State{
     camera* cam;
     GLFWwindow* window;
     double deltaTime;
+    bool tabWasPressed;
+    bool infiniteWorldGen;
 } State;
 
 #endif

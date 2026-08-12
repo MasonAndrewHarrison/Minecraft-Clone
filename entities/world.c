@@ -363,8 +363,10 @@ void static freeNode(ChunkNode* node){
     if(node->next != NULL){
         freeNode(node->next);
     }
+    destroyChunk(node->chunk);
     free(node);
 }
+
 void destroyWorld(World* world){
 
     pthread_mutex_destroy(&world->hashInsertLock);
@@ -378,38 +380,6 @@ void destroyWorld(World* world){
         }
     }
     free(world);
-}
-
-bool static isInList(Chunk* chunk, ChunkDoList* list){
-    for (int i = 0; i < list->size; i++){
-        if ((list->positionList[i*2] == chunk->x) && (list->positionList[i*2+1] == chunk->y)){ return true;}
-    }
-    return false;
-}
-
-void static unBuildNode(ChunkNode* node, ChunkDoList* const exclusion){
-
-    if(node->next != NULL){
-        unBuildNode(node->next, exclusion);
-    }
-    if(isInList(node->chunk, exclusion) == false){
-        destroyMesh(&node->chunk->mesh);
-        node->chunk->isBuild = false;
-    }
-    
-}
-
-void unBuildChunks(World* world, ChunkDoList* const exclusion, struct timespec* slowDown){
-
-    ChunkNode** chunkArray = world->chunkArray;
-    for (int i = 0; i < WORLD_CAPACITY; i++){
-
-        ChunkNode* node = chunkArray[i];
-        if(node != NULL){
-            unBuildNode(node, exclusion);
-        }
-        nanosleep(slowDown, NULL);
-    }
 }
 
 
@@ -438,10 +408,47 @@ void* genThreadFn(void* arg){
 }
 
 
-void* unbuildThreadFn(void *arg){
 
-    UnbuildThreadArgs* args = arg;
-    struct timespec pollInterval = {0, 10 * 1000000};
+
+
+
+bool static isInList(Chunk* chunk, ChunkDoList* list){
+    for (int i = 0; i < list->size; i++){
+        if ((list->positionList[i*2] == chunk->x) && (list->positionList[i*2+1] == chunk->y)){ return true;}
+    }
+    return false;
+}
+
+static ChunkNode* freeNodeChecked(ChunkNode* node, ChunkDoList* const exclusion){
+
+    if (node == NULL) return NULL;
+
+    node->next = freeNodeChecked(node->next, exclusion);  
+
+    if (isInList(node->chunk, exclusion) == false){
+        ChunkNode* rest = node->next;  
+        destroyChunk(node->chunk);
+        
+        printf("FREE CHUNK %d, %d\n", node->chunk->x, node->chunk->y);
+        free(node);
+        return rest;               
+    }
+
+    return node; 
+}
+
+
+void checkEntireHash(World* world, ChunkDoList* const exclusion){
+    ChunkNode** chunkArray = world->chunkArray;
+    for (int i = 0; i < WORLD_CAPACITY; i++){
+        chunkArray[i] = freeNodeChecked(chunkArray[i], exclusion);
+    }
+}
+
+void* freeChunksThreadFn(void *arg){
+
+    FreeThreadArgs* args = arg;
+    struct timespec pollInterval = {0, 10 * 1000};
     
     while (atomic_load(&args->running)){
 
@@ -452,12 +459,12 @@ void* unbuildThreadFn(void *arg){
         int x = (int)floorf(args->appState->cam->eye[0] / 16.0f);
         int y = (int)floorf(args->appState->cam->eye[2] / 16.0f);
 
-        ChunkDoList genList = initCircleChunkDoList(x, y, args->radius);
+        ChunkDoList exclusionList = initCircleChunkDoList(x, y, args->radius);
         struct timespec waitTime = {0, 1000};      
-        unBuildChunks(args->world, &genList, &waitTime);
+        checkEntireHash(args->world, &exclusionList);
 
         struct timespec ts = {0, 1000};   
-        nanosleep(&ts, NULL);
+        //nanosleep(&ts, NULL);
     }
     return NULL;
 }
