@@ -41,6 +41,7 @@ typedef struct GenThreadArgs{
     World* world;
     State* appState;
     atomic_int running;
+    atomic_int paused;
     int radius;
 } GenThreadArgs;
 

@@ -14,11 +14,11 @@
 #define WIDTH          1920
 #define HEIGHT         1080
 #define VSYNC_INTERVAL 0
-#define PRELOADED_GENERATED_RADIUS 40
-#define ROLLING_GENERATED_RADIUS 55
-#define UNBUILD_RADIUS 500
-#define RENDER_RADIUS 50
+#define PRELOADED_RADIUS 30
+#define UNBUILD_RADIUS 250
+#define RENDER_RADIUS 40
 #define SPAWN_POSITION (vec3){573.0f, -6.0f, 9.0f}
+#define INFINITE_WORLD_GEN true
 
 int main(void) {
 
@@ -83,8 +83,8 @@ int main(void) {
 
     uint16_t spawnX = floorf(SPAWN_POSITION[0]/16.0f);
     uint16_t spawnY = floorf(SPAWN_POSITION[2]/16.0f);
-    ChunkDoList genList = initCircleChunkDoList(spawnX, spawnY, PRELOADED_GENERATED_RADIUS);
-    ChunkDoList rebuildList = initCircleChunkDoList(spawnX, spawnY, PRELOADED_GENERATED_RADIUS);
+    ChunkDoList genList = initCircleChunkDoList(spawnX, spawnY, PRELOADED_RADIUS);
+    ChunkDoList rebuildList = initCircleChunkDoList(spawnX, spawnY, PRELOADED_RADIUS);
     ChunkDoList renderList;
 
     World* world = initWorld(coolerMapGeneration);
@@ -97,7 +97,7 @@ int main(void) {
     GenThreadArgs genArgs = { 
         .world = world, 
         .appState = state,
-        .radius = ROLLING_GENERATED_RADIUS,
+        .radius = RENDER_RADIUS+5,
     };
     atomic_init(&genArgs.running, 1);
     pthread_t genThread;
@@ -120,13 +120,16 @@ int main(void) {
     glm_vec3_copy(SPAWN_POSITION, state->cam->eye);
     glm_vec3_copy(SPAWN_POSITION, state->cam->eye);
 
-    while (!glfwWindowShouldClose(state->window)) {
+    int lastX = (int)state->cam->eye[0];
+    int lastZ = (int)state->cam->eye[1];
+    int lastY = (int)state->cam->eye[2];
 
-        
+    while (!glfwWindowShouldClose(state->window)) {
 
         int currentX = (int)state->cam->eye[0];
         int currentZ = (int)state->cam->eye[1];
         int currentY = (int)state->cam->eye[2];
+
         frameCount++;
         double now = glfwGetTime();
 
@@ -168,8 +171,15 @@ int main(void) {
         
         renderList = initCircleChunkDoList(floorf(currentX/16.0f), floorf(currentY/16.0f), RENDER_RADIUS);
 
-        //TODO make this faster and one own thread
-        rebuildChunks(world, &renderList, true);
+        if (movedToDifferentChunk(state->cam, &lastX, &lastY, &lastZ) && INFINITE_WORLD_GEN){
+            rebuildChunks(world, &renderList, true);
+            atomic_store(&genArgs.paused, 0);
+            //atomic_store(&unbuildArgs.paused, 0);
+        } else {
+            atomic_store(&genArgs.paused, 1);
+            atomic_store(&unbuildArgs.paused, 1);
+        }
+        
         if (state->wireFrame == 1){renderChunksWireFrame(world, &renderList);}
         else {renderChunks(world, &renderList);}
 

@@ -25,5 +25,6 @@ void updateCameraLocation(GLFWwindow *window, camera *cam);
 void changeAngle(camera *cam, float pitch, float yaw);
 void mouseCallback(GLFWwindow *window, double xpos, double ypos);
 void correctsPitchYaw(camera* cam);
+bool movedToDifferentChunk(camera* cam, int* lastX, int* lastY, int* lastZ);
 
 #endif

@@ -3,7 +3,7 @@
 #include <cglm/cglm.h>
 #include "camera.h"
 #include <math.h> 
-
+#include "mesh.h"
 
 #define mouseSpeed 0.001f
 
@@ -92,4 +92,21 @@ void mouseCallback(GLFWwindow *window, double xpos, double ypos){
     cam->lastY = ypos;
 
     changeAngle(cam, cam->pitch + dypos*mouseSpeed, cam->yaw + dxpos*mouseSpeed);
+}
+
+
+bool movedToDifferentChunk(camera* cam, int* lastX, int* lastY, int* lastZ){
+
+    int currentX = floorf(cam->eye[0] / CHUNK_SIZE);
+    int currentY = floorf(cam->eye[2] / CHUNK_SIZE);
+    int currentZ = floorf(cam->eye[1] / CHUNK_SIZE);
+
+    *lastX = (int)floor((double)(*lastX) / CHUNK_SIZE);
+    *lastY = (int)floor((double)(*lastY) / CHUNK_SIZE);
+    *lastZ = (int)floor((double)(*lastZ) / CHUNK_SIZE);
+
+    if (*lastX==currentX && *lastY==currentY && *lastZ==currentZ){
+        return false;
+    } else {return true;}
+
 }

@@ -417,9 +417,15 @@ void unBuildChunks(World* world, ChunkDoList* const exclusion, struct timespec* 
 void* genThreadFn(void* arg){
     GenThreadArgs* args = arg;
     struct timespec timePause = {0, 100000};
+    struct timespec pollInterval = {0, 10 * 1000000};
     int x;
     int y;
     while (atomic_load(&args->running)){
+
+        if (atomic_load(&args->paused)){
+            nanosleep(&pollInterval, NULL);
+            continue;  
+        }
 
         x = (int)floorf(args->appState->cam->eye[0] / 16.0f);
         y = (int)floorf(args->appState->cam->eye[2] / 16.0f);
@@ -436,7 +442,14 @@ void* genThreadFn(void* arg){
 void* unbuildThreadFn(void *arg){
 
     UnbuildThreadArgs* args = arg;
+    struct timespec pollInterval = {0, 10 * 1000000};
+    
     while (atomic_load(&args->running)){
+
+        if (atomic_load(&args->paused)){
+            nanosleep(&pollInterval, NULL);
+            continue;  
+        }
         int x = (int)floorf(args->appState->cam->eye[0] / 16.0f);
         int y = (int)floorf(args->appState->cam->eye[2] / 16.0f);
 
