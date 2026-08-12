@@ -114,7 +114,15 @@ int main(void) {
     double lastDeltaTime = glfwGetTime();
     int frameCount = 0;
 
+    //TODO FIX THIS
+    Chunk* spawnChunk = getChunk(world, 0, 0);
+    int spawnHight = getHighestBlock(spawnChunk->blockState, 0, 0);
+    state->cam->eye[1] = spawnHight;
+    state->cam->center[1] = spawnHight;
+
     while (!glfwWindowShouldClose(state->window)) {
+
+        
 
         int currentX = (int)floorf(state->cam->eye[0] / 16.0f);
         int currentY = (int)floorf(state->cam->eye[2] / 16.0f);

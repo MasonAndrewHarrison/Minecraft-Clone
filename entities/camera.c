@@ -42,7 +42,7 @@ void moveUpDown(camera* cam, float upSpeed){
     moveCamera(move, cam);
 }
 
-void static correctsPitchYaw(camera* cam){
+void correctsPitchYaw(camera* cam){
     float dx = cam->center[0] - cam->eye[0];
     float dy = cam->center[1] - cam->eye[1];
     float dz = cam->center[2] - cam->eye[2];

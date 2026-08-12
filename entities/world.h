@@ -48,6 +48,7 @@ typedef GenThreadArgs UnbuildThreadArgs;
 
 
 ChunkDoList initChunkDoList(int width, int length);
+Chunk* getChunk(World* world, int x, int y);
 ChunkDoList initCircleChunkDoList(int16_t centerX, int16_t centerY, int radius);
 World* initWorld(blockType(*mapGeneration)(int16_t, int16_t, int16_t, uint8_t));
 void genChunks(World* world, ChunkDoList* genList, struct timespec pauseTime);

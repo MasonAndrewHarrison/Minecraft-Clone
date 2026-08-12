@@ -389,6 +389,7 @@ void vertexChunkToChunk(VertexChunk* const vertexChunk, Chunk* chunk);
 Chunk* createChunk(int x, int y, blockType(*mapGeneration)(int16_t, int16_t, int16_t, uint8_t), uint8_t seed);
 VertexChunk* rebuildChunk(AdjecentChunks* adjecentChunks);
 void bindChunk(Chunk* chunk, VertexChunk* vertexChunk);
+uint8_t getHighestBlock(blockType* blockState, uint8_t x, uint8_t y);
 
 static inline int blockIndex(int x, int y, int z) {
     return x + y * CHUNK_SIZE + z * CHUNK_SIZE_CUBED;

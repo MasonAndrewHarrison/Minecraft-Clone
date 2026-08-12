@@ -96,7 +96,7 @@ static blockType* createBlockState(int xOffset, int yOffset, int* totalBlocks,
     return blockTypeState;
 }
 
-uint8_t getHeightBlock(blockType* blockState, uint8_t x, uint8_t y){
+uint8_t getHighestBlock(blockType* blockState, uint8_t x, uint8_t y){
     for (int z = CHUNK_HEIGHT-1; z > 0; z--){
         blockType type = blockState[blockIndex(x, y, z)];
 
@@ -110,7 +110,7 @@ void static addTree(blockType* blockState, uint8_t seed){
     if (rand() % 10 > 3){return;}
     uint8_t x = rand() % 10 + 3;
     uint8_t y = rand() % 10 + 3;
-    uint8_t z = getHeightBlock(blockState, x, y);
+    uint8_t z = getHighestBlock(blockState, x, y);
     if (z > 50) {return;}
     for (int i = 0; i < BLOCKS_IN_TREE; i++){
         uint8_t dx = TREE_TEMPLATE[i*4] + x;
