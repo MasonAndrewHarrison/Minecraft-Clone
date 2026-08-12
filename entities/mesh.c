@@ -107,7 +107,7 @@ uint8_t getHeightBlock(blockType* blockState, uint8_t x, uint8_t y){
 
 void static addTree(blockType* blockState, uint8_t seed){
 
-    if (rand() % 10 > 4){return;}
+    if (rand() % 10 > 3){return;}
     uint8_t x = rand() % 10 + 3;
     uint8_t y = rand() % 10 + 3;
     uint8_t z = getHeightBlock(blockState, x, y);
@@ -118,7 +118,6 @@ void static addTree(blockType* blockState, uint8_t seed){
         uint8_t dz = TREE_TEMPLATE[i*4+2] + z;
         blockState[blockIndex(dx, dy, dz)] = TREE_TEMPLATE[i*4+3];
     }
-
 }
 
 /*
@@ -133,8 +132,11 @@ Chunk* createChunk(int x, int y, blockType(*mapGeneration)(int16_t, int16_t, int
     chunk->x=x;
     chunk->y=y;
     chunk->isBuild = false;
-
-    addTree(chunk->blockState, seed);
+  
+    for (int i = 0; i < 3; i++){
+        addTree(chunk->blockState, seed);
+    }
+    
     
     return chunk;
 }
@@ -164,12 +166,35 @@ static uint8_t checkVisiblity(blockType* blockState, int16_t x, int16_t y, int16
         return 0;
     }
 
-    dirList[FRONT]  = y == CHUNK_SIZE-1   || blockState[blockIndex(x, y+1, z)] == AIR;
-    dirList[BACK]   = y == 0              || blockState[blockIndex(x, y-1, z)] == AIR;
-    dirList[LEFT]   = x == 0              || blockState[blockIndex(x-1, y, z)] == AIR;
-    dirList[RIGHT]  = x == CHUNK_SIZE-1   || blockState[blockIndex(x+1, y, z)] == AIR;
-    dirList[TOP]    = z == CHUNK_HEIGHT-1 || blockState[blockIndex(x, y, z+1)] == AIR;
-    dirList[BOTTOM] = z == 0              || blockState[blockIndex(x, y, z-1)] == AIR;
+    dirList[FRONT] = 
+        y == CHUNK_SIZE-1 || 
+        blockState[blockIndex(x,y+1, z)] == AIR || 
+        (blockState[blockIndex(x,y+1, z)] == LEAVES && blockState[blockIndex(x,y, z)] != LEAVES);
+
+    dirList[BACK] = 
+        y == 0 || 
+        blockState[blockIndex(x, y-1, z)] == AIR ||
+        (blockState[blockIndex(x, y-1, z)] == LEAVES && blockState[blockIndex(x,y, z)] != LEAVES);
+
+    dirList[LEFT] = 
+        x == 0 || 
+        blockState[blockIndex(x-1, y, z)] == AIR ||
+        (blockState[blockIndex(x-1, y, z)] == LEAVES && blockState[blockIndex(x,y, z)] != LEAVES);
+
+    dirList[RIGHT] = 
+        x == CHUNK_SIZE-1 || 
+        blockState[blockIndex(x+1, y, z)] == AIR ||
+        (blockState[blockIndex(x+1,y, z)] == LEAVES && blockState[blockIndex(x,y, z)] != LEAVES);
+
+    dirList[TOP] = 
+        z == CHUNK_HEIGHT-1 || 
+        blockState[blockIndex(x, y, z+1)] == AIR ||
+        (blockState[blockIndex(x,y, z+1)] == LEAVES && blockState[blockIndex(x,y, z)] != LEAVES);
+
+    dirList[BOTTOM] = 
+        z == 0 || 
+        blockState[blockIndex(x, y, z-1)] == AIR ||
+        (blockState[blockIndex(x,y, z-1)] == LEAVES && blockState[blockIndex(x,y, z)] != LEAVES);
 
     return 1;
 }
@@ -237,6 +262,10 @@ void static setFaceType(int16_t* vertices, blockType type, CubeDirection dir, in
     else if (type == STONE){
         vertices[6] = CUBE_UV_STONE[corner * 2 + (dir*8)];
         vertices[7] = CUBE_UV_STONE[corner * 2 + 1 + (dir*8)];       
+    }
+    else if (type == LEAVES){
+        vertices[6] = CUBE_UV_LEAF[corner * 2 + (dir*8)];
+        vertices[7] = CUBE_UV_LEAF[corner * 2 + 1 + (dir*8)];       
     }
     else{
         vertices[6] = CUBE_UV_DEFAULT[corner * 2 + (dir*8)];

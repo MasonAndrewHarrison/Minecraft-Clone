@@ -19,6 +19,7 @@ typedef uint8_t blockType;
   #define DIRT 3
   #define AIR 4
   #define STONE 5
+  #define LEAVES 6
 
 
 static const int16_t CUBE_VERTICES[] = {
@@ -212,6 +213,44 @@ static const int16_t CUBE_UV_STONE[] = {
   3, 16,
 };
 
+static const int16_t CUBE_UV_LEAF[] = {
+  // Front Face
+  4, 14,
+  5, 14,
+  5, 15,
+  4, 15,
+
+  // Back Face
+  4, 14,
+  5, 14,
+  5, 15,
+  4, 15,
+
+  // Left Face
+  4, 14,
+  5, 14,
+  5, 15,
+  4, 15,
+
+  // Right Face
+  4, 14,
+  5, 14,
+  5, 15,
+  4, 15,
+
+  // Top Face
+  4, 14,
+  5, 14,
+  5, 15,
+  4, 15,
+
+  // Bottom Face
+  4, 14,
+  5, 14,
+  5, 15,
+  4, 15,
+};
+
 static const int16_t CUBE_UV_DEFAULT[] = {
   // Front Face
   15, 15,
@@ -253,12 +292,35 @@ static const int16_t CUBE_UV_DEFAULT[] = {
 static const int8_t TREE_TEMPLATE[] = {
   0, 0, 1, WOOD,
   0, 0, 2, WOOD,
+
   0, 0, 3, WOOD,
+  0, 1, 3, LEAVES,
+  0, -1, 3, LEAVES,
+  1, 0, 3, LEAVES,
+  -1, 0, 3, LEAVES,
+  -1, 1, 3, LEAVES,
+  1, 1, 3, LEAVES,
+  1, -1, 3, LEAVES,
+  -1, -1, 3, LEAVES,
+
   0, 0, 4, WOOD,
-  0, 1, 4, DEFAULT,
+  0, 1, 4, LEAVES,
+  0, -1, 4, LEAVES,
+  1, 0, 4, LEAVES,
+  -1, 0, 4, LEAVES,
+  -1, 1, 4, LEAVES,
+  1, 1, 4, LEAVES,
+  1, -1, 4, LEAVES,
+  -1, -1, 4, LEAVES,
+
+    0, 0, 5, LEAVES,
+  0, 1, 5, LEAVES,
+  0, -1, 5, LEAVES,
+  1, 0, 5, LEAVES,
+  -1, 0, 5, LEAVES,
 };
 
-#define BLOCKS_IN_TREE 5
+#define BLOCKS_IN_TREE sizeof(TREE_TEMPLATE) / sizeof(int8_t) /4
 
 #define CUBE_BYTES sizeof(CUBE_VERTICES)
 #define CUBE_COUNT (int)(sizeof(CUBE_VERTICES) / sizeof(float))
