@@ -207,6 +207,10 @@ void static setFaceType(int16_t* vertices, blockType type, CubeDirection dir, in
         vertices[6] = CUBE_UV_DIRT[corner * 2 + (dir*8)];
         vertices[7] = CUBE_UV_DIRT[corner * 2 + 1 + (dir*8)];
     }
+    else if (type == STONE){
+        vertices[6] = CUBE_UV_STONE[corner * 2 + (dir*8)];
+        vertices[7] = CUBE_UV_STONE[corner * 2 + 1 + (dir*8)];       
+    }
     else{
         vertices[6] = CUBE_UV_DEFAULT[corner * 2 + (dir*8)];
         vertices[7] = CUBE_UV_DEFAULT[corner * 2 + 1 + (dir*8)];

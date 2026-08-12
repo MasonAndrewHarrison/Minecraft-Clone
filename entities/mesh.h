@@ -18,6 +18,7 @@ typedef uint8_t blockType;
   #define WOOD 2
   #define DIRT 3
   #define AIR 4
+  #define STONE 5
 
 
 static const int16_t CUBE_VERTICES[] = {
@@ -171,6 +172,44 @@ static const int16_t CUBE_UV_DIRT[] = {
   3, 15,
   3, 16,
   2, 16,
+};
+
+static const int16_t CUBE_UV_STONE[] = {
+  // Front Face
+  3, 15,
+  4, 15,
+  4, 16,
+  3, 16,
+
+  // Back Face
+  3, 15,
+  4, 15,
+  4, 16,
+  3, 16,
+
+  // Left Face
+  3, 15,
+  4, 15,
+  4, 16,
+  3, 16,
+
+  // Right Face
+  3, 15,
+  4, 15,
+  4, 16,
+  3, 16,
+
+  // Top Face
+  3, 15,
+  4, 15,
+  4, 16,
+  3, 16,
+
+  // Bottom Face
+  3, 15,
+  4, 15,
+  4, 16,
+  3, 16,
 };
 
 static const int16_t CUBE_UV_DEFAULT[] = {

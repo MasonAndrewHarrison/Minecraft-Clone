@@ -137,17 +137,45 @@ blockType coolerMapGeneration(int16_t const x, int16_t const y, int16_t const z,
     blockType type = DIRT;
 
     float frequency1 = 0.005f;
-    float frequency2 = 0.10f;
+    float frequency2 = 0.01f;
+    float frequency3 = 0.05f;
     float noise1 = valueNoise2D(x * frequency1, y * frequency1, seed);
     float noise2 = valueNoise2D(x * frequency2, y * frequency2, seed);
+    float noise3 = valueNoise2D(x * frequency3, y * frequency3, seed);
+    uint8_t randomDec = cheapFastHash(x, y, z, seed) % 10;
 
-    uint8_t height = (uint8_t)(noise1 * 5.0f) + (uint8_t)(noise2 * 10.0f) + CHUNK_HEIGHT/2 - 20; 
+    uint8_t height = 
+        (uint8_t)(noise1 * 35.0f) + \
+        (uint8_t)(noise2 * 55.0f) + \
+        (uint8_t)((noise3) * 12.0f) + \
+        CHUNK_HEIGHT/2 - 35; 
+
+    if (height > 45){
+        height = (height-45)/3 + 45;
+    }
+    else if (height < 25){
+        height = (height-25)/4 + 25;
+    }
+
+    uint8_t stoneHeight = noise2 * 3 + 47;
 
     if (z > height){
-        type = AIR;
+        return AIR;
+    }
+    else if (z < 15){
+        return DEFAULT;
+    }
+    else if (z > stoneHeight){
+        return STONE;
+    }
+    else if (z > (stoneHeight-1) && (randomDec) < 9){
+        return STONE;
     }
     else if (z == height){
-        type =  GRASS;
+        return GRASS;
+    }
+    else if (z == height-3){
+        return STONE;
     }
     return type;
 }
