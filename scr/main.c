@@ -90,6 +90,7 @@ int main(void) {
     genChunks(world, &genList, timePause);
     rebuildChunks(world, &rebuildList, true);
 
+
     GenThreadArgs genArgs = { 
         .world = world, 
         .appState = state,

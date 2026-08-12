@@ -96,6 +96,31 @@ static blockType* createBlockState(int xOffset, int yOffset, int* totalBlocks,
     return blockTypeState;
 }
 
+uint8_t getHeightBlock(blockType* blockState, uint8_t x, uint8_t y){
+    for (int z = CHUNK_HEIGHT-1; z > 0; z--){
+        blockType type = blockState[blockIndex(x, y, z)];
+
+        if (type != AIR) {return z;}
+    }
+    return 0;
+}
+
+void static addTree(blockType* blockState, uint8_t seed){
+
+    if (rand() % 10 > 4){return;}
+    uint8_t x = rand() % 10 + 3;
+    uint8_t y = rand() % 10 + 3;
+    uint8_t z = getHeightBlock(blockState, x, y);
+    if (z > 50) {return;}
+    for (int i = 0; i < BLOCKS_IN_TREE; i++){
+        uint8_t dx = TREE_TEMPLATE[i*4] + x;
+        uint8_t dy = TREE_TEMPLATE[i*4+1] + y;
+        uint8_t dz = TREE_TEMPLATE[i*4+2] + z;
+        blockState[blockIndex(dx, dy, dz)] = TREE_TEMPLATE[i*4+3];
+    }
+
+}
+
 /*
  *  This function need to have the rebuildChunk(..) function to be run on each
  *  chunk for the chunks generated to be fully build. After the Chunk is rebuild
@@ -108,6 +133,8 @@ Chunk* createChunk(int x, int y, blockType(*mapGeneration)(int16_t, int16_t, int
     chunk->x=x;
     chunk->y=y;
     chunk->isBuild = false;
+
+    addTree(chunk->blockState, seed);
     
     return chunk;
 }

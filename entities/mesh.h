@@ -250,6 +250,16 @@ static const int16_t CUBE_UV_DEFAULT[] = {
   15, 16,
 };
 
+static const int8_t TREE_TEMPLATE[] = {
+  0, 0, 1, WOOD,
+  0, 0, 2, WOOD,
+  0, 0, 3, WOOD,
+  0, 0, 4, WOOD,
+  0, 1, 4, DEFAULT,
+};
+
+#define BLOCKS_IN_TREE 5
+
 #define CUBE_BYTES sizeof(CUBE_VERTICES)
 #define CUBE_COUNT (int)(sizeof(CUBE_VERTICES) / sizeof(float))
 #define CUBE_VERTEX_LENGTH 8
@@ -257,7 +267,7 @@ static const int16_t CUBE_UV_DEFAULT[] = {
 #define CUBE_VERTEX_COUNT (CUBE_COUNT / CUBE_VERTEX_LENGTH)
 
 static const unsigned int CUBE_INDICES_TEMPLATE[] = {
-  0, 1, 2,   2, 3, 0,
+  0, 1, 2, 2, 3, 0,
 };
 
 #define CUBE_INDEX_COUNT 36

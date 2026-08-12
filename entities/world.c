@@ -156,25 +156,13 @@ blockType coolerMapGeneration(int16_t const x, int16_t const y, int16_t const z,
     else if (height < 25){
         height = (height-25)/4 + 25;
     }
-
-    uint8_t stoneHeight = noise2 * 3 + 47;
-
     if (z > height){
         return AIR;
-    }
-    else if (z < 15){
-        return DEFAULT;
-    }
-    else if (z > stoneHeight){
-        return STONE;
-    }
-    else if (z > (stoneHeight-1) && (randomDec) < 9){
-        return STONE;
     }
     else if (z == height){
         return GRASS;
     }
-    else if (z == height-3){
+    else if (z <= height-3){
         return STONE;
     }
     return type;
