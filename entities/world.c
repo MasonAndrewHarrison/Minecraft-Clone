@@ -113,7 +113,7 @@ static float smoothstep(float t){
     return t * t * (3.0f - 2.0f * t);
 }
 
-static float valueNoise2D(float x, float y, unsigned int seed){
+float valueNoise2D(float x, float y, unsigned int seed){
     int x0 = (int)floorf(x);
     int y0 = (int)floorf(y);
     int x1 = x0 + 1;

@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 #include "mesh.h"
 #include <string.h>
+#include "world.h"
 
 Mesh createMesh(const int16_t* vertices, int vertexCount, const unsigned int* indices, int indexCount){
 
@@ -107,9 +108,10 @@ uint8_t getHighestBlock(blockType* blockState, uint8_t x, uint8_t y){
 
 void static addTree(blockType* blockState, uint8_t seed){
 
-    if (rand() % 10 > 9){return;}
-    uint8_t x = rand() % 10 + 3;
-    uint8_t y = rand() % 10 + 3;
+    if (rand() % 10 > 4){return;}
+    uint8_t x = rand() % 12 + 2;
+    uint8_t y = rand() % 12 + 2;
+
     uint8_t z = getHighestBlock(blockState, x, y);
     if (blockState[blockIndex(x, y, z)] == LEAVES){return;}
     if (z < 45 && z > 40) {return;}
@@ -134,8 +136,11 @@ Chunk* createChunk(int x, int y, blockType(*mapGeneration)(int16_t, int16_t, int
     chunk->x=x;
     chunk->y=y;
     chunk->isBuild = false;
+
+    float frequency = 0.5;
+    float genTrees = valueNoise2D(x * frequency, y * frequency, seed) > 0.5;
   
-    for (int i = 0; i < 1; i++){
+    for (int i = 0; i < genTrees*10; i++){
         addTree(chunk->blockState, seed);
     }
     

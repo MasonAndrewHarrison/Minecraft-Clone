@@ -62,5 +62,6 @@ blockType coolerMapGeneration(int16_t const x, int16_t const y, int16_t const z,
 void rebuildChunks(World* world, ChunkDoList* genList, bool unbuildOnly);
 void* genThreadFn(void* arg);
 void* freeChunksThreadFn(void *arg);
+float valueNoise2D(float x, float y, unsigned int seed);
 
 #endif
