@@ -16,7 +16,7 @@
 #define PRELOADED_RADIUS 30
 #define RENDER_RADIUS 40
 #define GENERATION_RADIUS 45
-#define SPAWN_POSITION (vec3){573.0f, -6.0f, 9.0f}
+#define SPAWN_POSITION (vec3){573.0f, 40.0f, 9.0f}
 
 int main(void) {
 
@@ -114,15 +114,20 @@ int main(void) {
     int currentX;
     int currentY;
     int currentZ;
-
+    int chunkX;
+    int chunkY;
+    RaycastHit cast;
+    ChunkDoList reloadList;
 
     while (!glfwWindowShouldClose(state->window)) {
 
         currentX = (int)state->cam->eye[0];
         currentZ = (int)state->cam->eye[1];
         currentY = (int)state->cam->eye[2];
+        chunkX = floorf(currentX/16.0f);
+        chunkY = floorf(currentY/16.0f);
 
-        if (getSystemMemoryPercent() > 85.0){
+        if (getSystemMemoryPercent() > 80.0){
             state->infiniteWorldGen = false;
             state->nearMaxOutOnRam = true;
         }
@@ -131,9 +136,12 @@ int main(void) {
         now = glfwGetTime();
 
         if (now - lastFPSTime >= 1.0) {
+
+
+
             double fps = frameCount / (now - lastFPSTime);
             double frameTimeMs = 1000.0 / fps;
-            char worldGenState[8];
+            char worldGenState[16];
             if (state->infiniteWorldGen){
                 strcpy(worldGenState, "ON");
             }
@@ -158,6 +166,25 @@ int main(void) {
 
         inputHandler(state);
 
+        if (state->placeBlock || state->deleteBlock){
+
+            cast = raycastBlock(world, state->cam, 1000);
+
+            if (state->placeBlock){
+                setWorldBlock(world, cast.placeX, cast.placeY, cast.placeZ, DEFAULT);
+            }
+            else if (state->deleteBlock){
+                setWorldBlock(world, cast.breakX, cast.breakY, cast.breakZ, AIR);
+            }
+
+            reloadList = initChunkDoList(3, 3,chunkX, chunkY);
+            //TODO needs to free old chunks
+            rebuildChunks(world, &reloadList, false);       
+            state->placeBlock = false;
+            state->deleteBlock = false;
+            free(reloadList.positionList);
+        }
+
         float currentTime = (float)glfwGetTime() - startTime;
         glUniform1f(timeLoc,       currentTime);
         glUniform2f(resolutionLoc, (float)mode->width, (float)mode->height);
@@ -173,17 +200,15 @@ int main(void) {
         glm_mat4_mul(pv, model, mvp);
         glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, (float*)mvp);
         
-        renderList = initCircleChunkDoList(floorf(currentX/16.0f), floorf(currentY/16.0f), RENDER_RADIUS);
+        renderList = initCircleChunkDoList(chunkX, chunkY, RENDER_RADIUS);
 
         if (movedToDifferentChunk(state->cam, &lastX, &lastY, &lastZ)){
             rebuildChunks(world, &renderList, true);
             atomic_store(&genArgs.paused, !state->infiniteWorldGen);
         } else {
-            atomic_store(&genArgs.paused, 1);
+            atomic_store(&genArgs.paused, 10);
         }
 
-
-        
         if (state->wireFrame == 1){renderChunksWireFrame(world, &renderList);}
         else {renderChunks(world, &renderList);}
 

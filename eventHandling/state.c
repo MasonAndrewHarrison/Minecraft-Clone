@@ -13,6 +13,9 @@ State* initState(GLFWwindow* window, const GLFWvidmode* mode, bool startWithInfi
     state->infiniteWorldGen = startWithInfiniteWorldGen;
     state->tabWasPressed = 0;
     state->nearMaxOutOnRam = false;
+    state->placeBlock = false;
+    state->leftWasClicked = false;
+    state->rightWasClicked = false;
 
     return state;
 }

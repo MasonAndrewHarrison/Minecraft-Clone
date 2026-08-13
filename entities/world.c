@@ -1,7 +1,7 @@
 #include "world.h"
 
 
-ChunkDoList initChunkDoList(int width, int length){
+ChunkDoList initChunkDoList(int width, int length, int offsetX, int offsetY){
 
     ChunkDoList doList;
     doList.size = width * length;
@@ -10,8 +10,8 @@ ChunkDoList initChunkDoList(int width, int length){
     for (int i = 0; i < length * width; i++){
         int localX = i % width;
         int localY = i / width;  
-        doList.positionList[i*2] = localX - (int)width/2;
-        doList.positionList[i*2+1] = localY - (int)length/2;
+        doList.positionList[i*2] = localX - (int)width/2 + offsetX;
+        doList.positionList[i*2+1] = localY - (int)length/2 + offsetY;
     }
 
     return doList;
@@ -459,12 +459,82 @@ void* freeChunksThreadFn(void *arg){
         int x = (int)floorf(args->appState->cam->eye[0] / 16.0f);
         int y = (int)floorf(args->appState->cam->eye[2] / 16.0f);
 
-        ChunkDoList exclusionList = initCircleChunkDoList(x, y, args->radius);
-        struct timespec waitTime = {0, 1000};      
+        ChunkDoList exclusionList = initCircleChunkDoList(x, y, args->radius);  
         checkEntireHash(args->world, &exclusionList);
 
-        struct timespec ts = {0, 1000};   
-        //nanosleep(&ts, NULL);
     }
     return NULL;
+}
+
+
+
+blockType getWorldBlock(World* world, int x, int y, int z){
+    int chunkX = (int)floorf((float)x/16);
+    int chunkY = (int)floorf((float)y/16);
+    Chunk* chunk = getChunk(world, chunkX, chunkY);
+    if (chunk == NULL) return AIR;  
+    if (chunk->blockState == NULL) return AIR;
+
+    int localX = ((x % CHUNK_SIZE) + CHUNK_SIZE) % CHUNK_SIZE;
+    int localY = ((y % CHUNK_SIZE) + CHUNK_SIZE) % CHUNK_SIZE;
+    int blockPos = blockIndex(localX, localY, z);
+    if (blockPos > CHUNK_SIZE_CUBED * CHUNK_HEIGHT) {return AIR;}
+    return chunk->blockState[blockPos];
+}
+
+
+RaycastHit raycastBlock(World* world, camera* cam, float maxDistance){
+    RaycastHit result = {0};  
+    vec3 front;
+    glm_vec3_sub(cam->center, cam->eye, front);
+    glm_vec3_normalize(front);
+
+    float step = 0.01f; 
+    float lastX = cam->eye[0];
+    float lastY = cam->eye[2];
+    float lastZ = cam->eye[1];  
+
+    for (float t = 0.0f; t < maxDistance; t += step){
+
+        float px = cam->eye[0] + front[0] * t;
+        float py = cam->eye[2] + front[2] * t;
+        float pz = cam->eye[1] + front[1] * t;
+
+        int bx = (int)floorf(px);
+        int by = (int)floorf(py);
+        int bz = (int)floorf(pz);
+
+        blockType type = getWorldBlock(world, bx, by, bz);
+
+        if (type != AIR){
+            result.hit = 1;
+            result.breakX = bx;
+            result.breakY = by;
+            result.breakZ = bz;
+            result.placeX = (int)floorf(lastX);
+            result.placeY = (int)floorf(lastY);
+            result.placeZ = (int)floorf(lastZ);
+            return result; 
+        }
+
+        lastX = px;
+        lastY = py;
+        lastZ = pz;
+    }
+
+    return result;
+}
+
+void setWorldBlock(World* world, int x, int y, int z, blockType type){
+    int chunkX = (int)floorf((float)x/16);
+    int chunkY = (int)floorf((float)y/16);
+    Chunk* chunk = getChunk(world, chunkX, chunkY);
+    if (chunk == NULL) return;  
+    if (chunk->blockState == NULL) return;
+
+    int localX = ((x % CHUNK_SIZE) + CHUNK_SIZE) % CHUNK_SIZE;
+    int localY = ((y % CHUNK_SIZE) + CHUNK_SIZE) % CHUNK_SIZE;
+    int blockPos = blockIndex(localX, localY, z);
+    if (blockPos > CHUNK_SIZE_CUBED * CHUNK_HEIGHT) {return;}
+    chunk->blockState[blockPos] = type;
 }

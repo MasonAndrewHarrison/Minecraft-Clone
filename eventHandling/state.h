@@ -14,6 +14,10 @@ typedef struct State{
     bool tabWasPressed;
     bool infiniteWorldGen;
     bool nearMaxOutOnRam;
+    bool placeBlock;
+    bool deleteBlock;
+    bool leftWasClicked;
+    bool rightWasClicked;
 } State;
 
 State* initState(GLFWwindow* window, const GLFWvidmode* mode, bool startWithInfiniteWorldGen);

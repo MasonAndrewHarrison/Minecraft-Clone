@@ -293,9 +293,9 @@ void static appendFaceToVertexChunk(VertexChunk* vertexChunk, int cursorIndex, i
     memcpy(destVertex, &CUBE_VERTICES[dir * SIZE_OF_FACE], sizeof(uint16_t)*SIZE_OF_FACE);
 
     for (int i = 0; i < 4; i++){
-        destVertex[i*8] += position[0];
+        destVertex[i*8] += position[0] +8;
         destVertex[i*8+1] += position[1];
-        destVertex[i*8+2] += position[2];
+        destVertex[i*8+2] += position[2] + 8;
         setFaceType(&destVertex[i*8], type, dir, i);
 
     }
@@ -333,7 +333,7 @@ VertexChunk* rebuildChunk(AdjecentChunks* adjectChunks){
 
             if (isVisible && isVisibleBetweenChunks){
                 appendCubeToVertexChunk(vertexChunk, &totalFaces, 
-                    (   ivec3){x + (chunk->x*16), z-((int)CHUNK_HEIGHT/2), y + (chunk->y*16)}, type, dirList);
+                    (   ivec3){x + (chunk->x*16), z, y + (chunk->y*16)}, type, dirList);
             }
         }
     }

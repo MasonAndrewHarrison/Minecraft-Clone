@@ -58,4 +58,16 @@ void inputHandler(State* state){
         state->infiniteWorldGen = !state->infiniteWorldGen;
     }
     state->tabWasPressed = tabIsPressed;
+
+    bool leftIsClicked = glfwGetMouseButton(state->window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
+    if (leftIsClicked && !state->leftWasClicked){
+        state->placeBlock = true;
+    }
+    state->leftWasClicked = leftIsClicked;
+
+    bool rightIsClicked = glfwGetMouseButton(state->window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
+    if (rightIsClicked && !state->rightWasClicked){
+        state->deleteBlock = true;
+    }
+    state->rightWasClicked = rightIsClicked;
 }

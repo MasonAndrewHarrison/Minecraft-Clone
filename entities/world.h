@@ -21,7 +21,7 @@ typedef struct node{
     struct node* next;
 } ChunkNode;
 
-#define WORLD_CAPACITY 128
+#define WORLD_CAPACITY 1028 * 8
 
 typedef struct World{
     int numOfChunks;
@@ -47,8 +47,14 @@ typedef struct GenThreadArgs{
 
 typedef GenThreadArgs FreeThreadArgs;
 
+typedef struct RaycastHit {
+    bool hit;
+    int breakX, breakY, breakZ;
+    int placeX, placeY, placeZ;
+} RaycastHit;
 
-ChunkDoList initChunkDoList(int width, int length);
+
+ChunkDoList initChunkDoList(int width, int length, int offsetX, int offsetY);
 Chunk* getChunk(World* world, int x, int y);
 ChunkDoList initCircleChunkDoList(int16_t centerX, int16_t centerY, int radius);
 World* initWorld(blockType(*mapGeneration)(int16_t, int16_t, int16_t, uint8_t));
@@ -63,5 +69,8 @@ void rebuildChunks(World* world, ChunkDoList* genList, bool unbuildOnly);
 void* genThreadFn(void* arg);
 void* freeChunksThreadFn(void *arg);
 float valueNoise2D(float x, float y, unsigned int seed);
+RaycastHit raycastBlock(World* world, camera* cam, float maxDistance);
+blockType getWorldBlock(World* world, int x, int y, int z);
+void setWorldBlock(World* world, int x, int y, int z, blockType type);
 
 #endif
