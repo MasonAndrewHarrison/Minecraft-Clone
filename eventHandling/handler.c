@@ -54,7 +54,7 @@ void inputHandler(State* state){
         state->needOfUpdate = 1;
     }
     bool tabIsPressed = glfwGetKey(state->window, GLFW_KEY_TAB) == GLFW_PRESS;
-    if (tabIsPressed && !state->tabWasPressed){
+    if (tabIsPressed && !state->tabWasPressed && !state->nearMaxOutOnRam){
         state->infiniteWorldGen = !state->infiniteWorldGen;
     }
     state->tabWasPressed = tabIsPressed;

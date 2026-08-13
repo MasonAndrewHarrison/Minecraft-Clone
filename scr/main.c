@@ -9,7 +9,7 @@
 #include "../eventHandling/handler.h"
 #include "../eventHandling/state.h"
 #include "../entities/world.h"
-
+#include <sys/resource.h>
 
 
 #define VSYNC_INTERVAL 0
@@ -110,15 +110,25 @@ int main(void) {
     int lastX = (int)state->cam->eye[0];
     int lastZ = (int)state->cam->eye[1];
     int lastY = (int)state->cam->eye[2];
+    double now;
+    int currentX;
+    int currentY;
+    int currentZ;
+
 
     while (!glfwWindowShouldClose(state->window)) {
 
-        int currentX = (int)state->cam->eye[0];
-        int currentZ = (int)state->cam->eye[1];
-        int currentY = (int)state->cam->eye[2];
+        currentX = (int)state->cam->eye[0];
+        currentZ = (int)state->cam->eye[1];
+        currentY = (int)state->cam->eye[2];
+
+        if (getSystemMemoryPercent() > 85.0){
+            state->infiniteWorldGen = false;
+            state->nearMaxOutOnRam = true;
+        }
 
         frameCount++;
-        double now = glfwGetTime();
+        now = glfwGetTime();
 
         if (now - lastFPSTime >= 1.0) {
             double fps = frameCount / (now - lastFPSTime);

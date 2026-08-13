@@ -13,8 +13,9 @@ typedef struct State{
     double deltaTime;
     bool tabWasPressed;
     bool infiniteWorldGen;
+    bool nearMaxOutOnRam;
 } State;
 
 State* initState(GLFWwindow* window, const GLFWvidmode* mode, bool startWithInfiniteWorldGen);
-
+double getSystemMemoryPercent();
 #endif
