@@ -171,7 +171,7 @@ int main(void) {
             cast = raycastBlock(world, state->cam, 1000);
 
             if (state->placeBlock){
-                setWorldBlock(world, cast.placeX, cast.placeY, cast.placeZ, DEFAULT);
+                setWorldBlock(world, cast.placeX, cast.placeY, cast.placeZ, state->blockToPlace);
             }
             else if (state->deleteBlock){
                 setWorldBlock(world, cast.breakX, cast.breakY, cast.breakZ, AIR);

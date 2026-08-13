@@ -16,6 +16,7 @@ State* initState(GLFWwindow* window, const GLFWvidmode* mode, bool startWithInfi
     state->placeBlock = false;
     state->leftWasClicked = false;
     state->rightWasClicked = false;
+    state->blockToPlace = DEFAULT;
 
     return state;
 }
