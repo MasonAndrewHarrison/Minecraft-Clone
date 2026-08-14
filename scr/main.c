@@ -14,8 +14,8 @@
 
 #define VSYNC_INTERVAL 0
 #define PRELOADED_RADIUS 30
-#define RENDER_RADIUS 40
-#define GENERATION_RADIUS 45
+#define RENDER_RADIUS 50
+#define GENERATION_RADIUS 55
 #define SPAWN_POSITION (vec3){573.0f, 40.0f, 9.0f}
 
 int main(void) {
@@ -150,9 +150,9 @@ int main(void) {
                 strcpy(worldGenState, "OFF");
             }
 
-            char title[128];
-            snprintf(title, sizeof(title), "Minecraft Clone | %.1f FPS | %.2f ms | Position (%d, %d, %d) | Infinite World Generation (%s) | ESC to exit window",
-                    fps, frameTimeMs, currentX, currentY, currentZ, worldGenState);
+            char title[200];
+            snprintf(title, sizeof(title), "Minecraft Clone | %.1f FPS | %.2f ms | Position (%d, %d, %d) | Infinite World Generation (%s) | Block Type (%s) | ESC to exit window",
+                    fps, frameTimeMs, currentX, currentY, currentZ, worldGenState, blockTypeName(state->blockToPlace));
             glfwSetWindowTitle(state->window, title);
 
             frameCount = 0;

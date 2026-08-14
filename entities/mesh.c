@@ -348,3 +348,16 @@ void bindChunk(Chunk* chunk, VertexChunk* vertexChunk){
     vertexChunkToChunk(vertexChunk, chunk);
     freeVertexChunk(vertexChunk);
 }
+
+char* blockTypeName(blockType type){
+    switch (type){
+        case DEFAULT: return "Default";
+        case GRASS:   return "Grass";
+        case WOOD:    return "Wood";
+        case DIRT:    return "Dirt";
+        case AIR:     return "Air";
+        case STONE:   return "Stone";
+        case LEAVES:  return "Leaves";
+        default:      return "Unknown";
+    }
+}

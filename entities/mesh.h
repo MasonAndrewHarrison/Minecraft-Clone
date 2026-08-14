@@ -391,6 +391,7 @@ VertexChunk* rebuildChunk(AdjecentChunks* adjecentChunks);
 void bindChunk(Chunk* chunk, VertexChunk* vertexChunk);
 uint8_t getHighestBlock(blockType* blockState, uint8_t x, uint8_t y);
 void freeVertexChunk(VertexChunk* vertexChunk);
+char* blockTypeName(blockType type);
 
 static inline int blockIndex(int x, int y, int z) {
     return x + y * CHUNK_SIZE + z * CHUNK_SIZE_CUBED;
