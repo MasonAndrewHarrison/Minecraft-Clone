@@ -11,10 +11,11 @@ A voxel based Minecraft clone written from scratch in C and OpenGL infinite, chu
 ## Download (prebuilt binary) 
 
 Prebuilt Linux (x86_64) binaries are available on the Releases page no need to clone or build from source. 
-
-    Download minecraft-clone-linux-x86_64.tar.gz from the latest release. 
-
-    Extract and run: tar -xzvf minecraft-clone-linux-x86_64.tar.gzcd minecraft-clone-linux-x86_64./output 
+Download ```minecraft-clone-linux-x86_64.tar.gz``` from the latest release. 
+Extract and run: 
+```
+tar -xzvf minecraft-clone-linux-x86_64.tar.gzcd minecraft-clone-linux-x86_64./output
+```
      
 
 You'll still need the dependencies listed below (glfw, glew, cglm, mesa) installed on your system the binary isn't statically linked. 
