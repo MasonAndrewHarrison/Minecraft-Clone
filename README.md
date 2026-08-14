@@ -4,8 +4,8 @@ A voxel based Minecraft clone written from scratch in C and OpenGL infinite, chu
 
 ## Screenshots
 
-![Gameplay 1](textures/images/img1.png)
-![Gameplay 2](textures/images/img2.png)
+![Gameplay 1](textures/images/img2.png)
+![Gameplay 2](textures/images/img1.png)
 ![Gameplay 3](textures/images/img3.png)
 
 ## Features
