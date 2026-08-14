@@ -1,6 +1,6 @@
 # Minecraft-Clone
 
-A voxel-based Minecraft clone written from scratch in C and OpenGL infinite, chunked terrain generation, occlusion-culled meshing, multithreaded chunk streaming, and basic block interaction.
+A voxel based Minecraft clone written from scratch in C and OpenGL infinite, chunked terrain generation, occlusion culled meshing, multithreaded chunk streaming, and basic block interaction.
 
 ## Screenshots
 
@@ -10,11 +10,11 @@ A voxel-based Minecraft clone written from scratch in C and OpenGL infinite, chu
 
 ## Features
 
-- Infinite terrain via deterministic, coordinate-seeded value noise
-- Chunked world generation and rendering, with occlusion (hidden-face) culling
+- Infinite terrain via deterministic coordinate seeded value noise
+- Chunked world generation and rendering with occlusion hidden face culling
 - Multithreaded chunk generation and streaming as the player moves
 - Backface culling and distance fog
-- Texture-atlas–based block rendering
+- Texture atlas based block rendering
 - Block breaking and placing
 - Wireframe debug view
 
@@ -33,12 +33,25 @@ A voxel-based Minecraft clone written from scratch in C and OpenGL infinite, chu
 
 ## Building
 
-**Dependencies** (Arch/pacman):
+**Dependencies** \
+Arch:
 ```
 sudo pacman -S glfw-x11 glew cglm mesa
 ```
 
-**Clone**
+Debian / Ubuntu:
+```
+sudo apt update && sudo apt install libglfw3-dev libglew-dev libcglm-dev libgl1-mesa-dev
+```
+
+Fedora:
+```
+sudo dnf install glfw-devel glew-devel cglm-devel mesa-libGL-devel
+```
+Windows:
+>Currently no Windows Support.
+
+**Clone:**
 ```
 git clone https://github.com/MasonAndrewHarrison/Minecraft-Clone.git
 cd Minecraft-Clone
@@ -52,6 +65,8 @@ make
 
 ## Third-party code
 
-This project uses [stb_image.h](https://github.com/nothings/stb) by Sean Barrett for image loading, vendored as a git submodule under `textures/vendor/stb/`.
+This project uses [stb_image.h](https://github.com/nothings/stb) by Sean Barrett for image loading, vendored under `textures/vendor/stb/`.
 
 The block texture atlas (`textures/images/atlas.png`) is from [minecraft-weekend](https://github.com/jdah/minecraft-weekend) by jdah, used under the MIT License.
+
+See [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) for full license text.
