@@ -23,7 +23,6 @@ void moveUpDown(camera *cam, float upSpeed);
 void moveCamera(vec3 move, camera *cam);
 void updateCameraLocation(GLFWwindow *window, camera *cam);
 void changeAngle(camera *cam, float pitch, float yaw);
-void mouseCallback(GLFWwindow *window, double xpos, double ypos);
 void correctsPitchYaw(camera* cam);
 bool movedToDifferentChunk(camera* cam, int* lastX, int* lastY, int* lastZ);
 void teleportCamera(camera* cam, vec3 position);

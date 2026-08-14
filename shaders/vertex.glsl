@@ -8,8 +8,11 @@ out vec2 uvCoord;
 
 uniform mat4 uMVP;
 
+
 void main() {
     gl_Position = uMVP * vec4(position, 1.0);
     vNormal = aNormal;
     uvCoord = aTexCoord/16;
+
+
 }

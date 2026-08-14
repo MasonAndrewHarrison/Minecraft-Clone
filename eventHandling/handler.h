@@ -7,5 +7,7 @@
 #include "state.h"
 
 void inputHandler(State* state);
+void mouseCallback(GLFWwindow *window, double xpos, double ypos);
+void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
 #endif

@@ -81,26 +81,6 @@ void changeAngle(camera* cam, float pitch, float yaw){
     cam->center[1] = radius * cos(cam->pitch) + cam->eye[1];  
 }
 
-void mouseCallback(GLFWwindow *window, double xpos, double ypos){
-
-    camera* cam = glfwGetWindowUserPointer(window);
-
-    if(cam->firstMouse){
-        cam->firstMouse = 0;
-        cam->lastX = xpos;
-        cam->lastY = ypos;
-        return;
-    }
-
-    float dxpos = xpos - cam->lastX;
-    float dypos = ypos - cam->lastY;
-
-    cam->lastX = xpos;
-    cam->lastY = ypos;
-
-    changeAngle(cam, cam->pitch + dypos*mouseSpeed, cam->yaw + dxpos*mouseSpeed);
-}
-
 
 bool movedToDifferentChunk(camera* cam, int* lastX, int* lastY, int* lastZ){
 

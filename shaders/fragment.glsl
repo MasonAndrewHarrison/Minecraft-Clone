@@ -3,9 +3,8 @@
 layout(location = 0) out vec4 color;
 in vec3 vNormal;
 in vec2 uvCoord;
-
 uniform sampler2D uTexture;
-
+uniform vec2 uResolution;
 
 void main(){
     vec4 texColor = texture(uTexture, uvCoord);
@@ -20,7 +19,6 @@ void main(){
     float near = 0.1; 
     float far = 500.0; 
 
-
     float ndc = gl_FragCoord.z * 2.0 - 1.0;
     float linearDepth = (2.0 * near * far) / (far + near - ndc * (far - near));
 
@@ -29,6 +27,16 @@ void main(){
 
     vec3 rgbColor = mix((texColor.rgb * brightness), skyColor, depth);
 
-    color = vec4( rgbColor, texColor.a);
+    vec2 uv = gl_FragCoord.xy / uResolution;
+    vec2 centerUV = uv - vec2(0.5);
+    centerUV.x *= uResolution.x / uResolution.y;
 
+    float d = length(centerUV);
+    float circle = step(d, 0.003);
+
+    if (depth < 0.04 && circle > 0.0){
+        color = vec4(vec3(0.0f), 1.0);
+    }else{
+        color = vec4( rgbColor, texColor.a);
+    }
 }

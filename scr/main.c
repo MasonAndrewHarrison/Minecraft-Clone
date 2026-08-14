@@ -74,9 +74,10 @@ int main(void) {
 
     float startTime = (float)glfwGetTime();
 
-    glfwSetWindowUserPointer(state->window, state->cam);
+    glfwSetWindowUserPointer(state->window, state);
     glfwSetInputMode(state->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(state->window, mouseCallback);
+    glfwSetScrollCallback(state->window, scrollCallback);
 
     uint16_t spawnX = floorf(SPAWN_POSITION[0]/16.0f);
     uint16_t spawnY = floorf(SPAWN_POSITION[2]/16.0f);
@@ -158,6 +159,7 @@ int main(void) {
             lastFPSTime = now;
         }
 
+
         state->deltaTime = glfwGetTime() - lastDeltaTime;
         lastDeltaTime = glfwGetTime();
 
@@ -211,6 +213,7 @@ int main(void) {
 
         if (state->wireFrame == 1){renderChunksWireFrame(world, &renderList);}
         else {renderChunks(world, &renderList);}
+
 
         glfwSwapBuffers(state->window);
         glfwPollEvents();

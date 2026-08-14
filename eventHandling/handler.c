@@ -8,7 +8,7 @@
 #define forwardSpeed 20.0f
 #define strifeSpeed 15.0f
 #define upSpeed 10.0f
-
+#define mouseSpeed 0.001f
 
 void inputHandler(State* state){
 
@@ -70,4 +70,36 @@ void inputHandler(State* state){
         state->deleteBlock = true;
     }
     state->rightWasClicked = rightIsClicked;
+
+}
+
+void mouseCallback(GLFWwindow *window, double xpos, double ypos){
+
+    State* state = glfwGetWindowUserPointer(window);
+    camera* cam = state->cam;
+
+    if(cam->firstMouse){
+        cam->firstMouse = 0;
+        cam->lastX = xpos;
+        cam->lastY = ypos;
+        return;
+    }
+
+    float dxpos = xpos - cam->lastX;
+    float dypos = ypos - cam->lastY;
+
+    cam->lastX = xpos;
+    cam->lastY = ypos;
+
+    changeAngle(cam, cam->pitch + dypos*mouseSpeed, cam->yaw + dxpos*mouseSpeed);
+}
+
+
+void scrollCallback(GLFWwindow* window, double xoffset, double yoffset){
+    State* state = glfwGetWindowUserPointer(window);
+    state->blockToPlace += (int)1;  
+    if (state->blockToPlace < 0) state->blockToPlace = 7 - 1;
+    if (state->blockToPlace >= 7) state->blockToPlace = 0;
+
+    if (state->blockToPlace == AIR)state->blockToPlace++;
 }
