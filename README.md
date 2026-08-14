@@ -25,8 +25,8 @@ A voxel-based Minecraft clone written from scratch in C and OpenGL infinite, chu
 | Move | W A S D |
 | Look | Mouse |
 | Up / Down | E / Q |
-| Break block | Left Click |
-| Place block | Right Click |
+| Break block | Right Click |
+| Place block | Left Click |
 | Select block | Scroll wheel |
 | Toggle infinite world generation | Tab |
 | Exit | Esc |
@@ -52,4 +52,6 @@ make
 
 ## Third-party code
 
-This project uses [stb_image.h](https://github.com/nothings/stb) by Sean Barrett for image loading, vendored as a git submodule under `textures/vendor/stb/`. See [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) for its license.
+This project uses [stb_image.h](https://github.com/nothings/stb) by Sean Barrett for image loading, vendored as a git submodule under `textures/vendor/stb/`.
+
+The block texture atlas (`textures/images/atlas.png`) is from [minecraft-weekend](https://github.com/jdah/minecraft-weekend) by jdah, used under the MIT License.
