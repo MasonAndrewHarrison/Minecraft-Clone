@@ -48,7 +48,10 @@ You'll still need the dependencies listed below (glfw, glew, cglm, mesa) install
 **Dependencies** \
 Arch:
 ```
-sudo pacman -S glfw-x11 glew cglm mesa
+sudo pacman -S glfw-x11 glew mesa
+git clone https://aur.archlinux.org/cglm.git
+cd cglm
+makepkg -si
 ```
 
 Debian / Ubuntu:
