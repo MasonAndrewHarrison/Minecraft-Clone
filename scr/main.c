@@ -16,7 +16,7 @@
 #define PRELOADED_RADIUS 30
 #define RENDER_RADIUS 50
 #define GENERATION_RADIUS 55
-#define SPAWN_POSITION (vec3){573.0f, 40.0f, 9.0f}
+#define SPAWN_POSITION (vec3){573.0f, 30.0f, 9.0f}
 
 int main(void) {
 
