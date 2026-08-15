@@ -41,6 +41,7 @@ You'll still need the dependencies listed below (glfw, glew, cglm, mesa) install
 | Place block | Left Click |
 | Select block | Scroll wheel |
 | Toggle infinite world generation | Tab |
+| Wireframe Mode | R |
 | Exit | Esc |
 
 ## Building
